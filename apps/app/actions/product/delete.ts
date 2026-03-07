@@ -1,26 +1,15 @@
-"use server";
+"use client";
 
-import { tables } from "@repo/backend/database";
-import type { Product } from "@repo/backend/types";
-import { parseError } from "@repo/lib/parse-error";
-import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
-import { database } from "@/lib/database";
+import { postAction } from "@/lib/action-client";
+import type { deleteProduct as deleteProductServer } from "./delete.service";
 
-export const deleteProduct = async (
-  id: Product["id"]
-): Promise<{
-  error?: string;
-}> => {
-  try {
-    await database.delete(tables.product).where(eq(tables.product.id, id));
-
-    revalidatePath("/features");
-
-    return {};
-  } catch (error) {
-    const message = parseError(error);
-
-    return { error: message };
-  }
-};
+export const deleteProduct = (
+  ...args: Parameters<typeof deleteProductServer>
+) =>
+  postAction<Awaited<ReturnType<typeof deleteProductServer>>>(
+    "/api/actions/product/delete",
+    {
+      action: "deleteProduct",
+      args,
+    }
+  );

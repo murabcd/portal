@@ -1,11 +1,5 @@
 import { currentMembers } from "@repo/backend/auth/utils";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
 import type { Metadata } from "next";
-import { getActivity } from "@/actions/activity/get";
 import { createMetadata } from "@/lib/metadata";
 import { toMemberInfoList } from "@/lib/serialization";
 import { ActivityFeed } from "./components/activity-feed";
@@ -19,26 +13,7 @@ export const metadata: Metadata = createMetadata({
 });
 
 const Activity = async () => {
-  const queryClient = new QueryClient();
-  const [members] = await Promise.all([
-    currentMembers(),
-    queryClient.prefetchInfiniteQuery({
-      queryKey: ["activity"],
-      queryFn: async ({ pageParam }) => {
-        const response = await getActivity(pageParam);
-
-        if ("error" in response) {
-          throw response.error;
-        }
-
-        return response.data;
-      },
-      initialPageParam: 0,
-      getNextPageParam: (_lastPage, _allPages, lastPageParameter) =>
-        lastPageParameter + 1,
-      pages: 1,
-    }),
-  ]);
+  const members = await currentMembers();
   const membersLite = toMemberInfoList(members);
 
   return (
@@ -47,9 +22,7 @@ const Activity = async () => {
         <h1 className="m-0 font-semibold text-4xl tracking-tight">{title}</h1>
         <p className="text-muted-foreground">{description}</p>
       </div>
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <ActivityFeed members={membersLite} />
-      </HydrationBoundary>
+      <ActivityFeed members={membersLite} />
     </div>
   );
 };

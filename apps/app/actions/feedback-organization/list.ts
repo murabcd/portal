@@ -1,5 +1,3 @@
-"use server";
-
 import { database, tables } from "@repo/backend/database";
 import type { FeedbackOrganization } from "@repo/backend/types";
 import { FEEDBACK_PAGE_SIZE } from "@repo/lib/consts";

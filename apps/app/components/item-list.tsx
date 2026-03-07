@@ -4,7 +4,6 @@ import { Link } from "@repo/design-system/components/link";
 import { LoadingCircle } from "@repo/design-system/components/loading-circle";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { cn } from "@repo/design-system/lib/utils";
-import type { FetchNextPageOptions } from "@tanstack/react-query";
 import { useInView } from "motion/react";
 import { usePathname } from "next/navigation";
 import { type ReactNode, useEffect, useRef, useState } from "react";
@@ -20,7 +19,7 @@ type ItemListProps = {
   }[];
   hasNextPage: boolean;
   isFetching: boolean;
-  fetchNextPage: (options?: FetchNextPageOptions) => Promise<unknown>;
+  fetchNextPage: () => Promise<unknown>;
 };
 
 const ListItem = ({ data }: { data: ItemListProps["data"][number] }) => {

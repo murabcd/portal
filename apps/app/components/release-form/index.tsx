@@ -12,7 +12,6 @@ import {
 } from "@repo/design-system/components/ui/popover";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { cn } from "@repo/design-system/lib/utils";
-import { QueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -30,7 +29,6 @@ export const ReleaseForm = () => {
   const [loading, setLoading] = useState(false);
   const disabled = !name.trim() || loading;
   const { isOpen, toggle, hide } = useReleaseForm();
-  const queryClient = new QueryClient();
   const router = useRouter();
 
   const handleCreate = async () => {
@@ -54,8 +52,6 @@ export const ReleaseForm = () => {
       setName("");
 
       hide();
-
-      await queryClient.invalidateQueries({ queryKey: ["release"] });
 
       router.push(`/releases/${id}`);
     } catch (error) {

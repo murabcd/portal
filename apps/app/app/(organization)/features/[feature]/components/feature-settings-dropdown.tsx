@@ -10,7 +10,6 @@ import { Tooltip } from "@repo/design-system/components/precomposed/tooltip";
 import { Button } from "@repo/design-system/components/ui/button";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { toast } from "@repo/design-system/lib/toast";
-import { QueryClient } from "@tanstack/react-query";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { FormEventHandler } from "react";
@@ -111,7 +110,6 @@ export const FeatureSettingsDropdown = ({
     templateDescription,
     templateName,
   } = state;
-  const queryClient = new QueryClient();
   const router = useRouter();
 
   const handleDelete = async () => {
@@ -159,10 +157,6 @@ export const FeatureSettingsDropdown = ({
         throw new Error(response.error);
       }
 
-      await queryClient.invalidateQueries({
-        queryKey: ["templates"],
-      });
-
       toast.success("Template created successfully");
       dispatch({ type: "reset-template-form" });
     } catch (error) {
@@ -186,10 +180,6 @@ export const FeatureSettingsDropdown = ({
 
     try {
       await updateTemplateFromFeature(existingTemplateId, featureId);
-
-      await queryClient.invalidateQueries({
-        queryKey: ["templates"],
-      });
 
       toast.success("Template updated successfully");
     } catch (error) {

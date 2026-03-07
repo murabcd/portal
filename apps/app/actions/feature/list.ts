@@ -1,5 +1,3 @@
-"use server";
-
 import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { tables } from "@repo/backend/database";
 import type {

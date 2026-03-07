@@ -6,7 +6,6 @@ import { DropdownMenu } from "@repo/design-system/components/precomposed/dropdow
 import { Tooltip } from "@repo/design-system/components/precomposed/tooltip";
 import { Button } from "@repo/design-system/components/ui/button";
 import { handleError } from "@repo/design-system/lib/handle-error";
-import { QueryClient } from "@tanstack/react-query";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -22,7 +21,6 @@ export const ChangelogSettingsDropdown = ({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const queryClient = new QueryClient();
 
   const handleDelete = async () => {
     if (loading) {
@@ -37,10 +35,6 @@ export const ChangelogSettingsDropdown = ({
       if (error) {
         throw new Error(error);
       }
-
-      await queryClient.invalidateQueries({
-        queryKey: ["changelog"],
-      });
 
       router.push("/changelog");
     } catch (error) {

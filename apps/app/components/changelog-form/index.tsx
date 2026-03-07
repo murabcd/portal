@@ -3,7 +3,6 @@
 import { Dialog } from "@repo/design-system/components/precomposed/dialog";
 import { Input } from "@repo/design-system/components/precomposed/input";
 import { handleError } from "@repo/design-system/lib/handle-error";
-import { QueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import type { KeyboardEventHandler } from "react";
 import { useState } from "react";
@@ -16,7 +15,6 @@ export const ChangelogForm = () => {
   const router = useRouter();
   const disabled = !name.trim() || loading;
   const { isOpen, toggle, hide } = useChangelogForm();
-  const queryClient = new QueryClient();
 
   const handleCreate = async () => {
     if (disabled) {
@@ -39,8 +37,6 @@ export const ChangelogForm = () => {
       setName("");
 
       hide();
-
-      await queryClient.invalidateQueries({ queryKey: ["changelog"] });
 
       router.push(`/changelog/${id}`);
     } catch (error) {

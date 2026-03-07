@@ -14,7 +14,6 @@ import { Button } from "@repo/design-system/components/ui/button";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { cn } from "@repo/design-system/lib/utils";
 import type { EditorInstance } from "@repo/editor";
-import { QueryClient } from "@tanstack/react-query";
 import {
   AudioLinesIcon,
   LanguagesIcon,
@@ -405,7 +404,6 @@ export const FeedbackForm = ({
   });
   const { isOpen, toggle } = useFeedbackForm();
   const { hide } = useFeedbackForm();
-  const queryClient = new QueryClient();
   const showUndo = Boolean(type);
   const showTypePicker = !type;
   const audioSource = audio ? [audio] : undefined;
@@ -534,12 +532,6 @@ export const FeedbackForm = ({
       hide();
 
       dispatch({ type: "clear-form" });
-
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["feedback"] }),
-        queryClient.invalidateQueries({ queryKey: ["feedbackUsers"] }),
-        queryClient.invalidateQueries({ queryKey: ["feedbackCompanies"] }),
-      ]);
 
       router.push(`/feedback/${id}`);
     } catch (error) {

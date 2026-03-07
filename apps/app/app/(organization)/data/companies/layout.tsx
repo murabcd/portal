@@ -5,15 +5,8 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@repo/design-system/components/ui/resizable";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
 import { eq, sql } from "drizzle-orm";
 import type { ReactNode } from "react";
-import type { FeedbackOrganizationCursor } from "@/actions/feedback-organization/list";
-import { getFeedbackCompanies } from "@/actions/feedback-organization/list";
 import { FeedbackCompanyList } from "./components/feedback-company-list";
 
 type CompaniesDataLayoutProperties = {
@@ -23,7 +16,6 @@ type CompaniesDataLayoutProperties = {
 const CompaniesDataLayout = async ({
   children,
 }: CompaniesDataLayoutProperties) => {
-  const queryClient = new QueryClient();
   const organizationId = await currentOrganizationId();
 
   if (!organizationId) {
@@ -35,21 +27,6 @@ const CompaniesDataLayout = async ({
       .select({ count: sql<number>`count(*)` })
       .from(tables.feedbackOrganization)
       .where(eq(tables.feedbackOrganization.organizationId, organizationId)),
-    queryClient.prefetchInfiniteQuery({
-      queryKey: ["feedbackCompanies"],
-      queryFn: async ({ pageParam }) => {
-        const response = await getFeedbackCompanies(pageParam);
-
-        if ("error" in response) {
-          throw response.error;
-        }
-
-        return response;
-      },
-      initialPageParam: null as FeedbackOrganizationCursor | null,
-      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-      pages: 1,
-    }),
   ]);
 
   const count = countResult?.[0]?.count ?? 0;
@@ -72,9 +49,7 @@ const CompaniesDataLayout = async ({
         style={{ overflow: "auto" }}
       >
         <div className="h-full border-r">
-          <HydrationBoundary state={dehydrate(queryClient)}>
-            <FeedbackCompanyList />
-          </HydrationBoundary>
+          <FeedbackCompanyList />
         </div>
       </ResizablePanel>
       <ResizableHandle />

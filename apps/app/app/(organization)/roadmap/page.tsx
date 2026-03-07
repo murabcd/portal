@@ -4,11 +4,7 @@ import {
   currentOrganizationId,
   currentUser,
 } from "@repo/backend/auth/utils";
-import {
-  database,
-  getJsonColumnFromTable,
-  tables,
-} from "@repo/backend/database";
+import { database, tables } from "@repo/backend/database";
 import { and, asc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -72,6 +68,7 @@ const Roadmap = async () => {
           productName: tables.product.name,
           releaseId: tables.release.id,
           releaseTitle: tables.release.title,
+          content: tables.feature.content,
         })
         .from(tables.feature)
         .innerJoin(
@@ -141,48 +138,33 @@ const Roadmap = async () => {
     initiativesByFeature.set(row.featureId, existing);
   }
 
-  const features = featureRows.map((feature) => ({
-    id: feature.id,
-    title: feature.title,
-    startAt: feature.startAt ? new Date(feature.startAt) : new Date(),
-    endAt: feature.endAt ? new Date(feature.endAt) : null,
-    ownerId: feature.ownerId,
-    status: {
-      id: feature.statusId,
-      name: feature.statusName,
-      order: feature.statusOrder,
-      complete: feature.statusComplete,
-      color: feature.statusColor,
-    },
-    group: feature.groupId
-      ? { id: feature.groupId, name: feature.groupName ?? "" }
-      : null,
-    product: feature.productId
-      ? { id: feature.productId, name: feature.productName ?? "" }
-      : null,
-    release: feature.releaseId
-      ? { id: feature.releaseId, title: feature.releaseTitle ?? "" }
-      : null,
-    initiatives: initiativesByFeature.get(feature.id) ?? [],
-  }));
-
-  const promises = features.map(async (feature) => {
-    const content = await getJsonColumnFromTable(
-      "feature",
-      "content",
-      feature.id
-    );
-
-    const newFeature: RoadmapEditorProperties["features"][0] = {
-      ...feature,
-      startAt: feature.startAt,
-      content,
-    };
-
-    return newFeature;
-  });
-
-  const modifiedFeatures = await Promise.all(promises);
+  const modifiedFeatures: RoadmapEditorProperties["features"] = featureRows.map(
+    (feature) => ({
+      id: feature.id,
+      title: feature.title,
+      startAt: feature.startAt ? new Date(feature.startAt) : new Date(),
+      endAt: feature.endAt ? new Date(feature.endAt) : null,
+      ownerId: feature.ownerId,
+      status: {
+        id: feature.statusId,
+        name: feature.statusName,
+        order: feature.statusOrder,
+        complete: feature.statusComplete,
+        color: feature.statusColor,
+      },
+      group: feature.groupId
+        ? { id: feature.groupId, name: feature.groupName ?? "" }
+        : null,
+      product: feature.productId
+        ? { id: feature.productId, name: feature.productName ?? "" }
+        : null,
+      release: feature.releaseId
+        ? { id: feature.releaseId, title: feature.releaseTitle ?? "" }
+        : null,
+      initiatives: initiativesByFeature.get(feature.id) ?? [],
+      content: feature.content,
+    })
+  );
 
   if (!organization) {
     notFound();

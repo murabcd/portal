@@ -22,7 +22,6 @@
     "@repo/lib": "workspace:*",
     "@repo/next-config": "workspace:*",
     "@t3-oss/env-nextjs": "catalog:",
-    "@tanstack/react-query": "^5.76.1",
     "@tanstack/react-table": "catalog:",
     "@tiptap/react": "^3.0.0",
     "ai": "catalog:",
@@ -43,6 +42,7 @@
     "react-textarea-autosize": "^8.5.9",
     "server-only": "catalog:",
     "sonner": "catalog:",
+    "swr": "^2.2.5",
     "use-debounce": "^10.0.4",
     "zod": "catalog:",
     "zustand": "^5.0.5"

@@ -1,37 +1,15 @@
-"use server";
+"use client";
 
-import { database, tables } from "@repo/backend/database";
-import type { FeedbackOrganization, FeedbackUser } from "@repo/backend/types";
-import { parseError } from "@repo/lib/parse-error";
-import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { postAction } from "@/lib/action-client";
+import type { addOrganizationToUser as addOrganizationToUserServer } from "./add-organization-to-user.service";
 
-type AddOrganizationToUserProperties = {
-  feedbackUser: FeedbackUser["id"];
-  feedbackOrganization: FeedbackOrganization["id"];
-};
-
-export const addOrganizationToUser = async ({
-  feedbackUser,
-  feedbackOrganization,
-}: AddOrganizationToUserProperties): Promise<{
-  error?: string;
-}> => {
-  try {
-    await database
-      .update(tables.feedbackUser)
-      .set({
-        feedbackOrganizationId: feedbackOrganization,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(tables.feedbackUser.id, feedbackUser));
-
-    revalidatePath("/feedback");
-
-    return {};
-  } catch (error) {
-    const message = parseError(error);
-
-    return { error: message };
-  }
-};
+export const addOrganizationToUser = (
+  ...args: Parameters<typeof addOrganizationToUserServer>
+) =>
+  postAction<Awaited<ReturnType<typeof addOrganizationToUserServer>>>(
+    "/api/internal-actions/components/feedback-form/add-organization-to-user",
+    {
+      action: "addOrganizationToUser",
+      args,
+    }
+  );

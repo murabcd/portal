@@ -1,42 +1,15 @@
-"use server";
+"use client";
 
-import { PortalRole } from "@repo/backend/auth";
-import { currentUser } from "@repo/backend/auth/utils";
-import { tables } from "@repo/backend/database";
-import type { Feature } from "@repo/backend/types";
-import { parseError } from "@repo/lib/parse-error";
-import { inArray } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
-import { database } from "@/lib/database";
+import { postAction } from "@/lib/action-client";
+import type { deleteFeatures as deleteFeaturesServer } from "./delete.service";
 
-export const deleteFeatures = async (
-  ids: Feature["id"][]
-): Promise<{
-  error?: string;
-}> => {
-  try {
-    const user = await currentUser();
-
-    if (!user) {
-      throw new Error("Not logged in");
+export const deleteFeatures = (
+  ...args: Parameters<typeof deleteFeaturesServer>
+) =>
+  postAction<Awaited<ReturnType<typeof deleteFeaturesServer>>>(
+    "/api/actions/feature/bulk/delete",
+    {
+      action: "deleteFeatures",
+      args,
     }
-
-    if (user.organizationRole === PortalRole.Member) {
-      throw new Error("You do not have permission to delete features");
-    }
-
-    if (ids.length > 0) {
-      await database
-        .delete(tables.feature)
-        .where(inArray(tables.feature.id, ids));
-    }
-
-    revalidatePath("/features");
-
-    return {};
-  } catch (error) {
-    const message = parseError(error);
-
-    return { error: message };
-  }
-};
+  );

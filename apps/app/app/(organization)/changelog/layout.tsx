@@ -7,16 +7,10 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@repo/design-system/components/ui/resizable";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
 import { eq, sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-import { getChangelog } from "@/actions/changelog/get";
 import { Header } from "@/components/header";
 import { createMetadata } from "@/lib/metadata";
 import { ChangelogEmptyState } from "./components/changelog-empty-state";
@@ -40,7 +34,6 @@ const ChangelogLayout = async ({ children }: ChangelogLayoutProperties) => {
     currentUser(),
     currentOrganizationId(),
   ]);
-  const queryClient = new QueryClient();
 
   if (!(user && organizationId)) {
     notFound();
@@ -51,21 +44,6 @@ const ChangelogLayout = async ({ children }: ChangelogLayoutProperties) => {
       .select({ count: sql<number>`count(*)` })
       .from(tables.changelog)
       .where(eq(tables.changelog.organizationId, organizationId)),
-    queryClient.prefetchInfiniteQuery({
-      queryKey: ["changelog"],
-      queryFn: async ({ pageParam }) => {
-        const response = await getChangelog(pageParam);
-
-        if ("error" in response) {
-          throw response.error;
-        }
-
-        return response;
-      },
-      initialPageParam: null as { publishAt: string; id: string } | null,
-      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-      pages: 1,
-    }),
   ]);
 
   const count = countResult?.[0]?.count ?? 0;
@@ -108,9 +86,7 @@ const ChangelogLayout = async ({ children }: ChangelogLayoutProperties) => {
               </div>
             )}
           </Header>
-          <HydrationBoundary state={dehydrate(queryClient)}>
-            <ChangelogList />
-          </HydrationBoundary>
+          <ChangelogList />
         </div>
       </ResizablePanel>
       <ResizableHandle />

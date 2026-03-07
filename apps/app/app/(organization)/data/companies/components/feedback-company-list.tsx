@@ -1,72 +1,90 @@
 "use client";
 
+import { LoadingCircle } from "@repo/design-system/components/loading-circle";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { formatDate } from "@repo/lib/format";
-import type { InfiniteData } from "@tanstack/react-query";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import type {
-  FeedbackOrganizationCursor,
-  GetFeedbackCompaniesResponse,
-} from "@/actions/feedback-organization/list";
-import { getFeedbackCompanies } from "@/actions/feedback-organization/list";
+import useSWRInfinite from "swr/infinite";
 import { CompanyLogo } from "@/app/(organization)/components/company-logo";
 import { ItemList } from "@/components/item-list";
+import { fetcher } from "@/lib/fetcher";
+
+type FeedbackOrganizationCursor = {
+  readonly name: string;
+  readonly id: string;
+};
+
+type FeedbackCompanyItem = {
+  readonly createdAt: string;
+  readonly domain: string | null;
+  readonly id: string;
+  readonly name: string;
+};
+
+type FeedbackCompaniesPage = {
+  readonly data: FeedbackCompanyItem[];
+  readonly nextCursor: FeedbackOrganizationCursor | null;
+};
 
 export const FeedbackCompanyList = () => {
-  type FeedbackCompaniesPage = {
-    data: GetFeedbackCompaniesResponse;
-    nextCursor: FeedbackOrganizationCursor | null;
-  };
-
-  const { data, fetchNextPage, isFetching, hasNextPage } = useInfiniteQuery<
-    FeedbackCompaniesPage,
-    Error,
-    InfiniteData<FeedbackCompaniesPage>,
-    string[],
-    FeedbackOrganizationCursor | null
-  >({
-    queryKey: ["feedbackCompanies"],
-    queryFn: async ({ pageParam }): Promise<FeedbackCompaniesPage> => {
-      try {
-        const response = await getFeedbackCompanies(pageParam);
-
-        if ("error" in response) {
-          throw response.error;
+  const { data, isLoading, isValidating, setSize, size } =
+    useSWRInfinite<FeedbackCompaniesPage>(
+      (pageIndex, previousPageData) => {
+        if (previousPageData && !previousPageData.nextCursor) {
+          return null;
         }
 
-        return response;
-      } catch (error) {
-        handleError(error);
-        throw error;
-      }
-    },
-    initialPageParam: null as FeedbackOrganizationCursor | null,
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-  });
+        const searchParameters = new URLSearchParams();
+
+        if (pageIndex > 0 && previousPageData?.nextCursor) {
+          searchParameters.set("cursorName", previousPageData.nextCursor.name);
+          searchParameters.set("cursorId", previousPageData.nextCursor.id);
+        }
+
+        return `/api/data/companies?${searchParameters.toString()}`;
+      },
+      fetcher,
+      { onError: handleError, revalidateFirstPage: false }
+    );
+
+  const pages = data ?? [];
+  const lastPage = pages.at(-1);
+  const hasNextPage = Boolean(lastPage?.nextCursor);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-6">
+        <LoadingCircle />
+      </div>
+    );
+  }
 
   return (
     <ItemList
-      data={
-        data?.pages.flatMap((page) =>
-          page.data.map((item) => ({
-            id: item.id,
-            href: `/data/companies/${item.id}`,
-            title: item.name,
-            description: item.domain ?? "",
-            caption: formatDate(new Date(item.createdAt)),
-            image: (
-              <CompanyLogo
-                fallback={item.name.slice(0, 2)}
-                size={20}
-                src={item.domain}
-              />
-            ),
-          }))
-        ) ?? []
-      }
-      fetchNextPage={fetchNextPage}
+      data={pages.flatMap((page) =>
+        page.data.map((item) => ({
+          id: item.id,
+          href: `/data/companies/${item.id}`,
+          title: item.name,
+          description: item.domain ?? "",
+          caption: formatDate(new Date(item.createdAt)),
+          image: (
+            <CompanyLogo
+              fallback={item.name.slice(0, 2)}
+              size={20}
+              src={item.domain}
+            />
+          ),
+        }))
+      )}
+      fetchNextPage={async () => {
+        if (!hasNextPage) {
+          return;
+        }
+
+        await setSize(size + 1);
+      }}
       hasNextPage={hasNextPage}
-      isFetching={isFetching}
+      isFetching={isValidating}
     />
   );
 };

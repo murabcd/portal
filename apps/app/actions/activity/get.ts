@@ -1,5 +1,3 @@
-"use server";
-
 import { getUserName } from "@repo/backend/auth/format";
 import {
   currentMembers,

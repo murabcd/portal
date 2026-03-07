@@ -5,15 +5,8 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@repo/design-system/components/ui/resizable";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
 import { eq, sql } from "drizzle-orm";
 import type { ReactNode } from "react";
-import type { FeedbackUserCursor } from "@/actions/feedback-user/list";
-import { getFeedbackUsers } from "@/actions/feedback-user/list";
 import { FeedbackUsersList } from "./components/feedback-user-list";
 
 type UsersDataLayoutProperties = {
@@ -21,7 +14,6 @@ type UsersDataLayoutProperties = {
 };
 
 const UsersDataLayout = async ({ children }: UsersDataLayoutProperties) => {
-  const queryClient = new QueryClient();
   const organizationId = await currentOrganizationId();
 
   if (!organizationId) {
@@ -32,21 +24,6 @@ const UsersDataLayout = async ({ children }: UsersDataLayoutProperties) => {
       .select({ count: sql<number>`count(*)` })
       .from(tables.feedbackUser)
       .where(eq(tables.feedbackUser.organizationId, organizationId)),
-    queryClient.prefetchInfiniteQuery({
-      queryKey: ["feedbackUsers"],
-      queryFn: async ({ pageParam }) => {
-        const response = await getFeedbackUsers(pageParam);
-
-        if ("error" in response) {
-          throw response.error;
-        }
-
-        return response;
-      },
-      initialPageParam: null as FeedbackUserCursor | null,
-      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-      pages: 1,
-    }),
   ]);
 
   const count = countResult?.[0]?.count ?? 0;
@@ -69,9 +46,7 @@ const UsersDataLayout = async ({ children }: UsersDataLayoutProperties) => {
         style={{ overflow: "auto" }}
       >
         <div className="h-full border-r">
-          <HydrationBoundary state={dehydrate(queryClient)}>
-            <FeedbackUsersList />
-          </HydrationBoundary>
+          <FeedbackUsersList />
         </div>
       </ResizablePanel>
       <ResizableHandle />

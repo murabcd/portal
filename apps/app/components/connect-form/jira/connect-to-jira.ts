@@ -1,56 +1,15 @@
-"use server";
+"use client";
 
-import { tables } from "@repo/backend/database";
-import { createId } from "@repo/backend/id";
-import { parseError } from "@repo/lib/parse-error";
-import { revalidatePath } from "next/cache";
-import { database } from "@/lib/database";
+import { postAction } from "@/lib/action-client";
+import type { connectToJira as connectToJiraServer } from "./connect-to-jira.service";
 
-type ConnectToJiraProperties = {
-  readonly featureId: (typeof tables.feature.$inferSelect)["id"];
-  readonly externalId: string;
-  readonly href: string;
-};
-
-export const connectToJira = async ({
-  featureId,
-  externalId,
-  href,
-}: ConnectToJiraProperties): Promise<{
-  error?: string;
-}> => {
-  try {
-    const atlassianInstallation = await database
-      .select({
-        id: tables.atlassianInstallation.id,
-        organizationId: tables.atlassianInstallation.organizationId,
-      })
-      .from(tables.atlassianInstallation)
-      .limit(1)
-      .then((rows) => rows[0] ?? null);
-
-    if (!atlassianInstallation) {
-      throw new Error("Jira installation not found");
+export const connectToJira = (
+  ...args: Parameters<typeof connectToJiraServer>
+) =>
+  postAction<Awaited<ReturnType<typeof connectToJiraServer>>>(
+    "/api/internal-actions/components/connect-form/jira/connect-to-jira",
+    {
+      action: "connectToJira",
+      args,
     }
-
-    await database.insert(tables.featureConnection).values([
-      {
-        id: createId(),
-        featureId,
-        externalId,
-        href,
-        organizationId: atlassianInstallation.organizationId,
-        type: "JIRA",
-        updatedAt: new Date().toISOString(),
-      },
-    ]);
-
-    revalidatePath("/features", "page");
-
-    return {};
-  } catch (error) {
-    const message = parseError(error);
-
-    return { error: message };
-  }
-};
+  );

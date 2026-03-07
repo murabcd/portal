@@ -3,7 +3,6 @@ import { AlertDialog } from "@repo/design-system/components/precomposed/alert-di
 import { Button } from "@repo/design-system/components/ui/button";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { toast } from "@repo/design-system/lib/toast";
-import { QueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { deleteFeatures } from "@/actions/feature/bulk/delete";
 
@@ -18,7 +17,6 @@ export const FeatureToolbarDeleteButton = ({
 }: FeatureToolbarDeleteButtonProperties) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const queryClient = new QueryClient();
 
   const handleDelete = async () => {
     if (loading || selected.length === 0) {
@@ -38,10 +36,6 @@ export const FeatureToolbarDeleteButton = ({
       onClose();
       setOpen(false);
       toast.success("Features deleted successfully!");
-
-      await queryClient.invalidateQueries({
-        queryKey: ["features"],
-      });
     } catch (error) {
       handleError(error);
     } finally {

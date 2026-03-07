@@ -4,7 +4,6 @@ import type { Group, Product } from "@repo/backend/types";
 import { Dialog } from "@repo/design-system/components/precomposed/dialog";
 import { Input } from "@repo/design-system/components/precomposed/input";
 import { handleError } from "@repo/design-system/lib/handle-error";
-import { QueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import type { KeyboardEventHandler } from "react";
 import { useState } from "react";
@@ -47,7 +46,6 @@ export const FeatureForm = ({
     setGroupId,
     setProductId,
   } = useFeatureForm();
-  const queryClient = new QueryClient();
 
   const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (event) => {
     if (
@@ -87,10 +85,6 @@ export const FeatureForm = ({
       hide();
 
       router.push(`/features/${response.id}`);
-
-      await queryClient.invalidateQueries({
-        queryKey: ["features"],
-      });
     } catch (error) {
       handleError(error);
     } finally {

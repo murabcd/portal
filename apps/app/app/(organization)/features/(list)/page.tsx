@@ -5,17 +5,10 @@ import {
   currentUser,
 } from "@repo/backend/auth/utils";
 import { tables } from "@repo/backend/database";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
 import { eq, sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import type { FeatureCursor } from "@/actions/feature/list";
-import { getFeatures } from "@/actions/feature/list";
 import { database } from "@/lib/database";
 import { createMetadata } from "@/lib/metadata";
 import { toMemberInfoList } from "@/lib/serialization";
@@ -39,7 +32,6 @@ const FeaturesIndex = async () => {
     return notFound();
   }
 
-  const queryClient = new QueryClient();
   const query = {};
 
   const [countResult, databaseOrganization] = await Promise.all([
@@ -89,21 +81,6 @@ const FeaturesIndex = async () => {
       groups,
       releases,
     })),
-    queryClient.prefetchInfiniteQuery({
-      queryKey: ["features", query],
-      queryFn: async ({ pageParam }) => {
-        const response = await getFeatures(pageParam, query);
-
-        if ("error" in response) {
-          throw response.error;
-        }
-
-        return response;
-      },
-      initialPageParam: null as FeatureCursor | null,
-      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-      pages: 1,
-    }),
   ]);
 
   const count = countResult ?? 0;
@@ -114,21 +91,19 @@ const FeaturesIndex = async () => {
   }
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense fallback={null}>
-        <FeaturesList
-          count={count}
-          editable={role !== PortalRole.Member}
-          groups={databaseOrganization.groups}
-          members={membersLite}
-          products={databaseOrganization.products}
-          query={query}
-          releases={databaseOrganization.releases}
-          role={role}
-          statuses={databaseOrganization.featureStatuses}
-        />
-      </Suspense>
-    </HydrationBoundary>
+    <Suspense fallback={null}>
+      <FeaturesList
+        count={count}
+        editable={role !== PortalRole.Member}
+        groups={databaseOrganization.groups}
+        members={membersLite}
+        products={databaseOrganization.products}
+        query={query}
+        releases={databaseOrganization.releases}
+        role={role}
+        statuses={databaseOrganization.featureStatuses}
+      />
+    </Suspense>
   );
 };
 

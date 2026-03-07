@@ -3,7 +3,6 @@ import { Dialog } from "@repo/design-system/components/precomposed/dialog";
 import { Button } from "@repo/design-system/components/ui/button";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { toast } from "@repo/design-system/lib/toast";
-import { QueryClient } from "@tanstack/react-query";
 import type { FormEventHandler } from "react";
 import { useState } from "react";
 import { updateFeatures } from "@/actions/feature/bulk/update";
@@ -32,7 +31,6 @@ export const FeatureToolbarMoveButton = ({
   const [productId, setProductId] = useState<string | undefined>();
   const [groupId, setGroupId] = useState<string | undefined>();
   const disabled = !productId || loading;
-  const queryClient = new QueryClient();
 
   const handleMoveFeature: FormEventHandler<HTMLFormElement> = async (
     event
@@ -56,10 +54,6 @@ export const FeatureToolbarMoveButton = ({
       setOpen(false);
       onClose();
       toast.success("Features moved successfully!");
-
-      await queryClient.invalidateQueries({
-        queryKey: ["features"],
-      });
     } catch (error) {
       handleError(error);
     } finally {

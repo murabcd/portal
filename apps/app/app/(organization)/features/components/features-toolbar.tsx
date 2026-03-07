@@ -11,7 +11,6 @@ import { useSidebar } from "@repo/design-system/components/ui/sidebar";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { toast } from "@repo/design-system/lib/toast";
 import { cn } from "@repo/design-system/lib/utils";
-import { QueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { updateFeatures } from "@/actions/feature/bulk/update";
 import type { MemberInfo } from "@/lib/serialization";
@@ -41,7 +40,6 @@ export const FeaturesToolbar = ({
   members,
 }: FeaturesToolbarProperties) => {
   const sidebar = useSidebar();
-  const queryClient = new QueryClient();
 
   const handleUpdateFeatures = async (props: Partial<Feature>) => {
     try {
@@ -53,10 +51,6 @@ export const FeaturesToolbar = ({
 
       onClose();
       toast.success("Features updated successfully!");
-
-      await queryClient.invalidateQueries({
-        queryKey: ["features"],
-      });
     } catch (error) {
       handleError(error);
     }

@@ -11,7 +11,6 @@ import {
 import type { Group, Product } from "@repo/backend/types";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { toast } from "@repo/design-system/lib/toast";
-import { QueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { Suspense, useState } from "react";
 import type { GetFeatureResponse } from "@/actions/feature/get";
@@ -35,7 +34,6 @@ export const FeaturesDragProvider = ({
   children,
 }: FeaturesDragProviderProperties) => {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const queryClient = new QueryClient();
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -59,9 +57,6 @@ export const FeaturesDragProvider = ({
   ) => {
     try {
       await updateFeature(featureId, payload);
-      await queryClient.invalidateQueries({
-        queryKey: ["features"],
-      });
       toast.success(successMessage);
     } catch (error) {
       handleError(error);

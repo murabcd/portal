@@ -1,5 +1,3 @@
-"use server";
-
 import { database, tables } from "@repo/backend/database";
 import type { Feedback, FeedbackUser } from "@repo/backend/types";
 import { contentToText } from "@repo/editor/lib/tiptap";

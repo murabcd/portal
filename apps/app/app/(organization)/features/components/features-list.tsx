@@ -23,8 +23,6 @@ import {
   TableRow,
 } from "@repo/design-system/components/ui/table";
 import { handleError } from "@repo/design-system/lib/handle-error";
-import type { InfiniteData } from "@tanstack/react-query";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import type {
   ColumnDef,
   ColumnFiltersState,
@@ -51,16 +49,17 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import type { ComponentProps, FormEventHandler } from "react";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import useSWRInfinite from "swr/infinite";
 import type {
   FeatureCursor,
   FeatureFilters,
   GetFeaturesResponse,
 } from "@/actions/feature/list";
-import { getFeatures } from "@/actions/feature/list";
 import { AvatarTooltip } from "@/components/avatar-tooltip";
 import { EmptyState } from "@/components/empty-state";
 import { useFeatureForm } from "@/components/feature-form/use-feature-form";
 import { Header } from "@/components/header";
+import { fetcher } from "@/lib/fetcher";
 import { calculateRice } from "@/lib/rice";
 import type { MemberInfo } from "@/lib/serialization";
 import { FeatureRiceScore } from "../[feature]/components/feature-rice-score";
@@ -528,31 +527,44 @@ const FeaturesListContent = ({
   const router = useRouter();
   const { show } = useFeatureForm();
   const parameters = useParams();
-  const { data, fetchNextPage, isFetching } = useInfiniteQuery<
-    FeaturesPage,
-    Error,
-    InfiniteData<FeaturesPage>,
-    (string | FeatureFilters)[],
-    FeatureCursor | null
-  >({
-    queryKey: ["features", query],
-    queryFn: async ({ pageParam }): Promise<FeaturesPage> => {
-      try {
-        const response = await getFeatures(pageParam, query);
-
-        if ("error" in response) {
-          throw response.error;
+  const { data, isLoading, isValidating, setSize, size } =
+    useSWRInfinite<FeaturesPage>(
+      (pageIndex, previousPageData) => {
+        if (previousPageData && !previousPageData.nextCursor) {
+          return null;
         }
 
-        return response;
-      } catch (error) {
-        handleError(error);
-        throw error;
+        const searchParameters = new URLSearchParams();
+
+        if (query.search) {
+          searchParameters.set("search", query.search);
+        }
+        if (query.productId) {
+          searchParameters.set("productId", query.productId);
+        }
+        if (query.groupId) {
+          searchParameters.set("groupId", query.groupId);
+        }
+        if (query.statusId) {
+          searchParameters.set("statusId", query.statusId);
+        }
+        if (pageIndex > 0 && previousPageData?.nextCursor) {
+          searchParameters.set(
+            "cursorCreatedAt",
+            previousPageData.nextCursor.createdAt
+          );
+          searchParameters.set("cursorId", previousPageData.nextCursor.id);
+        }
+
+        return `/api/features?${searchParameters.toString()}`;
+      },
+      fetcher,
+      {
+        onError: handleError,
+        persistSize: true,
+        revalidateFirstPage: false,
       }
-    },
-    initialPageParam: null as FeatureCursor | null,
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-  });
+    );
   const [sorting, setSorting] = useState<SortingState>([
     { id: "createdAt", desc: true },
   ]);
@@ -562,10 +574,10 @@ const FeaturesListContent = ({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const flatData = useMemo(
-    () => data?.pages.flatMap((page) => page.data) ?? [],
+    () => data?.flatMap((page) => page.data) ?? [],
     [data]
   );
-  const totalDbRowCount = data?.pages.at(0)?.total ?? 0;
+  const totalDbRowCount = data?.at(0)?.total ?? 0;
   const totalFetched = flatData.length;
   const columns = useMemo(
     () => createColumns(members, editable),
@@ -604,12 +616,12 @@ const FeaturesListContent = ({
     // Once the user has scrolled within 200px of the bottom of the page, fetch more data if we can
     if (
       scrollHeight - scrollY - innerHeight < 200 &&
-      !isFetching &&
+      !isValidating &&
       totalFetched < totalDbRowCount
     ) {
-      fetchNextPage().catch(handleError);
+      setSize(size + 1).catch(handleError);
     }
-  }, [fetchNextPage, isFetching, totalFetched, totalDbRowCount]);
+  }, [isValidating, setSize, size, totalFetched, totalDbRowCount]);
 
   useEffect(() => {
     window.addEventListener("scroll", fetchMoreOnBottomReached, {
@@ -665,6 +677,19 @@ const FeaturesListContent = ({
   const handleToolbarClose = () => {
     setRowSelection({});
   };
+
+  if (isLoading) {
+    return (
+      <>
+        <Header badge={count} breadcrumbs={breadcrumbs} title={title}>
+          <div className="h-8 w-48 rounded-md bg-muted" />
+        </Header>
+        <div className="p-6 text-muted-foreground text-sm">
+          Loading features…
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

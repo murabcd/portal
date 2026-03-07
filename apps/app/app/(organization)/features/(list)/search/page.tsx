@@ -5,16 +5,9 @@ import {
   currentUser,
 } from "@repo/backend/auth/utils";
 import { tables } from "@repo/backend/database";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
 import { and, count, eq, ilike } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import type { FeatureCursor } from "@/actions/feature/list";
-import { getFeatures } from "@/actions/feature/list";
 import { FeaturesList } from "@/app/(organization)/features/components/features-list";
 import { database } from "@/lib/database";
 import { createMetadata } from "@/lib/metadata";
@@ -39,7 +32,6 @@ const FeatureProduct = async (props: FeatureSeachPageProperties) => {
     currentMembers(),
   ]);
   const membersLite = toMemberInfoList(members);
-  const queryClient = new QueryClient();
 
   if (!(user && organizationId)) {
     notFound();
@@ -103,21 +95,6 @@ const FeatureProduct = async (props: FeatureSeachPageProperties) => {
       groups,
       releases,
     })),
-    queryClient.prefetchInfiniteQuery({
-      queryKey: ["features", query],
-      queryFn: async ({ pageParam }) => {
-        const response = await getFeatures(pageParam, query);
-
-        if ("error" in response) {
-          throw response.error;
-        }
-
-        return response;
-      },
-      initialPageParam: null as FeatureCursor | null,
-      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-      pages: 1,
-    }),
   ]);
 
   if (!databaseOrganization) {
@@ -128,21 +105,19 @@ const FeatureProduct = async (props: FeatureSeachPageProperties) => {
 
   return (
     <div className="h-full overflow-y-auto">
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <FeaturesList
-          breadcrumbs={[{ href: "/features", text: "Features" }]}
-          count={totalCount}
-          editable={role !== PortalRole.Member}
-          groups={databaseOrganization.groups}
-          members={membersLite}
-          products={databaseOrganization.products}
-          query={query}
-          releases={databaseOrganization.releases}
-          role={role}
-          statuses={databaseOrganization.featureStatuses}
-          title={searchParams?.query}
-        />
-      </HydrationBoundary>
+      <FeaturesList
+        breadcrumbs={[{ href: "/features", text: "Features" }]}
+        count={totalCount}
+        editable={role !== PortalRole.Member}
+        groups={databaseOrganization.groups}
+        members={membersLite}
+        products={databaseOrganization.products}
+        query={query}
+        releases={databaseOrganization.releases}
+        role={role}
+        statuses={databaseOrganization.featureStatuses}
+        title={searchParams?.query}
+      />
     </div>
   );
 };

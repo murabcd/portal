@@ -1,25 +1,15 @@
-"use server";
+"use client";
 
-import { database, tables } from "@repo/backend/database";
-import type { Template } from "@repo/backend/types";
-import { parseError } from "@repo/lib/parse-error";
-import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { postAction } from "@/lib/action-client";
+import type { deleteTemplate as deleteTemplateServer } from "./delete.service";
 
-export const deleteTemplate = async (
-  id: Template["id"]
-): Promise<{
-  error?: string;
-}> => {
-  try {
-    await database.delete(tables.template).where(eq(tables.template.id, id));
-
-    revalidatePath("/settings/templates");
-
-    return {};
-  } catch (error) {
-    const message = parseError(error);
-
-    return { error: message };
-  }
-};
+export const deleteTemplate = (
+  ...args: Parameters<typeof deleteTemplateServer>
+) =>
+  postAction<Awaited<ReturnType<typeof deleteTemplateServer>>>(
+    "/api/actions/template/delete",
+    {
+      action: "deleteTemplate",
+      args,
+    }
+  );
