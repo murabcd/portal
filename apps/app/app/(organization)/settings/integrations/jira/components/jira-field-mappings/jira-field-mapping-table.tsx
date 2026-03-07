@@ -109,10 +109,7 @@ export const JiraFieldMappingTable = ({
           <div className="flex-1">
             <JiraFieldMappingPicker
               acceptedTypes={field.acceptedTypes}
-              defaultValue={fieldMappings
-                .filter((mapping) => mapping.internalId === field.value)
-                .map((mapping) => mapping.externalId ?? "")
-                .filter(Boolean)}
+              defaultValue={map[field.value] ?? []}
               onChange={(jiraExternalIds) =>
                 handleChange(jiraExternalIds, field)
               }

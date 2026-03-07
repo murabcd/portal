@@ -23,7 +23,7 @@ type ItemListProps = {
   fetchNextPage: (options?: FetchNextPageOptions) => Promise<unknown>;
 };
 
-export const ListItem = ({ data }: { data: ItemListProps["data"][number] }) => {
+const ListItem = ({ data }: { data: ItemListProps["data"][number] }) => {
   const pathname = usePathname();
   const active = pathname === data.href;
   const activeStyles =

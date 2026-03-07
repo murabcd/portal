@@ -79,10 +79,7 @@ export const JiraStatusMappingTable = ({
         >
           <div className="flex-1">
             <JiraStatusMappingPicker
-              defaultValue={statusMappings
-                .filter((mapping) => mapping.featureStatusId === status.id)
-                .map((mapping) => mapping.eventId ?? "")
-                .filter(Boolean)}
+              defaultValue={map[status.id] ?? []}
               onChange={(eventTypes) => handleChange(eventTypes, status.id)}
               options={jiraStatuses.filter(
                 (jiraStatus) =>

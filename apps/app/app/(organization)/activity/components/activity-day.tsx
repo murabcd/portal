@@ -26,6 +26,8 @@ type ActivityDayProperties = {
   readonly data: GetActivityResponse;
 };
 
+type ActivityEntry = Parameters<typeof ActivityItem>[0]["data"];
+
 const getIconForSource = (
   source: (typeof tables.feedback.$inferSelect)["source"]
 ) => {
@@ -39,7 +41,7 @@ const getIconForSource = (
   }
 };
 
-export const ActivityDay = ({ data, members }: ActivityDayProperties) => {
+const createMemberLookups = (members: MemberInfo[]) => {
   const getMemberById = (id: MemberInfo["id"]) =>
     members.find((member) => member.id === id);
 
@@ -49,13 +51,16 @@ export const ActivityDay = ({ data, members }: ActivityDayProperties) => {
     return member ? getUserName(member) : "Someone";
   };
 
-  const date = new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(data.date);
+  return { getMemberById, getMemberName };
+};
 
-  const items = [
+const createActivityItems = (
+  data: GetActivityResponse,
+  members: MemberInfo[]
+): ActivityEntry[] => {
+  const { getMemberById, getMemberName } = createMemberLookups(members);
+
+  return [
     ...data.members.map((member) => ({
       id: member.id,
       children: <span>{member.userName} joined the organization</span>,
@@ -376,6 +381,15 @@ export const ActivityDay = ({ data, members }: ActivityDayProperties) => {
       icon: FlagIcon,
     })),
   ];
+};
+
+export const ActivityDay = ({ data, members }: ActivityDayProperties) => {
+  const date = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(data.date);
+  const items = createActivityItems(data, members);
 
   return (
     <StackCard className="flex flex-col gap-4 p-4" title={date}>

@@ -1,5 +1,6 @@
 import type { tables } from "@repo/backend/database";
 import { Button } from "@repo/design-system/components/ui/button";
+import Link from "next/link";
 import { OrDivider } from "@/components/or-divider";
 import { JiraIssueCreator } from "./jira-issue-creator";
 import { JiraIssuePicker } from "./jira-issue-picker";
@@ -14,13 +15,13 @@ export const JiraSelector = ({ jiraAccessToken }: JiraSelectorProperties) => {
   if (!jiraAccessToken) {
     return (
       <Button asChild>
-        <a
+        <Link
           href="/settings/integrations/jira"
           rel="noopener noreferrer"
           target="_blank"
         >
           Install Jira app
-        </a>
+        </Link>
       </Button>
     );
   }

@@ -1,6 +1,6 @@
 const formulaPrefixes = new Set(["=", "+", "-", "@"]);
 
-export const escapeField = (value: unknown): string => {
+const escapeField = (value: unknown): string => {
   let str = String(value ?? "");
 
   // Prevent CSV formula injection

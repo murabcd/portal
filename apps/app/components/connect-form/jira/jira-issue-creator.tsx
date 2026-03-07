@@ -2,7 +2,7 @@ import { Select } from "@repo/design-system/components/precomposed/select";
 import { Button } from "@repo/design-system/components/ui/button";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
 import { useConnectForm } from "../use-connect-form";
 import { connectToJira } from "./connect-to-jira";
 import { createJiraIssue } from "./create-jira-issue";
@@ -11,24 +11,84 @@ import { getJiraProjects } from "./get-jira-projects";
 import type { GetJiraTypesResponse } from "./get-jira-types";
 import { getJiraTypes } from "./get-jira-types";
 
+type JiraIssueCreatorState = {
+  loading: boolean;
+  projectsFetched: boolean;
+  projects: GetJiraProjectsResponse["projects"];
+  typesFetchedForProject: string | undefined;
+  types: GetJiraTypesResponse["types"];
+  project: string | undefined;
+  type: string | undefined;
+};
+
+type JiraIssueCreatorAction =
+  | { type: "set-loading"; value: boolean }
+  | { type: "set-projects"; value: GetJiraProjectsResponse["projects"] }
+  | { type: "set-projects-fetched"; value: boolean }
+  | { type: "set-project"; value: string | undefined }
+  | { type: "set-types"; value: GetJiraTypesResponse["types"] }
+  | { type: "set-types-fetched-for-project"; value: string | undefined }
+  | { type: "set-type"; value: string | undefined };
+
+const initialState: JiraIssueCreatorState = {
+  loading: false,
+  projectsFetched: false,
+  projects: [],
+  typesFetchedForProject: undefined,
+  types: [],
+  project: undefined,
+  type: undefined,
+};
+
+const jiraIssueCreatorReducer = (
+  state: JiraIssueCreatorState,
+  action: JiraIssueCreatorAction
+): JiraIssueCreatorState => {
+  switch (action.type) {
+    case "set-loading":
+      return { ...state, loading: action.value };
+    case "set-projects":
+      return { ...state, projects: action.value };
+    case "set-projects-fetched":
+      return { ...state, projectsFetched: action.value };
+    case "set-project":
+      return {
+        ...state,
+        project: action.value,
+        type: undefined,
+        typesFetchedForProject: undefined,
+        types: [],
+      };
+    case "set-types":
+      return { ...state, types: action.value };
+    case "set-types-fetched-for-project":
+      return { ...state, typesFetchedForProject: action.value };
+    case "set-type":
+      return { ...state, type: action.value };
+    default:
+      return state;
+  }
+};
+
 export const JiraIssueCreator = () => {
   const { hide, featureId } = useConnectForm();
-  const [loading, setLoading] = useState(false);
-  const [projects, setProjects] = useState<GetJiraProjectsResponse["projects"]>(
-    []
-  );
-  const [types, setTypes] = useState<GetJiraTypesResponse["types"]>([]);
-  const [project, setProject] = useState<string | undefined>();
-  const [type, setType] = useState<string | undefined>();
-  const [projectsFetched, setProjectsFetched] = useState(false);
-  const [typesFetched, setTypesFetched] = useState(false);
+  const [state, dispatch] = useReducer(jiraIssueCreatorReducer, initialState);
+  const {
+    loading,
+    project,
+    projects,
+    projectsFetched,
+    type,
+    types,
+    typesFetchedForProject,
+  } = state;
 
   useEffect(() => {
     if (projectsFetched || loading) {
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: "set-loading", value: true });
 
     getJiraProjects()
       .then((response) => {
@@ -38,21 +98,22 @@ export const JiraIssueCreator = () => {
 
         return response.projects;
       })
-      .then(setProjects)
+      .then((projectsResponse) =>
+        dispatch({ type: "set-projects", value: projectsResponse })
+      )
       .catch(handleError)
       .finally(() => {
-        setLoading(false);
-        setProjectsFetched(true);
-        setTypesFetched(false);
+        dispatch({ type: "set-loading", value: false });
+        dispatch({ type: "set-projects-fetched", value: true });
       });
   }, [loading, projectsFetched]);
 
   useEffect(() => {
-    if (!project || typesFetched || loading) {
+    if (!project || typesFetchedForProject === project || loading) {
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: "set-loading", value: true });
 
     getJiraTypes(project)
       .then((response) => {
@@ -62,20 +123,22 @@ export const JiraIssueCreator = () => {
 
         return response.types;
       })
-      .then(setTypes)
+      .then((typesResponse) =>
+        dispatch({ type: "set-types", value: typesResponse })
+      )
       .catch(handleError)
       .finally(() => {
-        setLoading(false);
-        setTypesFetched(true);
+        dispatch({ type: "set-loading", value: false });
+        dispatch({ type: "set-types-fetched-for-project", value: project });
       });
-  }, [loading, project, typesFetched]);
+  }, [loading, project, typesFetchedForProject]);
 
   const handleCreateJiraIssue = async () => {
     if (loading || !featureId || !project || !type) {
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: "set-loading", value: true });
 
     try {
       const issueResponse = await createJiraIssue({
@@ -108,7 +171,7 @@ export const JiraIssueCreator = () => {
     } catch (error) {
       handleError(error);
     } finally {
-      setLoading(false);
+      dispatch({ type: "set-loading", value: false });
     }
   };
 
@@ -121,7 +184,7 @@ export const JiraIssueCreator = () => {
         }))}
         disabled={projects.length === 0}
         label="Select a project"
-        onChange={setProject}
+        onChange={(value) => dispatch({ type: "set-project", value })}
         renderItem={(item) => {
           const projectItem = projects.find(
             ({ id }) => id === Number(item.value)
@@ -158,7 +221,7 @@ export const JiraIssueCreator = () => {
         }))}
         disabled={!project || types.length === 0}
         label="Select a type"
-        onChange={setType}
+        onChange={(value) => dispatch({ type: "set-type", value })}
         renderItem={(item) => {
           const typeItem = types.find(({ id }) => id === item.value);
 

@@ -29,7 +29,7 @@ import {
   TimerIcon,
   UsersIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 type JiraFieldMappingPickerProps = {
   acceptedTypes: string[];
@@ -76,8 +76,9 @@ export const JiraFieldMappingPicker = ({
   onChange,
 }: JiraFieldMappingPickerProps) => {
   const [open, setOpen] = useState(false);
-  const [values, setValues] = useState(defaultValue);
+  const commandListId = useId();
   const fuse = createFuse(options, ["label"]);
+  const values = defaultValue;
 
   const handleSelect = (newValue: string) => {
     let newValues = [...values];
@@ -88,7 +89,6 @@ export const JiraFieldMappingPicker = ({
       newValues.push(newValue);
     }
 
-    setValues(newValues);
     onChange(newValues);
   };
 
@@ -105,6 +105,7 @@ export const JiraFieldMappingPicker = ({
     <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild>
         <Button
+          aria-controls={commandListId}
           aria-expanded={open}
           className="w-full justify-between"
           disabled={options.length === 0}
@@ -136,7 +137,7 @@ export const JiraFieldMappingPicker = ({
       <PopoverContent className="w-[308px] p-0">
         <Command filter={filterByFuse}>
           <CommandInput className="h-9" placeholder="Search Jira fields..." />
-          <CommandList>
+          <CommandList id={commandListId}>
             <CommandEmpty>No Jira fields found.</CommandEmpty>
             <CommandGroup>
               {[...options]

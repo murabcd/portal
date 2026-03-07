@@ -118,6 +118,164 @@ const types = [
   },
 ];
 
+type FeedbackFormFooterProperties = Pick<
+  FeedbackFormProperties,
+  "organizations" | "users"
+> & {
+  readonly feedbackOrganization: string | null;
+  readonly feedbackUserId: string | null;
+  readonly onOrganizationChange: (value: string | null) => void;
+  readonly onUserChange: (value: string | null) => void;
+};
+
+const FeedbackFormFooter = ({
+  feedbackOrganization,
+  feedbackUserId,
+  onOrganizationChange,
+  onUserChange,
+  organizations,
+  users,
+}: FeedbackFormFooterProperties) => (
+  <div className="flex items-center gap-2">
+    <FeedbackUserPicker
+      onChange={onUserChange}
+      usersData={users.map((user) => ({
+        value: user.id,
+        label: user.name,
+        image: user.imageUrl,
+        email: user.email,
+      }))}
+      value={feedbackUserId}
+    />
+    {feedbackUserId ? (
+      <FeedbackOrganizationPicker
+        feedbackUser={feedbackUserId}
+        onChange={onOrganizationChange}
+        organizationsData={organizations.map((organization) => ({
+          value: organization.id,
+          label: organization.name,
+          image: organization.domain,
+        }))}
+        value={feedbackOrganization}
+      />
+    ) : null}
+  </div>
+);
+
+type FeedbackTypePickerProperties = {
+  readonly onSelect: (type: (typeof types)[number]["id"]) => void;
+  readonly selectedType: string | undefined;
+};
+
+const FeedbackTypePicker = ({
+  onSelect,
+  selectedType,
+}: FeedbackTypePickerProperties) => (
+  <div className="grid w-full grid-cols-3 gap-4">
+    {types.map((option) => (
+      <button
+        className={cn(
+          "space-y-2 rounded border bg-card p-4",
+          option.id === selectedType ? "bg-secondary" : "bg-background"
+        )}
+        key={option.id}
+        onClick={() => onSelect(option.id)}
+        type="button"
+      >
+        <option.icon
+          className="pointer-events-none mx-auto select-none text-muted-foreground"
+          size={24}
+        />
+        <span className="pointer-events-none mt-2 block select-none font-medium text-sm">
+          {option.label}
+        </span>
+        <span className="pointer-events-none block select-none text-muted-foreground text-sm">
+          {option.description}
+        </span>
+      </button>
+    ))}
+  </div>
+);
+
+type FeedbackContentProperties = {
+  readonly audioSource: File[] | undefined;
+  readonly onAudioDrop: (file: File) => void;
+  readonly onEditorUpdate: (editor?: EditorInstance | undefined) => void;
+  readonly onVideoDrop: (file: File) => void;
+  readonly type: string | undefined;
+  readonly videoSource: File[] | undefined;
+};
+
+const FeedbackContent = ({
+  audioSource,
+  onAudioDrop,
+  onEditorUpdate,
+  onVideoDrop,
+  type,
+  videoSource,
+}: FeedbackContentProperties) => {
+  if (type === "audio") {
+    return (
+      <Dropzone
+        accept={{ "audio/*": [] }}
+        maxFiles={1}
+        onDrop={([file]) => onAudioDrop(file)}
+        onError={handleError}
+        src={audioSource}
+      >
+        <DropzoneEmptyState />
+        <DropzoneContent />
+      </Dropzone>
+    );
+  }
+
+  if (type === "video") {
+    return (
+      <Dropzone
+        accept={{ "video/*": [] }}
+        maxFiles={1}
+        onDrop={([file]) => onVideoDrop(file)}
+        onError={handleError}
+        src={videoSource}
+      >
+        <DropzoneEmptyState />
+        <DropzoneContent />
+      </Dropzone>
+    );
+  }
+
+  if (type === "text") {
+    return (
+      <div
+        className={cn(
+          "prose-h1:text-lg prose-h2:text-base prose-h3:text-base prose-h4:text-base prose-h5:text-base prose-h6:text-base",
+          "prose-h1:font-medium prose-h2:font-medium prose-h3:font-medium prose-h4:font-medium prose-h5:font-medium prose-h6:font-medium",
+          "prose-h1:mb-0.5 prose-h2:mb-0.5 prose-h3:mb-0.5 prose-h4:mb-0.5 prose-h5:mb-0.5 prose-h6:mb-0.5"
+        )}
+      >
+        <Editor onUpdate={onEditorUpdate} />
+      </div>
+    );
+  }
+
+  return null;
+};
+
+type FeedbackUndoButtonProperties = {
+  readonly onUndo: () => void;
+};
+
+const FeedbackUndoButton = ({ onUndo }: FeedbackUndoButtonProperties) => (
+  <Button
+    className="absolute top-1.5 right-8"
+    onClick={onUndo}
+    size="icon"
+    variant="link"
+  >
+    <UndoIcon className="text-muted-foreground" size={14} />
+  </Button>
+);
+
 export const FeedbackForm = ({
   users,
   organizations,
@@ -125,15 +283,15 @@ export const FeedbackForm = ({
 }: FeedbackFormProperties) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState<object | undefined>();
-  const [feedbackUserId, setFeedbackUserId] = useState<string | null>(
+  const [feedbackUserId, setFeedbackUserId] = useState<string | null>(() =>
     getDefaultFeedbackUserId(users, userEmail)
   );
   const [feedbackOrganization, setFeedbackOrganization] = useState<
     string | null
-  >(getDefaultFeedbackOrganizationId(users, userEmail));
+  >(() => getDefaultFeedbackOrganizationId(users, userEmail));
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const [type, setType] = useState<string | undefined>(
+  const [type, setType] = useState<string | undefined>(() =>
     getInitialFeedbackType()
   );
   const [audio, setAudio] = useState<File | undefined>();
@@ -327,30 +485,14 @@ export const FeedbackForm = ({
       cta="Create feedback"
       disabled={disabled}
       footer={
-        <div className="flex items-center gap-2">
-          <FeedbackUserPicker
-            onChange={setFeedbackUserId}
-            usersData={users.map((user) => ({
-              value: user.id,
-              label: user.name,
-              image: user.imageUrl,
-              email: user.email,
-            }))}
-            value={feedbackUserId}
-          />
-          {feedbackUserId ? (
-            <FeedbackOrganizationPicker
-              feedbackUser={feedbackUserId}
-              onChange={setFeedbackOrganization}
-              organizationsData={organizations.map((org) => ({
-                value: org.id,
-                label: org.name,
-                image: org.domain,
-              }))}
-              value={feedbackOrganization}
-            />
-          ) : null}
-        </div>
+        <FeedbackFormFooter
+          feedbackOrganization={feedbackOrganization}
+          feedbackUserId={feedbackUserId}
+          onOrganizationChange={setFeedbackOrganization}
+          onUserChange={setFeedbackUserId}
+          organizations={organizations}
+          users={users}
+        />
       }
       modal={false}
       onClick={handleCreate}
@@ -362,16 +504,7 @@ export const FeedbackForm = ({
         </p>
       }
     >
-      {showUndo ? (
-        <Button
-          className="absolute top-1.5 right-8"
-          onClick={handleUndo}
-          size="icon"
-          variant="link"
-        >
-          <UndoIcon className="text-muted-foreground" size={14} />
-        </Button>
-      ) : null}
+      {showUndo ? <FeedbackUndoButton onUndo={handleUndo} /> : null}
 
       <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto">
         <Input
@@ -384,69 +517,17 @@ export const FeedbackForm = ({
         />
 
         {showTypePicker ? (
-          <div className="grid w-full grid-cols-3 gap-4">
-            {types.map((option) => (
-              <button
-                className={cn(
-                  "space-y-2 rounded border bg-card p-4",
-                  option.id === type ? "bg-secondary" : "bg-background"
-                )}
-                key={option.id}
-                onClick={() => setType(option.id)}
-                type="button"
-              >
-                <option.icon
-                  className="pointer-events-none mx-auto select-none text-muted-foreground"
-                  size={24}
-                />
-                <span className="pointer-events-none mt-2 block select-none font-medium text-sm">
-                  {option.label}
-                </span>
-                <span className="pointer-events-none block select-none text-muted-foreground text-sm">
-                  {option.description}
-                </span>
-              </button>
-            ))}
-          </div>
+          <FeedbackTypePicker onSelect={setType} selectedType={type} />
         ) : null}
 
-        {type === "audio" ? (
-          <Dropzone
-            accept={{ "audio/*": [] }}
-            maxFiles={1}
-            onDrop={([file]) => setAudio(file)}
-            onError={console.error}
-            src={audioSource}
-          >
-            <DropzoneEmptyState />
-            <DropzoneContent />
-          </Dropzone>
-        ) : null}
-
-        {type === "video" ? (
-          <Dropzone
-            accept={{ "video/*": [] }}
-            maxFiles={1}
-            onDrop={([file]) => setVideo(file)}
-            onError={console.error}
-            src={videoSource}
-          >
-            <DropzoneEmptyState />
-            <DropzoneContent />
-          </Dropzone>
-        ) : null}
-
-        {type === "text" ? (
-          <div
-            className={cn(
-              "prose-h1:text-lg prose-h2:text-base prose-h3:text-base prose-h4:text-base prose-h5:text-base prose-h6:text-base",
-              "prose-h1:font-medium prose-h2:font-medium prose-h3:font-medium prose-h4:font-medium prose-h5:font-medium prose-h6:font-medium",
-              "prose-h1:mb-0.5 prose-h2:mb-0.5 prose-h3:mb-0.5 prose-h4:mb-0.5 prose-h5:mb-0.5 prose-h6:mb-0.5"
-            )}
-          >
-            <Editor onUpdate={handleUpdate} />
-          </div>
-        ) : null}
+        <FeedbackContent
+          audioSource={audioSource}
+          onAudioDrop={setAudio}
+          onEditorUpdate={handleUpdate}
+          onVideoDrop={setVideo}
+          type={type}
+          videoSource={videoSource}
+        />
       </div>
     </Dialog>
   );

@@ -4,7 +4,6 @@ import { cn } from "@repo/design-system/lib/utils";
 import { formatDate } from "@repo/lib/format";
 import type { InfiniteData } from "@tanstack/react-query";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
 import type { GetChangelogResponse } from "@/actions/changelog/get";
 import { getChangelog } from "@/actions/changelog/get";
 import { ItemList } from "@/components/item-list";
@@ -16,16 +15,16 @@ export const ChangelogList = () => {
     nextCursor: ChangelogCursor | null;
   };
 
-  const { data, error, fetchNextPage, isFetching, hasNextPage } =
-    useInfiniteQuery<
-      ChangelogPage,
-      Error,
-      InfiniteData<ChangelogPage>,
-      string[],
-      ChangelogCursor | null
-    >({
-      queryKey: ["changelog"],
-      queryFn: async ({ pageParam }): Promise<ChangelogPage> => {
+  const { data, fetchNextPage, isFetching, hasNextPage } = useInfiniteQuery<
+    ChangelogPage,
+    Error,
+    InfiniteData<ChangelogPage>,
+    string[],
+    ChangelogCursor | null
+  >({
+    queryKey: ["changelog"],
+    queryFn: async ({ pageParam }): Promise<ChangelogPage> => {
+      try {
         const response = await getChangelog(pageParam);
 
         if ("error" in response) {
@@ -33,16 +32,19 @@ export const ChangelogList = () => {
         }
 
         return response;
-      },
-      initialPageParam: null as ChangelogCursor | null,
-      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-    });
+      } catch (error) {
+        const normalizedError =
+          error instanceof Error
+            ? error
+            : new Error("Failed to load changelog.");
 
-  useEffect(() => {
-    if (error) {
-      toast.error(error.message);
-    }
-  }, [error]);
+        toast.error(normalizedError.message);
+        throw normalizedError;
+      }
+    },
+    initialPageParam: null as ChangelogCursor | null,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+  });
 
   return (
     <ItemList

@@ -28,6 +28,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import type {
   ColumnDef,
   ColumnFiltersState,
+  Table as DataTable,
   SortingState,
   VisibilityState,
 } from "@tanstack/react-table";
@@ -47,9 +48,9 @@ import {
   UserCircleIcon,
 } from "lucide-react";
 import Image from "next/image";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import type { ComponentProps, FormEventHandler } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import type {
   FeatureCursor,
   FeatureFilters,
@@ -87,6 +88,28 @@ type FeaturesPage = {
   data: GetFeaturesResponse;
   nextCursor: FeatureCursor | null;
   total: number;
+};
+
+type FeatureFilterOption = {
+  label: string;
+  value: string;
+  color: string;
+};
+
+const getInitialColumnFilters = (): ColumnFiltersState => {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const searchParams = new URLSearchParams(window.location.search);
+  const id = searchParams.get("id");
+  const value = searchParams.get("value");
+
+  if (!(id && value)) {
+    return [];
+  }
+
+  return [{ id, value: JSON.parse(value) }];
 };
 
 const createColumns = (
@@ -342,7 +365,154 @@ const createColumns = (
   },
 ];
 
-export const FeaturesList = ({
+type FeaturesHeaderActionsProperties = {
+  readonly handleSearch: FormEventHandler<HTMLFormElement>;
+  readonly handleShow: () => void;
+  readonly members: MemberInfo[];
+  readonly role?: string;
+  readonly statusOptions: FeatureFilterOption[];
+  readonly table: DataTable<GetFeaturesResponse[number]>;
+};
+
+const FeaturesHeaderActions = ({
+  handleSearch,
+  handleShow,
+  members,
+  role,
+  statusOptions,
+  table,
+}: FeaturesHeaderActionsProperties) => (
+  <div className="-m-2 flex flex-1 items-center justify-end gap-2">
+    <FeaturesListFilter
+      column={table.getColumn("status")}
+      icon={FilterIcon}
+      options={statusOptions}
+      renderItem={(item) => {
+        const source = statusOptions.find(
+          (status) => status.value === item.value
+        );
+
+        if (!source) {
+          return null;
+        }
+
+        return (
+          <div className="flex items-center gap-2">
+            <div
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ backgroundColor: source.color }}
+            />
+            {item.label}
+          </div>
+        );
+      }}
+      title="Status"
+    />
+    <FeaturesListFilter
+      column={table.getColumn("owner")}
+      icon={UserCircleIcon}
+      options={members.map((member) => ({
+        label: getUserName(member),
+        value: member.id ?? "",
+        color: "",
+      }))}
+      renderItem={(item) => {
+        const member = members.find(({ id }) => id === item.value);
+
+        if (!member) {
+          return null;
+        }
+
+        return (
+          <div className="flex items-center gap-2">
+            {member.image ? (
+              <Image
+                alt=""
+                className="h-5 w-5 rounded-full object-cover"
+                height={20}
+                src={member.image}
+                width={20}
+              />
+            ) : (
+              <div className="h-5 w-5 rounded-full bg-muted" />
+            )}
+            {item.label}
+          </div>
+        );
+      }}
+      title="Owner"
+    />
+    <form onSubmit={handleSearch}>
+      <Input
+        className="h-8 w-48 bg-background text-xs"
+        name="search"
+        placeholder="Search"
+      />
+    </form>
+    {role === FlowniRole.Member ? null : (
+      <Button className="shrink-0" onClick={handleShow} size="sm">
+        Create
+      </Button>
+    )}
+  </div>
+);
+
+type FeaturesTableProperties = {
+  readonly columns: ColumnDef<GetFeaturesResponse[number]>[];
+  readonly table: DataTable<GetFeaturesResponse[number]>;
+};
+
+const FeaturesTable = ({ columns, table }: FeaturesTableProperties) => (
+  <Table>
+    <TableHeader className="sticky top-[45px] z-10 bg-backdrop/90 backdrop-blur-sm">
+      {table.getHeaderGroups().map((headerGroup) => (
+        <TableRow key={headerGroup.id}>
+          {headerGroup.headers.map((header) => (
+            <TableHead key={header.id}>
+              {header.isPlaceholder
+                ? null
+                : flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
+            </TableHead>
+          ))}
+        </TableRow>
+      ))}
+    </TableHeader>
+    <TableBody>
+      {table.getRowModel().rows.length > 0 ? (
+        table.getRowModel().rows.map((row) => (
+          <TableRow
+            className="h-[53px]"
+            data-state={row.getIsSelected() && "selected"}
+            key={row.id}
+          >
+            {row.getVisibleCells().map((cell) => (
+              <TableCell key={cell.id}>
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </TableCell>
+            ))}
+          </TableRow>
+        ))
+      ) : (
+        <TableRow>
+          <TableCell
+            className="h-24 py-16 text-center"
+            colSpan={columns.length}
+          >
+            <EmptyState
+              description="Try adjusting your filters or search query."
+              title="No features found."
+            />
+          </TableCell>
+        </TableRow>
+      )}
+    </TableBody>
+  </Table>
+);
+
+const FeaturesListContent = ({
   title = "Features",
   breadcrumbs,
   statuses,
@@ -358,7 +528,7 @@ export const FeaturesList = ({
   const router = useRouter();
   const { show } = useFeatureForm();
   const parameters = useParams();
-  const { data, error, fetchNextPage, isFetching } = useInfiniteQuery<
+  const { data, fetchNextPage, isFetching } = useInfiniteQuery<
     FeaturesPage,
     Error,
     InfiniteData<FeaturesPage>,
@@ -367,13 +537,18 @@ export const FeaturesList = ({
   >({
     queryKey: ["features", query],
     queryFn: async ({ pageParam }): Promise<FeaturesPage> => {
-      const response = await getFeatures(pageParam, query);
+      try {
+        const response = await getFeatures(pageParam, query);
 
-      if ("error" in response) {
-        throw response.error;
+        if ("error" in response) {
+          throw response.error;
+        }
+
+        return response;
+      } catch (error) {
+        handleError(error);
+        throw error;
       }
-
-      return response;
     },
     initialPageParam: null as FeatureCursor | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
@@ -381,16 +556,8 @@ export const FeaturesList = ({
   const [sorting, setSorting] = useState<SortingState>([
     { id: "createdAt", desc: true },
   ]);
-  const searchParams = useSearchParams();
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    searchParams.size
-      ? [
-          {
-            id: searchParams.get("id") as string,
-            value: JSON.parse(searchParams.get("value") as string),
-          },
-        ]
-      : []
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(() =>
+    getInitialColumnFilters()
   );
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
@@ -429,12 +596,6 @@ export const FeaturesList = ({
   const selectedRows = table
     .getFilteredSelectedRowModel()
     .rows.map((row) => row.original.id);
-
-  useEffect(() => {
-    if (error) {
-      handleError(error.message);
-    }
-  }, [error]);
 
   const fetchMoreOnBottomReached = useCallback(() => {
     const { scrollY, innerHeight } = window;
@@ -475,11 +636,7 @@ export const FeaturesList = ({
     show({ groupId, productId });
   };
 
-  const uniqueStatuses: {
-    label: string;
-    value: string;
-    color: string;
-  }[] = [];
+  const uniqueStatuses: FeatureFilterOption[] = [];
 
   for (const status of statuses) {
     uniqueStatuses.push({
@@ -512,130 +669,17 @@ export const FeaturesList = ({
   return (
     <>
       <Header badge={count} breadcrumbs={breadcrumbs} title={title}>
-        <div className="-m-2 flex flex-1 items-center justify-end gap-2">
-          <FeaturesListFilter
-            column={table.getColumn("status")}
-            icon={FilterIcon}
-            options={uniqueStatuses}
-            renderItem={(item) => {
-              const source = uniqueStatuses.find(
-                (status) => status.value === item.value
-              );
-
-              if (!source) {
-                return null;
-              }
-
-              return (
-                <div className="flex items-center gap-2">
-                  <div
-                    className="h-1.5 w-1.5 rounded-full"
-                    style={{ backgroundColor: source.color }}
-                  />
-                  {item.label}
-                </div>
-              );
-            }}
-            title="Status"
-          />
-          <FeaturesListFilter
-            column={table.getColumn("owner")}
-            icon={UserCircleIcon}
-            options={
-              members.map((member) => ({
-                label: getUserName(member),
-                value: member.id ?? "",
-                color: "",
-              })) ?? []
-            }
-            renderItem={(item) => {
-              const member = members.find(({ id }) => id === item.value);
-
-              if (!member) {
-                return null;
-              }
-
-              return (
-                <div className="flex items-center gap-2">
-                  {member.image ? (
-                    <Image
-                      alt=""
-                      className="h-5 w-5 rounded-full object-cover"
-                      height={20}
-                      src={member.image}
-                      width={20}
-                    />
-                  ) : (
-                    <div className="h-5 w-5 rounded-full bg-muted" />
-                  )}
-                  {item.label}
-                </div>
-              );
-            }}
-            title="Owner"
-          />
-          <form onSubmit={handleSearch}>
-            <Input
-              className="h-8 w-48 bg-background text-xs"
-              name="search"
-              placeholder="Search"
-            />
-          </form>
-          {role === FlowniRole.Member ? null : (
-            <Button className="shrink-0" onClick={handleShow} size="sm">
-              Create
-            </Button>
-          )}
-        </div>
+        <FeaturesHeaderActions
+          handleSearch={handleSearch}
+          handleShow={handleShow}
+          members={members}
+          role={role}
+          statusOptions={uniqueStatuses}
+          table={table}
+        />
       </Header>
 
-      <Table>
-        <TableHeader className="sticky top-[45px] z-10 bg-backdrop/90 backdrop-blur-sm">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.length > 0 ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                className="h-[53px]"
-                data-state={row.getIsSelected() && "selected"}
-                key={row.id}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                className="h-24 py-16 text-center"
-                colSpan={columns.length}
-              >
-                <EmptyState
-                  description="Try adjusting your filters or search query."
-                  title="No features found."
-                />
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+      <FeaturesTable columns={columns} table={table} />
 
       {table.getFilteredSelectedRowModel().rows.length > 0 && editable ? (
         <FeaturesToolbar
@@ -651,3 +695,9 @@ export const FeaturesList = ({
     </>
   );
 };
+
+export const FeaturesList = (props: FeaturesListProperties) => (
+  <Suspense fallback={null}>
+    <FeaturesListContent {...props} />
+  </Suspense>
+);

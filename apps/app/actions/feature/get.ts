@@ -23,7 +23,7 @@ export type GetFeatureResponse = Pick<
   } | null;
 };
 
-export type FeatureCursor = {
+type FeatureCursor = {
   readonly createdAt: string;
   readonly id: string;
 };

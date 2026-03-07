@@ -19,19 +19,59 @@ import { handleError } from "@repo/design-system/lib/handle-error";
 import { cn } from "@repo/design-system/lib/utils";
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
 import Image from "next/image";
-import { useId, useState } from "react";
+import { useId, useReducer } from "react";
 import { useConnectForm } from "../use-connect-form";
 import { connectToJira } from "./connect-to-jira";
 import type { SearchJiraIssuesResponse } from "./search-jira-issues";
 import { searchJiraIssues } from "./search-jira-issues";
 
+type JiraIssuePickerState = {
+  data: SearchJiraIssuesResponse["issues"];
+  loading: boolean;
+  open: boolean;
+  query: string;
+  value: string | undefined;
+};
+
+type JiraIssuePickerAction =
+  | { type: "set-data"; value: SearchJiraIssuesResponse["issues"] }
+  | { type: "set-loading"; value: boolean }
+  | { type: "set-open"; value: boolean }
+  | { type: "set-query"; value: string }
+  | { type: "set-value"; value: string | undefined };
+
+const initialState: JiraIssuePickerState = {
+  data: [],
+  loading: false,
+  open: false,
+  query: "",
+  value: undefined,
+};
+
+const jiraIssuePickerReducer = (
+  state: JiraIssuePickerState,
+  action: JiraIssuePickerAction
+): JiraIssuePickerState => {
+  switch (action.type) {
+    case "set-data":
+      return { ...state, data: action.value };
+    case "set-loading":
+      return { ...state, loading: action.value };
+    case "set-open":
+      return { ...state, open: action.value };
+    case "set-query":
+      return { ...state, query: action.value };
+    case "set-value":
+      return { ...state, value: action.value };
+    default:
+      return state;
+  }
+};
+
 export const JiraIssuePicker = () => {
   const { featureId, hide } = useConnectForm();
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<SearchJiraIssuesResponse["issues"]>([]);
-  const [value, setValue] = useState<string | undefined>();
+  const [state, dispatch] = useReducer(jiraIssuePickerReducer, initialState);
+  const { data, loading, open, query, value } = state;
   const id = useId();
   const selectedIssue = data.find((issue) => issue.id === value);
   const disabled = !featureId || loading || !value || !selectedIssue;
@@ -41,7 +81,7 @@ export const JiraIssuePicker = () => {
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: "set-loading", value: true });
 
     try {
       const { error } = await connectToJira({
@@ -61,17 +101,17 @@ export const JiraIssuePicker = () => {
     } catch (error) {
       handleError(error);
     } finally {
-      setLoading(false);
+      dispatch({ type: "set-loading", value: false });
     }
   };
 
   useDebouncedEffect(
     () => {
-      setLoading(true);
+      dispatch({ type: "set-loading", value: true });
 
       if (!query) {
-        setData([]);
-        setLoading(false);
+        dispatch({ type: "set-data", value: [] });
+        dispatch({ type: "set-loading", value: false });
         return;
       }
 
@@ -83,9 +123,11 @@ export const JiraIssuePicker = () => {
 
           return response.issues;
         })
-        .then(setData)
+        .then((issues) => dispatch({ type: "set-data", value: issues }))
         .catch(handleError)
-        .finally(() => setLoading(false));
+        .finally(() => {
+          dispatch({ type: "set-loading", value: false });
+        });
     },
     [query],
     200
@@ -95,7 +137,12 @@ export const JiraIssuePicker = () => {
     <div className="flex items-end gap-4">
       <div className="flex w-full flex-col gap-2">
         <Label htmlFor={id}>Select an existing issue</Label>
-        <Popover onOpenChange={setOpen} open={open}>
+        <Popover
+          onOpenChange={(nextOpen) =>
+            dispatch({ type: "set-open", value: nextOpen })
+          }
+          open={open}
+        >
           <PopoverTrigger asChild>
             <Button
               aria-expanded={open}
@@ -128,7 +175,9 @@ export const JiraIssuePicker = () => {
               <div className="relative">
                 <CommandInput
                   className="h-9"
-                  onValueChange={setQuery}
+                  onValueChange={(nextQuery) =>
+                    dispatch({ type: "set-query", value: nextQuery })
+                  }
                   placeholder="Search issues..."
                   value={query}
                 />
@@ -146,8 +195,8 @@ export const JiraIssuePicker = () => {
                       className="flex items-center gap-2"
                       key={issue.id}
                       onSelect={(currentValue) => {
-                        setValue(currentValue);
-                        setOpen(false);
+                        dispatch({ type: "set-value", value: currentValue });
+                        dispatch({ type: "set-open", value: false });
                       }}
                       value={issue.id}
                     >

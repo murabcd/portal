@@ -4,7 +4,6 @@ import { handleError } from "@repo/design-system/lib/handle-error";
 import { formatDate } from "@repo/lib/format";
 import type { InfiniteData } from "@tanstack/react-query";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
 import type {
   FeedbackOrganizationCursor,
   GetFeedbackCompaniesResponse,
@@ -19,16 +18,16 @@ export const FeedbackCompanyList = () => {
     nextCursor: FeedbackOrganizationCursor | null;
   };
 
-  const { data, error, fetchNextPage, isFetching, hasNextPage } =
-    useInfiniteQuery<
-      FeedbackCompaniesPage,
-      Error,
-      InfiniteData<FeedbackCompaniesPage>,
-      string[],
-      FeedbackOrganizationCursor | null
-    >({
-      queryKey: ["feedbackCompanies"],
-      queryFn: async ({ pageParam }): Promise<FeedbackCompaniesPage> => {
+  const { data, fetchNextPage, isFetching, hasNextPage } = useInfiniteQuery<
+    FeedbackCompaniesPage,
+    Error,
+    InfiniteData<FeedbackCompaniesPage>,
+    string[],
+    FeedbackOrganizationCursor | null
+  >({
+    queryKey: ["feedbackCompanies"],
+    queryFn: async ({ pageParam }): Promise<FeedbackCompaniesPage> => {
+      try {
         const response = await getFeedbackCompanies(pageParam);
 
         if ("error" in response) {
@@ -36,16 +35,14 @@ export const FeedbackCompanyList = () => {
         }
 
         return response;
-      },
-      initialPageParam: null as FeedbackOrganizationCursor | null,
-      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-    });
-
-  useEffect(() => {
-    if (error) {
-      handleError(error.message);
-    }
-  }, [error]);
+      } catch (error) {
+        handleError(error);
+        throw error;
+      }
+    },
+    initialPageParam: null as FeedbackOrganizationCursor | null,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+  });
 
   return (
     <ItemList

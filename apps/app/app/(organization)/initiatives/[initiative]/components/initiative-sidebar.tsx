@@ -35,6 +35,318 @@ type InitiativeSidebarProperties = {
   readonly initiativeId: Initiative["id"];
 };
 
+type SidebarMember = Awaited<ReturnType<typeof currentMembers>>[number];
+type SidebarPage = {
+  id: string;
+  title: string;
+  default: boolean;
+};
+type SidebarCanvas = {
+  id: string;
+  title: string;
+};
+type SidebarTeamMember = {
+  userId: string;
+};
+type SidebarExternalLink = {
+  id: string;
+  href: string;
+  title: string;
+};
+type SidebarFile = {
+  id: string;
+  name: string;
+  url: string;
+};
+type SidebarFeatureLink = {
+  id: string;
+  title: string;
+  status: { color: string };
+  initiatives: { id: string }[];
+};
+type SidebarGroupLink = {
+  id: string;
+  name: string;
+  emoji: string;
+  initiatives: { id: string }[];
+};
+type SidebarProductLink = {
+  id: string;
+  name: string;
+  emoji: string;
+  initiatives: { id: string }[];
+};
+
+const InitiativeTeamSection = ({
+  canEdit,
+  initiativeId,
+  members,
+  team,
+}: {
+  canEdit: boolean;
+  initiativeId: string;
+  members: SidebarMember[];
+  team: SidebarTeamMember[];
+}) => (
+  <SettingsBarItem
+    action={
+      canEdit ? (
+        <InitiativeMemberPicker
+          defaultMembers={team.map(({ userId }) => userId)}
+          initiativeId={initiativeId}
+          users={staticify(members)}
+        />
+      ) : null
+    }
+    title="Team"
+  >
+    <div className="flex flex-wrap items-center gap-1">
+      {team.map((member) => {
+        const memberUser = members.find(
+          (candidate) => candidate.id === member.userId
+        );
+
+        if (!memberUser) {
+          return null;
+        }
+
+        return (
+          <AvatarTooltip
+            fallback={getUserName(memberUser).slice(0, 2)}
+            key={member.userId}
+            src={memberUser.image ?? undefined}
+            subtitle={memberUser.email ?? ""}
+            title={getUserName(memberUser)}
+          />
+        );
+      })}
+    </div>
+  </SettingsBarItem>
+);
+
+const InitiativeLinksSection = ({
+  canEdit,
+  externalLinks,
+  initiativeId,
+}: {
+  canEdit: boolean;
+  externalLinks: SidebarExternalLink[];
+  initiativeId: string;
+}) => (
+  <SettingsBarItem
+    action={
+      canEdit ? (
+        <CreateInitiativeLinkButton initiativeId={initiativeId} />
+      ) : null
+    }
+    title="Links"
+  >
+    <div className="flex flex-col gap-2">
+      {externalLinks.map((link) => (
+        <div className="flex items-center justify-between gap-4" key={link.id}>
+          <InitiativeExternalLinkButton {...link} />
+          {canEdit ? <DeleteExternalInitiativeLinkButton id={link.id} /> : null}
+        </div>
+      ))}
+    </div>
+  </SettingsBarItem>
+);
+
+const InitiativePagesSection = ({
+  canEdit,
+  canvases,
+  initiativeId,
+  pages,
+}: {
+  canEdit: boolean;
+  canvases: SidebarCanvas[];
+  initiativeId: string;
+  pages: SidebarPage[];
+}) => (
+  <SettingsBarItem
+    action={
+      canEdit ? (
+        <CreateInitiativePageButton initiativeId={initiativeId} />
+      ) : null
+    }
+    title="Pages"
+  >
+    <div className="flex flex-col gap-2">
+      {pages
+        .filter((page) => !page.default)
+        .map((page) => (
+          <Link
+            className="group flex items-center gap-1.5 font-medium text-xs"
+            href={`/initiatives/${initiativeId}/${page.id}`}
+            key={page.id}
+          >
+            <FilePenIcon size={16} />
+            <span className="w-full truncate group-hover:underline">
+              {page.title}
+            </span>
+          </Link>
+        ))}
+      {canvases.map((page) => (
+        <Link
+          className="group flex items-center gap-1.5 font-medium text-xs"
+          href={`/initiatives/${initiativeId}/${page.id}`}
+          key={page.id}
+        >
+          <FrameIcon size={16} />
+          <span className="w-full truncate group-hover:underline">
+            {page.title}
+          </span>
+        </Link>
+      ))}
+    </div>
+  </SettingsBarItem>
+);
+
+const InitiativeFilesSection = ({
+  canEdit,
+  files,
+  initiativeId,
+}: {
+  canEdit: boolean;
+  files: SidebarFile[];
+  initiativeId: string;
+}) => (
+  <SettingsBarItem
+    action={
+      canEdit ? (
+        <CreateInitiativeFileButton initiativeId={initiativeId} />
+      ) : null
+    }
+    title="Files"
+  >
+    <div className="flex flex-col gap-2">
+      {files.map((file) => (
+        <div className="flex items-center justify-between gap-4" key={file.id}>
+          <Link
+            className="group flex items-center gap-1.5 font-medium text-xs"
+            href={file.url}
+          >
+            <FileIcon size={16} />
+            <span className="w-full truncate group-hover:underline">
+              {file.name}
+            </span>
+          </Link>
+          {canEdit ? <DeleteInitiativeFileButton id={file.id} /> : null}
+        </div>
+      ))}
+    </div>
+  </SettingsBarItem>
+);
+
+const InitiativeConnectionsSection = ({
+  canEdit,
+  featuresWithLinks,
+  groupsWithLinks,
+  initiativeId,
+  productsWithLinks,
+}: {
+  canEdit: boolean;
+  featuresWithLinks: SidebarFeatureLink[];
+  groupsWithLinks: SidebarGroupLink[];
+  initiativeId: string;
+  productsWithLinks: SidebarProductLink[];
+}) => (
+  <SettingsBarItem
+    action={
+      canEdit ? (
+        <InitiativeLinkDialog
+          features={featuresWithLinks.filter(
+            (feature) =>
+              !feature.initiatives.some(
+                (linkedInitiative) => linkedInitiative.id === initiativeId
+              )
+          )}
+          groups={groupsWithLinks.filter(
+            (group) =>
+              !group.initiatives.some(
+                (linkedInitiative) => linkedInitiative.id === initiativeId
+              )
+          )}
+          initiativeId={initiativeId}
+          products={productsWithLinks.filter(
+            (product) =>
+              !product.initiatives.some(
+                (linkedInitiative) => linkedInitiative.id === initiativeId
+              )
+          )}
+        />
+      ) : null
+    }
+    title="Connections"
+  >
+    <div className="flex flex-col gap-2">
+      {featuresWithLinks
+        .filter((feature) =>
+          feature.initiatives.some(
+            (linkedInitiative) => linkedInitiative.id === initiativeId
+          )
+        )
+        .map((feature) => (
+          <Link
+            className="group flex items-center gap-1.5 font-medium text-xs"
+            href={`/features/${feature.id}`}
+            key={feature.id}
+          >
+            <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: feature.status.color }}
+              />
+            </span>
+            <span className="w-full truncate group-hover:underline">
+              {feature.title}
+            </span>
+          </Link>
+        ))}
+      {groupsWithLinks
+        .filter((group) =>
+          group.initiatives.some(
+            (linkedInitiative) => linkedInitiative.id === initiativeId
+          )
+        )
+        .map((group) => (
+          <Link
+            className="group flex items-center gap-1.5 font-medium text-xs"
+            href={`/features/groups/${group.id}`}
+            key={group.id}
+          >
+            <div className="flex h-4 w-4 items-center justify-center">
+              <Emoji id={group.emoji} size="0.825rem" />
+            </div>
+            <span className="w-full truncate group-hover:underline">
+              {group.name}
+            </span>
+          </Link>
+        ))}
+      {productsWithLinks
+        .filter((product) =>
+          product.initiatives.some(
+            (linkedInitiative) => linkedInitiative.id === initiativeId
+          )
+        )
+        .map((product) => (
+          <Link
+            className="group flex items-center gap-1.5 font-medium text-xs"
+            href={`/features/products/${product.id}`}
+            key={product.id}
+          >
+            <div className="flex h-4 w-4 items-center justify-center">
+              <Emoji id={product.emoji} size="0.825rem" />
+            </div>
+            <span className="w-full truncate group-hover:underline">
+              {product.name}
+            </span>
+          </Link>
+        ))}
+    </div>
+  </SettingsBarItem>
+);
+
 export const InitiativeSidebar = async ({
   initiativeId,
 }: InitiativeSidebarProperties) => {
@@ -176,12 +488,12 @@ export const InitiativeSidebar = async ({
     ...product,
     initiatives: linkedProductIds.has(product.id) ? [{ id: initiativeId }] : [],
   }));
+  const canEdit = user.organizationRole !== FlowniRole.Member;
+  const isMember = user.organizationRole === FlowniRole.Member;
 
   return (
     <SettingsBarRoot>
-      {user.organizationRole !== FlowniRole.Member && (
-        <InitiativeSettingsDropdown initiativeId={initiativeId} />
-      )}
+      {canEdit && <InitiativeSettingsDropdown initiativeId={initiativeId} />}
       <SettingsBarItem title="Created">
         <p className="text-sm">{formatDate(new Date(initiative.createdAt))}</p>
       </SettingsBarItem>
@@ -190,7 +502,7 @@ export const InitiativeSidebar = async ({
         <InitiativeOwnerPicker
           data={members}
           defaultValue={initiative.ownerId}
-          disabled={user.organizationRole === FlowniRole.Member}
+          disabled={isMember}
           initiativeId={initiativeId}
         />
       </SettingsBarItem>
@@ -198,233 +510,39 @@ export const InitiativeSidebar = async ({
       <SettingsBarItem title="Status">
         <InitiativeStatusPicker
           defaultValue={initiative.state}
-          disabled={user.organizationRole === FlowniRole.Member}
+          disabled={isMember}
           initiativeId={initiativeId}
         />
       </SettingsBarItem>
-
-      <SettingsBarItem
-        action={
-          user.organizationRole !== FlowniRole.Member && (
-            <InitiativeMemberPicker
-              defaultMembers={team.map(({ userId }) => userId)}
-              initiativeId={initiativeId}
-              users={staticify(members)}
-            />
-          )
-        }
-        title="Team"
-      >
-        <div className="flex flex-wrap items-center gap-1">
-          {team.map((member) => {
-            const memberUser = members.find(
-              (candidate) => candidate.id === member.userId
-            );
-
-            if (!memberUser) {
-              return null;
-            }
-
-            return (
-              <AvatarTooltip
-                fallback={getUserName(memberUser).slice(0, 2)}
-                key={member.userId}
-                src={memberUser.image ?? undefined}
-                subtitle={memberUser.email ?? ""}
-                title={getUserName(memberUser)}
-              />
-            );
-          })}
-        </div>
-      </SettingsBarItem>
-
-      <SettingsBarItem
-        action={
-          user.organizationRole !== FlowniRole.Member && (
-            <CreateInitiativeLinkButton initiativeId={initiativeId} />
-          )
-        }
-        title="Links"
-      >
-        <div className="flex flex-col gap-2">
-          {externalLinks.map((link) => (
-            <div
-              className="flex items-center justify-between gap-4"
-              key={link.id}
-            >
-              <InitiativeExternalLinkButton {...link} />
-              {user.organizationRole !== FlowniRole.Member && (
-                <DeleteExternalInitiativeLinkButton id={link.id} />
-              )}
-            </div>
-          ))}
-        </div>
-      </SettingsBarItem>
-
-      <SettingsBarItem
-        action={
-          user.organizationRole !== FlowniRole.Member && (
-            <CreateInitiativePageButton initiativeId={initiativeId} />
-          )
-        }
-        title="Pages"
-      >
-        <div className="flex flex-col gap-2">
-          {pages
-            .filter((page) => !page.default)
-            .map((page) => (
-              <Link
-                className="group flex items-center gap-1.5 font-medium text-xs"
-                href={`/initiatives/${initiativeId}/${page.id}`}
-                key={page.id}
-              >
-                <FilePenIcon size={16} />
-                <span className="w-full truncate group-hover:underline">
-                  {page.title}
-                </span>
-              </Link>
-            ))}
-          {canvases.map((page) => (
-            <Link
-              className="group flex items-center gap-1.5 font-medium text-xs"
-              href={`/initiatives/${initiativeId}/${page.id}`}
-              key={page.id}
-            >
-              <FrameIcon size={16} />
-              <span className="w-full truncate group-hover:underline">
-                {page.title}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </SettingsBarItem>
-
-      <SettingsBarItem
-        action={
-          user.organizationRole !== FlowniRole.Member && (
-            <CreateInitiativeFileButton initiativeId={initiativeId} />
-          )
-        }
-        title="Files"
-      >
-        <div className="flex flex-col gap-2">
-          {files.map((file) => (
-            <div
-              className="flex items-center justify-between gap-4"
-              key={file.id}
-            >
-              <Link
-                className="group flex items-center gap-1.5 font-medium text-xs"
-                href={file.url}
-                key={file.id}
-              >
-                <FileIcon size={16} />
-                <span className="w-full truncate group-hover:underline">
-                  {file.name}
-                </span>
-              </Link>
-              {user.organizationRole !== FlowniRole.Member && (
-                <DeleteInitiativeFileButton id={file.id} />
-              )}
-            </div>
-          ))}
-        </div>
-      </SettingsBarItem>
-
-      <SettingsBarItem
-        action={
-          user.organizationRole !== FlowniRole.Member && (
-            <InitiativeLinkDialog
-              features={featuresWithLinks.filter(
-                (feature) =>
-                  !feature.initiatives.some(
-                    (linkedInitiative) => linkedInitiative.id === initiativeId
-                  )
-              )}
-              groups={groupsWithLinks.filter(
-                (group) =>
-                  !group.initiatives.some(
-                    (linkedInitiative) => linkedInitiative.id === initiativeId
-                  )
-              )}
-              initiativeId={initiativeId}
-              products={productsWithLinks.filter(
-                (product) =>
-                  !product.initiatives.some(
-                    (linkedInitiative) => linkedInitiative.id === initiativeId
-                  )
-              )}
-            />
-          )
-        }
-        title="Connections"
-      >
-        <div className="flex flex-col gap-2">
-          {featuresWithLinks
-            .filter((feature) =>
-              feature.initiatives.some(
-                (linkedInitiative) => linkedInitiative.id === initiativeId
-              )
-            )
-            .map((feature) => (
-              <Link
-                className="group flex items-center gap-1.5 font-medium text-xs"
-                href={`/features/${feature.id}`}
-                key={feature.id}
-              >
-                <span className="flex h-4 w-4 shrink-0 items-center justify-center">
-                  <span
-                    className="h-2 w-2 rounded-full"
-                    style={{ backgroundColor: feature.status.color }}
-                  />
-                </span>
-                <span className="w-full truncate group-hover:underline">
-                  {feature.title}
-                </span>
-              </Link>
-            ))}
-          {groupsWithLinks
-            .filter((group) =>
-              group.initiatives.some(
-                (linkedInitiative) => linkedInitiative.id === initiativeId
-              )
-            )
-            .map((group) => (
-              <Link
-                className="group flex items-center gap-1.5 font-medium text-xs"
-                href={`/features/groups/${group.id}`}
-                key={group.id}
-              >
-                <div className="flex h-4 w-4 items-center justify-center">
-                  <Emoji id={group.emoji} size="0.825rem" />
-                </div>
-                <span className="w-full truncate group-hover:underline">
-                  {group.name}
-                </span>
-              </Link>
-            ))}
-          {productsWithLinks
-            .filter((product) =>
-              product.initiatives.some(
-                (linkedInitiative) => linkedInitiative.id === initiativeId
-              )
-            )
-            .map((product) => (
-              <Link
-                className="group flex items-center gap-1.5 font-medium text-xs"
-                href={`/features/products/${product.id}`}
-                key={product.id}
-              >
-                <div className="flex h-4 w-4 items-center justify-center">
-                  <Emoji id={product.emoji} size="0.825rem" />
-                </div>
-                <span className="w-full truncate group-hover:underline">
-                  {product.name}
-                </span>
-              </Link>
-            ))}
-        </div>
-      </SettingsBarItem>
+      <InitiativeTeamSection
+        canEdit={canEdit}
+        initiativeId={initiativeId}
+        members={members}
+        team={team}
+      />
+      <InitiativeLinksSection
+        canEdit={canEdit}
+        externalLinks={externalLinks}
+        initiativeId={initiativeId}
+      />
+      <InitiativePagesSection
+        canEdit={canEdit}
+        canvases={canvases}
+        initiativeId={initiativeId}
+        pages={pages}
+      />
+      <InitiativeFilesSection
+        canEdit={canEdit}
+        files={files}
+        initiativeId={initiativeId}
+      />
+      <InitiativeConnectionsSection
+        canEdit={canEdit}
+        featuresWithLinks={featuresWithLinks}
+        groupsWithLinks={groupsWithLinks}
+        initiativeId={initiativeId}
+        productsWithLinks={productsWithLinks}
+      />
     </SettingsBarRoot>
   );
 };
