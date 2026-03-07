@@ -6,7 +6,7 @@ import Ajv from "ajv-draft-04";
 // @ts-expect-error no types
 import betterAjvErrors from "better-ajv-errors";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
@@ -19,45 +19,46 @@ const emptyDoc = {
 };
 
 const ajv = new Ajv({ allErrors: true });
+const validateAdf = ajv.compile(schema);
+const initialSource = JSON.stringify(emptyDoc, null, 2);
+const initialAdf = {
+  version: 1,
+  ...convertToAdf(emptyDoc),
+};
 
 export const Validator = () => {
-  const [source, setSource] = useState(JSON.stringify(emptyDoc, null, 2));
-  const [adf, setAdf] = useState(convertToAdf(emptyDoc));
-  const [adfError, setAdfError] = useState<Error | null>(null);
-  const [validationErrors, setValidationErrors] = useState<string>("");
-
-  useEffect(() => {
-    console.log("Converting");
+  const [source, setSource] = useState(() => initialSource);
+  const { adf, adfError, validationErrors } = useMemo(() => {
     try {
       const parsedSource = JSON.parse(source);
-
-      const newAdf = {
+      const nextAdf = {
         version: 1,
         ...convertToAdf(parsedSource),
       };
+      const isValid = validateAdf(nextAdf);
+      const nextValidationErrors =
+        !isValid && validateAdf.errors
+          ? betterAjvErrors(schema, nextAdf, validateAdf.errors, {
+              indent: 2,
+            })
+          : "";
 
-      setAdf(newAdf);
-      setAdfError(null);
-    } catch (error) {
-      setAdfError(error as Error);
+      return {
+        adf: nextAdf,
+        adfError: null,
+        validationErrors: nextValidationErrors,
+      };
+    } catch (error: unknown) {
+      return {
+        adf: initialAdf,
+        adfError:
+          error instanceof Error
+            ? error
+            : new Error("Failed to parse source JSON."),
+        validationErrors: "",
+      };
     }
   }, [source]);
-
-  useEffect(() => {
-    console.log("Validating");
-    const validate = ajv.compile(schema);
-    const isValid = validate(adf);
-
-    if (!isValid && validate.errors) {
-      const betterErrors = betterAjvErrors(schema, adf, validate.errors, {
-        indent: 2,
-      });
-
-      setValidationErrors(betterErrors);
-    } else {
-      setValidationErrors("");
-    }
-  }, [adf]);
 
   return (
     <div className="grid h-screen grid-rows-2 bg-backdrop">
