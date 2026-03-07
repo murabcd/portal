@@ -1,7 +1,7 @@
+import { createMetadata } from "@repo/lib/metadata";
 import { BuildingIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { EmptyState } from "@/components/empty-state";
-import { createMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = createMetadata({
   title: "Companies",

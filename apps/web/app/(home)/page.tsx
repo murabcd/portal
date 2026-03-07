@@ -1,7 +1,7 @@
 import { getLatestPublishedChangelogTitle } from "@repo/backend/public-changelog";
+import { createMetadata } from "@repo/lib/metadata";
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
-import { createMetadata } from "@/lib/metadata";
 import { Hero } from "./components/hero";
 
 export const metadata: Metadata = createMetadata({

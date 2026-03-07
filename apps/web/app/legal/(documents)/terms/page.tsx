@@ -1,13 +1,11 @@
+import { createMetadata } from "@repo/lib/metadata";
 import type { Metadata } from "next";
 
 const title = "Terms of Service";
 const description =
   "These Terms of Service govern your use of the website and any related services provided by Portal. By accessing any of the sites mentioned above, you agree to abide by these Terms of Service and to comply with all applicable laws and regulations.";
 
-export const metadata: Metadata = {
-  title,
-  description,
-};
+export const metadata: Metadata = createMetadata({ title, description });
 
 const Terms = () => (
   <>

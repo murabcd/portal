@@ -20,11 +20,11 @@ import {
 import { StackCard } from "@repo/design-system/components/stack-card";
 import type { JSONContent } from "@repo/editor";
 import { contentToText } from "@repo/editor/lib/tiptap";
+import { createMetadata } from "@repo/lib/metadata";
 import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { createMetadata } from "@/lib/metadata";
 import { FeedbackEditor } from "./components/feedback-editor";
 import { FeedbackPanel } from "./components/feedback-panel";
 import { FeedbackTitle } from "./components/feedback-title";

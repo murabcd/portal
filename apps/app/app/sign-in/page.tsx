@@ -6,13 +6,13 @@ import { Prose } from "@repo/design-system/components/prose";
 import { Badge } from "@repo/design-system/components/ui/badge";
 import { contentToMarkdown } from "@repo/editor/lib/tiptap";
 import { formatDate } from "@repo/lib/format";
+import { createMetadata } from "@repo/lib/metadata";
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AvatarTooltip } from "@/components/avatar-tooltip";
 import { MemoizedReactMarkdown } from "@/components/markdown";
 import { handleAuthedState } from "@/lib/auth";
-import { createMetadata } from "@/lib/metadata";
 import { LoginForm } from "./components/form";
 import { UrlErrors } from "./components/url-errors";
 

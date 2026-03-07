@@ -1,4 +1,5 @@
 import { currentUser } from "@repo/backend/auth/utils";
+import { createMetadata } from "@repo/lib/metadata";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
@@ -9,10 +10,10 @@ const Greeting = dynamic(
   { loading: () => null }
 );
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createMetadata({
   title: "Home",
   description: "The homepage for your organization.",
-};
+});
 
 const Home = async () => {
   const user = await currentUser();

@@ -5,12 +5,12 @@ import {
   currentUser,
 } from "@repo/backend/auth/utils";
 import { tables } from "@repo/backend/database";
+import { createMetadata } from "@repo/lib/metadata";
 import { eq, sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { database } from "@/lib/database";
-import { createMetadata } from "@/lib/metadata";
 import { toMemberInfoList } from "@/lib/serialization";
 import { FeaturesEmptyState } from "../components/features-empty-state";
 import { FeaturesList } from "../components/features-list";

@@ -1,7 +1,7 @@
 import { currentMembers } from "@repo/backend/auth/utils";
 import { StackCard } from "@repo/design-system/components/stack-card";
+import { createMetadata } from "@repo/lib/metadata";
 import type { Metadata } from "next";
-import { createMetadata } from "@/lib/metadata";
 import { MembersTable } from "./components/members-table";
 
 const title = "Members";

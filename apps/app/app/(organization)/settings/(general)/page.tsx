@@ -1,11 +1,11 @@
 import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
 import { StackCard } from "@repo/design-system/components/stack-card";
+import { createMetadata } from "@repo/lib/metadata";
 import { eq } from "drizzle-orm";
 import { BookIcon, BuildingIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { createMetadata } from "@/lib/metadata";
 import { OrganizationDetailsForm } from "./components/organization-details-form";
 import { OrganizationLogoForm } from "./components/organization-logo-form";
 import { ProductDescriptionForm } from "./components/product-description-form";

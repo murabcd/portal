@@ -7,12 +7,12 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@repo/design-system/components/ui/resizable";
+import { createMetadata } from "@repo/lib/metadata";
 import { eq, sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { Header } from "@/components/header";
-import { createMetadata } from "@/lib/metadata";
 import { ChangelogEmptyState } from "./components/changelog-empty-state";
 import { ChangelogList } from "./components/changelog-list";
 import { CreateChangelogButton } from "./components/create-changelog-button";

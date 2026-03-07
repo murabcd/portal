@@ -1,11 +1,11 @@
 import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { Input } from "@repo/design-system/components/precomposed/input";
 import { StackCard } from "@repo/design-system/components/stack-card";
+import { createMetadata } from "@repo/lib/metadata";
 import { MailIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { createMetadata } from "@/lib/metadata";
 
 const title = "Email Integration";
 const description = "Send email to this address to create feedback in Portal.";

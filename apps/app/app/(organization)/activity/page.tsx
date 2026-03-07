@@ -1,6 +1,6 @@
 import { currentMembers } from "@repo/backend/auth/utils";
+import { createMetadata } from "@repo/lib/metadata";
 import type { Metadata } from "next";
-import { createMetadata } from "@/lib/metadata";
 import { toMemberInfoList } from "@/lib/serialization";
 import { ActivityFeed } from "./components/activity-feed";
 

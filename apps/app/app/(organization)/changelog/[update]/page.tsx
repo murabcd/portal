@@ -7,10 +7,10 @@ import {
 } from "@repo/backend/database";
 import type { JSONContent } from "@repo/editor";
 import { contentToText } from "@repo/editor/lib/tiptap";
+import { createMetadata } from "@repo/lib/metadata";
 import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { createMetadata } from "@/lib/metadata";
 import { ChangelogEditor } from "./components/changelog-editor";
 import { ChangelogSidebar } from "./components/changelog-sidebar";
 import { ChangelogTitle } from "./components/changelog-title";

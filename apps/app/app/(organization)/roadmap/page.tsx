@@ -5,10 +5,10 @@ import {
   currentUser,
 } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
+import { createMetadata } from "@repo/lib/metadata";
 import { and, asc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { createMetadata } from "@/lib/metadata";
 import { toMemberInfoList } from "@/lib/serialization";
 import {
   RoadmapEditor,

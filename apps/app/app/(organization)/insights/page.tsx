@@ -1,3 +1,4 @@
+import { createMetadata } from "@repo/lib/metadata";
 import type { Metadata } from "next";
 import { FeaturesSection } from "./components/features";
 import { FeedbackSection } from "./components/feedback";
@@ -8,10 +9,7 @@ import { RoadmapSection } from "./components/roadmap";
 const title = "Insights";
 const description = "Trends and insights for your product.";
 
-export const metadata: Metadata = {
-  title,
-  description,
-};
+export const metadata: Metadata = createMetadata({ title, description });
 
 const Insights = () => (
   <div className="divide-y">

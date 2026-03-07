@@ -1,8 +1,8 @@
 import { StackCard } from "@repo/design-system/components/stack-card";
+import { createMetadata } from "@repo/lib/metadata";
 import { ImportIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
-import { createMetadata } from "@/lib/metadata";
 import { MarkdownImportForm } from "./components/markdown-input-form";
 
 const title = "Import Markdown";

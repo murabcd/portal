@@ -1,7 +1,7 @@
 import { currentUser } from "@repo/backend/auth/utils";
+import { createMetadata } from "@repo/lib/metadata";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { createMetadata } from "@/lib/metadata";
 import { ModeToggle } from "./components/mode-toggle";
 import { ProfileForm } from "./components/profile-form";
 import { ProfilePhoto } from "./components/profile-photo";

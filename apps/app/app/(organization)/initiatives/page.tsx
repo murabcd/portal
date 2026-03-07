@@ -6,13 +6,13 @@ import {
   currentUser,
 } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
+import { createMetadata } from "@repo/lib/metadata";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { init } from "emoji-mart";
 import { CompassIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { EmptyState } from "@/components/empty-state";
-import { createMetadata } from "@/lib/metadata";
 import { toMemberInfoList } from "@/lib/serialization";
 import { CreateInitiativeButton } from "./components/create-initiative-button";
 import { InitiativeItem } from "./components/initiative-item";

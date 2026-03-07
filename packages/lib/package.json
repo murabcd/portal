@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
+    "./metadata": "./src/metadata.ts",
+    "./social-image": "./src/social-image.tsx",
     "./*": "./src/*.ts"
   },
   "devDependencies": {

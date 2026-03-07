@@ -1,8 +1,8 @@
 import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
+import { createMetadata } from "@repo/lib/metadata";
 import { and, asc, eq, isNotNull } from "drizzle-orm";
 import type { Metadata } from "next";
-import { createMetadata } from "@/lib/metadata";
 import { Calendar } from "./components/calendar";
 
 export const metadata: Metadata = createMetadata({

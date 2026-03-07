@@ -1,10 +1,10 @@
 import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
 import { StackCard } from "@repo/design-system/components/stack-card";
+import { createMetadata } from "@repo/lib/metadata";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { createMetadata } from "@/lib/metadata";
 import { CreateStatusButton } from "./components/create-status-button";
 import { FeatureStatusesList } from "./components/feature-statuses-list";
 

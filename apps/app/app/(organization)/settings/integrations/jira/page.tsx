@@ -1,9 +1,9 @@
 import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
+import { createMetadata } from "@repo/lib/metadata";
 import { eq, sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { createMetadata } from "@/lib/metadata";
 import { InstallJira } from "./components/install";
 import { ManageJira } from "./components/manage";
 

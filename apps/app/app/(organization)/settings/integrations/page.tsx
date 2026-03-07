@@ -4,11 +4,11 @@ import { Link } from "@repo/design-system/components/link";
 import { StackCard } from "@repo/design-system/components/stack-card";
 import { Badge } from "@repo/design-system/components/ui/badge";
 import { Button } from "@repo/design-system/components/ui/button";
+import { createMetadata } from "@repo/lib/metadata";
 import { count, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { database } from "@/lib/database";
-import { createMetadata } from "@/lib/metadata";
 
 const title = "Integrations";
 const description = "Connect your favorite tools to Portal.";

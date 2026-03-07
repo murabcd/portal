@@ -1,12 +1,12 @@
 import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
+import { createMetadata } from "@repo/lib/metadata";
 import { desc, eq } from "drizzle-orm";
 import { FlagIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { EmptyState } from "@/components/empty-state";
-import { createMetadata } from "@/lib/metadata";
 import { CreateReleaseButton } from "./components/create-release-button";
 import { ReleaseItem } from "./components/release-item";
 

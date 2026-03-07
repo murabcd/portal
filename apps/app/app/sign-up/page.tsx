@@ -1,7 +1,7 @@
 import { isGithubAuthEnabled } from "@repo/backend/auth/config";
+import { createMetadata } from "@repo/lib/metadata";
 import type { Metadata } from "next";
 import { handleAuthedState } from "@/lib/auth";
-import { createMetadata } from "@/lib/metadata";
 import { SignupForm } from "./components/form";
 
 const title = "Sign up";

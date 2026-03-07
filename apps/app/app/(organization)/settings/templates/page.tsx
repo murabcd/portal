@@ -1,7 +1,7 @@
 import { database, tables } from "@repo/backend/database";
+import { createMetadata } from "@repo/lib/metadata";
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { createMetadata } from "@/lib/metadata";
 import { CreateTemplateButton } from "./components/create-template-button";
 import { TemplateComponent } from "./components/template";
 

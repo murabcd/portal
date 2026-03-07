@@ -7,13 +7,13 @@ import {
 import { Separator } from "@repo/design-system/components/ui/separator";
 import { cn } from "@repo/design-system/lib/utils";
 import { contentToText } from "@repo/editor/lib/tiptap";
+import { createMetadata } from "@repo/lib/metadata";
 import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { FeedbackItem } from "@/app/(organization)/feedback/components/feedback-item";
-import { createMetadata } from "@/lib/metadata";
 
 type FeedbackUserPageProperties = {
   readonly params: Promise<{

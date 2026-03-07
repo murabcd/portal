@@ -1,9 +1,9 @@
 import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
+import { createMetadata } from "@repo/lib/metadata";
 import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { createMetadata } from "@/lib/metadata";
 import { FeatureSidebar } from "./components/feature-sidebar";
 
 type FeaturePageLayoutProperties = {

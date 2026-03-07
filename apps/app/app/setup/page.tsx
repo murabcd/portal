@@ -1,7 +1,7 @@
 import { currentOrganizationId } from "@repo/backend/auth/utils";
+import { createMetadata } from "@repo/lib/metadata";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { createMetadata } from "@/lib/metadata";
 import { CreateOrganizationForm } from "./components/form";
 import { SignOutButton } from "./components/sign-out-button";
 

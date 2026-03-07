@@ -6,10 +6,10 @@ import {
   tables,
 } from "@repo/backend/database";
 import type { CanvasState } from "@repo/canvas";
+import { createMetadata } from "@repo/lib/metadata";
 import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { createMetadata } from "@/lib/metadata";
 import { InitiativeCanvasLoader } from "../components/initiative-canvas";
 import { InitiativeCanvasDropdown } from "../components/initiative-canvas-dropdown";
 import { InitiativePageEditor } from "../components/initiative-page-editor";

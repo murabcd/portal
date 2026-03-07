@@ -1,9 +1,9 @@
 import { Link } from "@repo/design-system/components/link";
 import { StackCard } from "@repo/design-system/components/stack-card";
+import { createMetadata } from "@repo/lib/metadata";
 import { ArrowRightIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
-import { createMetadata } from "@/lib/metadata";
 
 const title = "Import from other apps";
 const description =

@@ -1,10 +1,10 @@
 import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
+import { createMetadata } from "@repo/lib/metadata";
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { createMetadata } from "@/lib/metadata";
 import { AiIndexingChart } from "./components/ai-indexing-chart";
 
 export const metadata: Metadata = createMetadata({

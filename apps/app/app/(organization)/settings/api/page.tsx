@@ -9,12 +9,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@repo/design-system/components/ui/sheet";
+import { createMetadata } from "@repo/lib/metadata";
 import { eq } from "drizzle-orm";
 import { BookIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { createMetadata } from "@/lib/metadata";
 import { APIDocumentation } from "./components/api-documentation";
 import { ApiKeysTable } from "./components/api-keys-table";
 

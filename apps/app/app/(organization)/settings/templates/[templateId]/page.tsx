@@ -8,10 +8,10 @@ import {
 import type { JsonValue } from "@repo/backend/drizzle/schema";
 import type { JSONContent } from "@repo/editor";
 import { contentToText, textToContent } from "@repo/editor/lib/tiptap";
+import { createMetadata } from "@repo/lib/metadata";
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { createMetadata } from "@/lib/metadata";
 import { TemplateEditor } from "./components/template-editor";
 import { TemplateTitle } from "./components/template-title";
 

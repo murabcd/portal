@@ -1,5 +1,5 @@
+import { createMetadata } from "@repo/lib/metadata";
 import type { Metadata } from "next";
-import { createMetadata } from "@/lib/metadata";
 import { ExportButton } from "./components/export-button";
 
 const title = "Export";

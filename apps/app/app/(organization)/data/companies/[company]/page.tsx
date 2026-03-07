@@ -6,13 +6,13 @@ import {
 } from "@repo/backend/database";
 import { Separator } from "@repo/design-system/components/ui/separator";
 import { contentToText } from "@repo/editor/lib/tiptap";
+import { createMetadata } from "@repo/lib/metadata";
 import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CompanyLogo } from "@/app/(organization)/components/company-logo";
 import { FeedbackItem } from "@/app/(organization)/feedback/components/feedback-item";
-import { createMetadata } from "@/lib/metadata";
 
 type FeedbackCompanyPageProperties = {
   readonly params: Promise<{
