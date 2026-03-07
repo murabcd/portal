@@ -4,8 +4,6 @@
   "main": "./index.ts",
   "types": "./index.ts",
   "scripts": {
-    "dev": "npm run build",
-    "build": "node -e \"console.log('backend build skipped: configure Drizzle for DB access')\"",
     "db:generate": "bun run drizzle:generate",
     "drizzle:introspect": "drizzle-kit introspect --config ./drizzle.config.ts",
     "drizzle:generate": "drizzle-kit generate --config ./drizzle.config.ts",
@@ -13,16 +11,16 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@repo/lib": "workspace:*",
     "@supabase/supabase-js": "^2.49.7",
     "@t3-oss/env-nextjs": "catalog:",
-    "better-auth": "catalog:",
+    "better-auth": "^1.4.0",
     "drizzle-orm": "^0.45.1",
     "nanoid": "catalog:",
     "pg": "^8.13.1",
     "react": "catalog:",
     "server-only": "catalog:",
-    "zod": "catalog:",
-    "@repo/lib": "workspace:*"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",

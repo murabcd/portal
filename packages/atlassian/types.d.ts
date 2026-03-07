@@ -1886,6 +1886,7 @@ export interface paths {
         };
         /**
          * Get custom field contexts default values
+         * @deprecated
          * @description Returns a [paginated](#pagination) list of defaults for a custom field. The results can be filtered by `contextId`, otherwise all values are returned. If no defaults are set for a context, nothing is returned.
          *     The returned object depends on type of the custom field:
          *
@@ -1925,6 +1926,7 @@ export interface paths {
         get: operations["getDefaultValues"];
         /**
          * Set custom field contexts default values
+         * @deprecated
          * @description Sets default for contexts of a custom field. Default are defined using these objects:
          *
          *      *  `CustomFieldContextDefaultValueDate` (type `datepicker`) for date fields.
@@ -2062,7 +2064,7 @@ export interface paths {
          * Delete custom field context
          * @description Deletes a [ custom field context](https://confluence.atlassian.com/adminjiracloud/what-are-custom-field-contexts-991923859.html).
          *
-         *     This API will not allow removing the global context from April 2026. See [CHANGE-3019](https://developer.atlassian.com/changelog/#CHANGE-3019)
+         *     This API will not allow removing the global context from April 2026. Instead, an HTTP 400 response will be returned. See [CHANGE-3019](https://developer.atlassian.com/changelog/#CHANGE-3019)
          *
          *     **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
          */
@@ -2088,7 +2090,7 @@ export interface paths {
          *
          *     If any of the issue types exists in the custom field context, the operation fails and no issue types are added.
          *
-         *     This API will not allow adding issue types to the global context from April 2026. See [CHANGE-3019](https://developer.atlassian.com/changelog/#CHANGE-3019)
+         *     This API will not allow adding issue types to the global context from April 2026. Instead, an HTTP 400 response will be returned. See [CHANGE-3019](https://developer.atlassian.com/changelog/#CHANGE-3019)
          *
          *     **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
          */
@@ -2256,7 +2258,7 @@ export interface paths {
          *
          *     If any project in the request is assigned to any context of the custom field, the operation fails.
          *
-         *     This API will not allow adding projects to the global context from April 2026. See [CHANGE-3019](https://developer.atlassian.com/changelog/#CHANGE-3019)
+         *     This API will not allow adding projects to the global context from April 2026. Instead, an HTTP 400 response will be returned. See [CHANGE-3019](https://developer.atlassian.com/changelog/#CHANGE-3019)
          *
          *     **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
          */
@@ -3246,6 +3248,30 @@ export interface paths {
          *     **[Permissions](#permissions) required:** Permission to access Jira and the user must own the filter.
          */
         delete: operations["deleteSharePermission"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/rest/api/2/forge/panel/action/bulk/async": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk pin or unpin issue panel to projects
+         * @description Bulk pin or unpin an issue panel (added by a Forge app) to or from multiple projects.
+         *
+         *     The operation runs asynchronously. The response includes a task ID - use the [Get task](#api-rest-api-2-task-taskId-get) endpoint to check progress.
+         *
+         *     **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+         */
+        post: operations["bulkPinUnpinProjectsAsync"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -8135,6 +8161,34 @@ export interface paths {
          *     **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
          */
         get: operations["getAllProjectAvatars"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/rest/api/2/project/{projectIdOrKey}/classification-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the classification configuration for a project
+         * @description Returns the consolidated classification configuration for a project's admin settings page.
+         *
+         *     This includes permitted classification levels (with status), the project's default classification level, the organization's default classification level, and the container override setting.
+         *
+         *     **[Permissions](#permissions) required:**
+         *
+         *      *  *Browse Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
+         *      *  *Administer projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
+         *      *  *Administer jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+         */
+        get: operations["getProjectClassificationConfig"];
         put?: never;
         post?: never;
         delete?: never;
@@ -16608,6 +16662,8 @@ export interface components {
             description?: string;
             /** @description The guideline of the data classification object. */
             guideline?: string;
+            /** @description The guideline in ADF (Atlassian Document Format) for rich text rendering. */
+            guidelineADF?: string;
             /** @description The ID of the data classification object. */
             id: string;
             /** @description The name of the data classification object. */
@@ -17521,6 +17577,13 @@ export interface components {
              * @description The index of the first item returned on the page.
              */
             readonly "start-index"?: number;
+        };
+        ForgePanelProjectPinAsyncResponse: {
+            taskId?: string;
+        };
+        ForgePanelProjectPinRequest: {
+            moduleId: string;
+            projectList: components["schemas"]["ProjectPinAction"][];
         };
         /** @description A group found in a search. */
         FoundGroup: {
@@ -22822,6 +22885,11 @@ export interface components {
         ProjectPermissions: {
             /** @description Whether the logged user can edit the project. */
             readonly canEdit?: boolean;
+        };
+        ProjectPinAction: {
+            /** @enum {string} */
+            action: "PIN" | "UNPIN";
+            projectIdOrKey: string;
         };
         /** @description Details about the roles in a project. */
         ProjectRole: {
@@ -28735,7 +28803,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /** @example {"description":"Field Association Scheme test description","id":1000,"isDefault":false,"links":{"associations":"rest/api/3/config/fieldschemes/10000/associations","projects":"rest/api/3/config/fieldschemes/10000/projects"},"matchedFilters":{"projectIds":[10001,10002],"query":"query"},"name":"Field Association Scheme test name"} */
+                    /** @example {"description":"Field Association Scheme test description","id":1000,"isDefault":false,"links":{"associations":"rest/api/3/config/fieldschemes/10000/fields","projects":"rest/api/3/config/fieldschemes/10000/projects"},"matchedFilters":{"projectIds":[10001,10002],"query":"query"},"name":"Field Association Scheme test name"} */
                     "application/json": components["schemas"]["PageBean2GetFieldAssociationSchemeResponse"];
                 };
             };
@@ -28803,7 +28871,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /** @example {"description":"Field association scheme description","id":10000,"links":{"associations":"{BASE_API_URL}/rest/api/2/config/fieldschemes/9/associations","projects":"{BASE_API_URL}/rest/api/2/config/fieldschemes/9/projects"},"name":"Field association scheme name"} */
+                    /** @example {"description":"Field association scheme description","id":10000,"links":{"associations":"{BASE_API_URL}/rest/api/2/config/fieldschemes/9/fields","projects":"{BASE_API_URL}/rest/api/2/config/fieldschemes/9/projects"},"name":"Field association scheme name"} */
                     "application/json": components["schemas"]["CreateFieldAssociationSchemeResponse"];
                 };
             };
@@ -29419,7 +29487,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /** @example {"description":"This is a field association scheme","id":"123","isDefault":false,"links":{"associations":"rest/api/3/config/fieldschemes/10000/associations","projects":"rest/api/3/config/fieldschemes/10000/projects"},"name":"Scheme"} */
+                    /** @example {"description":"This is a field association scheme","id":"123","isDefault":false,"links":{"associations":"rest/api/3/config/fieldschemes/10000/fields","projects":"rest/api/3/config/fieldschemes/10000/projects"},"name":"Scheme"} */
                     "application/json": components["schemas"]["GetFieldAssociationSchemeByIdResponse"];
                 };
             };
@@ -29471,7 +29539,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /** @example {"description":"Field association scheme description","id":10000,"links":{"associations":"{BASE_API_URL}/rest/api/2/config/fieldschemes/9/associations","projects":"{BASE_API_URL}/rest/api/2/config/fieldschemes/9/projects"},"name":"Field association scheme name"} */
+                    /** @example {"description":"Field association scheme description","id":10000,"links":{"associations":"{BASE_API_URL}/rest/api/2/config/fieldschemes/9/fields","projects":"{BASE_API_URL}/rest/api/2/config/fieldschemes/9/projects"},"name":"Field association scheme name"} */
                     "application/json": components["schemas"]["UpdateFieldAssociationSchemeResponse"];
                 };
             };
@@ -29611,7 +29679,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /** @example {"description":"Field association scheme description","id":10000,"links":{"associations":"{BASE_API_URL}/rest/api/2/config/fieldschemes/9/associations","projects":"{BASE_API_URL}/rest/api/2/config/fieldschemes/9/projects"},"name":"Field association scheme name"} */
+                    /** @example {"description":"Field association scheme description","id":10000,"links":{"associations":"{BASE_API_URL}/rest/api/2/config/fieldschemes/9/fields","projects":"{BASE_API_URL}/rest/api/2/config/fieldschemes/9/projects"},"name":"Field association scheme name"} */
                     "application/json": components["schemas"]["CreateFieldAssociationSchemeResponse"];
                 };
             };
@@ -35936,6 +36004,58 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    bulkPinUnpinProjectsAsync: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Forge module ID and the list of projects with pin or unpin action */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForgePanelProjectPinRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted. Returns the task ID for polling progress. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForgePanelProjectPinAsyncResponse"];
+                };
+            };
+            /** @description Returned if the request body is invalid. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorCollection"];
+                };
+            };
+            /** @description Returned if the user does not have permission to administer Jira. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorCollection"];
+                };
+            };
+            /** @description Returned if the task could not be submitted (server error). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorCollection"];
+                };
             };
         };
     };
@@ -49343,6 +49463,44 @@ export interface operations {
             };
         };
     };
+    getProjectClassificationConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID or project key (case-sensitive). */
+                projectIdOrKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returned if the request is successful. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example {"classificationLevels":[{"id":"ari:cloud:platform::classification-tag/5bfa70f7-4af1-44f5-9e12-1ce185f15a38","status":"published","name":"Restricted","rank":1,"description":"Data we hold that would be very damaging and would cause loss of trust with customers and present legal risk if mishandled","guideline":"Access to data must be restricted to only individuals who need access in order to perform their job duties.","color":"RED"}],"containerOverride":"ANY","defaultClassificationLevel":{"id":"ari:cloud:platform::classification-tag/5bfa70f7-4af1-44f5-9e12-1ce185f15a38","status":"published","name":"Restricted","rank":1,"description":"Data we hold that would be very damaging and would cause loss of trust with customers and present legal risk if mishandled","guideline":"Access to data must be restricted to only individuals who need access in order to perform their job duties.","color":"RED"},"organizationClassificationLevel":{"id":"ari:cloud:platform::classification-tag/a82d653e-1035-4aa2-b9de-4265511fd487","status":"published","name":"Confidential","rank":2,"description":"Data we hold that would likely be damaging and could cause loss of trust with our customers if mishandled","guideline":"Data should be encrypted at rest and in transit.","color":"BLUE"}} */
+                    "application/json": unknown;
+                };
+            };
+            /** @description Returned if the user does not have the necessary permission. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Returned if the project is not found or the feature is disabled. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getDefaultProjectClassification: {
         parameters: {
             query?: never;
@@ -49361,7 +49519,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    /** @example {"classification":{"id":"ari:cloud:platform::classification-tag/5bfa70f7-4af1-44f5-9e12-1ce185f15a38","status":"published","name":"Restricted","rank":1,"description":"Data we hold that would be very damaging and would cause loss of trust with customers and present legal risk if mishandled","guideline":"Access to data must be restricted to only individuals who need access in order to perform their job duties.","color":"RED"}} */
+                    /** @example {"classification":{"id":"ari:cloud:platform::classification-tag/5bfa70f7-4af1-44f5-9e12-1ce185f15a38","status":"published","name":"Restricted","rank":1,"description":"Data we hold that would be very damaging and would cause loss of trust with customers and present legal risk if mishandled","guideline":"Access to data must be restricted to only individuals who need access in order to perform their job duties.","guidelineADF":"{\"version\":1,\"type\":\"doc\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Access to data must be restricted to only individuals who need access in order to perform their job duties.\"}]}]}","color":"RED"}} */
                     "application/json": unknown;
                 };
             };

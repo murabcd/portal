@@ -15,6 +15,13 @@
     "db:generate": {
       "cache": false
     },
+    "drizzle:push": {
+      "cache": false
+    },
+    "codegen": {
+      "cache": false,
+      "outputs": ["types.d.ts"]
+    },
     "analyze": {
       "cache": false
     },

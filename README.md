@@ -46,4 +46,15 @@ npm install
 npm run dev
 ```
 
-Your app should now be running on [localhost:3000](http://localhost:3000/).
+Local apps use these ports by default:
+
+- `app`: [localhost:3000](http://localhost:3000/)
+- `api`: [localhost:3001](http://localhost:3001/)
+- `web`: [localhost:3002](http://localhost:3002/)
+- `adf-validator`: [localhost:3003](http://localhost:3003/)
+
+To run only the main product app and marketing site:
+
+```bash
+npm run dev:core
+```

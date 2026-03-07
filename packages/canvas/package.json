@@ -8,6 +8,7 @@
     "@types/deep-equal": "catalog:",
     "@types/lodash.throttle": "catalog:",
     "@types/react": "catalog:",
+    "react": "catalog:",
     "typescript": "catalog:"
   },
   "dependencies": {
