@@ -14,4 +14,6 @@ export const handleAuthedState = async (): Promise<void> => {
   if (!organizationId) {
     redirect("/setup");
   }
+
+  redirect("/");
 };

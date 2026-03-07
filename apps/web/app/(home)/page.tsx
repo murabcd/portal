@@ -1,5 +1,4 @@
-import { database, tables } from "@repo/backend/database";
-import { desc, eq } from "drizzle-orm";
+import { getLatestPublishedChangelogTitle } from "@repo/backend/public-changelog";
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
 import { createMetadata } from "@/lib/metadata";
@@ -12,13 +11,7 @@ export const metadata: Metadata = createMetadata({
 });
 
 const Home = async (): Promise<ReactElement> => {
-  const latestUpdate = await database
-    .select({ title: tables.changelog.title })
-    .from(tables.changelog)
-    .where(eq(tables.changelog.status, "PUBLISHED"))
-    .orderBy(desc(tables.changelog.publishAt))
-    .limit(1)
-    .then((rows) => rows[0] ?? null);
+  const latestUpdate = await getLatestPublishedChangelogTitle();
 
   return <Hero id="hero" latestUpdate={latestUpdate?.title} />;
 };

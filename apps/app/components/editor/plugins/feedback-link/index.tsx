@@ -7,7 +7,7 @@ import {
 import { baseUrl } from "@repo/lib/consts";
 import { FeedbackLinkComponent } from "./feedback-link-component";
 
-const flowniLinkRegex = new RegExp(
+const portalLinkRegex = new RegExp(
   `^${baseUrl}feedback/([a-zA-Z0-9-]+)$`,
   "ug"
 );
@@ -32,7 +32,7 @@ export const feedbackLink = Node.create({
   addPasteRules() {
     return [
       nodePasteRule({
-        find: flowniLinkRegex,
+        find: portalLinkRegex,
         type: this.type,
         getAttributes: ([url, feedbackId]) => ({
           url,

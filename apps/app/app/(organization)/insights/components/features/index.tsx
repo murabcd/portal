@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
 import { Skeleton } from "@repo/design-system/components/precomposed/skeleton";
@@ -29,11 +29,11 @@ export const FeaturesSection = async () => {
       .then((rows) => rows[0]?.count ?? 0)) ?? 0;
 
   const role =
-    user.organizationRole === FlowniRole.Admin ||
-    user.organizationRole === FlowniRole.Editor ||
-    user.organizationRole === FlowniRole.Member
+    user.organizationRole === PortalRole.Admin ||
+    user.organizationRole === PortalRole.Editor ||
+    user.organizationRole === PortalRole.Member
       ? user.organizationRole
-      : FlowniRole.Member;
+      : PortalRole.Member;
 
   if (featuresCount === 0) {
     return (

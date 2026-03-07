@@ -1,6 +1,6 @@
 "use server";
 
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentUser } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
 import { createId } from "@repo/backend/id";
@@ -97,7 +97,7 @@ export const createOrganization = async ({
       .update(tables.user)
       .set({
         organizationId,
-        organizationRole: FlowniRole.Admin,
+        organizationRole: PortalRole.Admin,
         updatedAt: now,
       })
       .where(eq(tables.user.id, user.id));

@@ -1,6 +1,6 @@
 "use server";
 
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
 import { parseError } from "@repo/lib/parse-error";
@@ -20,7 +20,7 @@ export const removeUser = async (
       throw new Error("User not found");
     }
 
-    if (user.organizationRole !== FlowniRole.Admin) {
+    if (user.organizationRole !== PortalRole.Admin) {
       throw new Error("You are not authorized to delete users");
     }
 

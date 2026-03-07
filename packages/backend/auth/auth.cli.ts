@@ -3,18 +3,12 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { dbCli } from "../drizzle/db-cli";
 import { schema } from "../drizzle/schema";
 import { keys } from "../keys";
+import { loadMonorepoEnv } from "../load-env";
+import { githubProvider } from "./config";
+
+loadMonorepoEnv();
 
 const env = keys();
-
-const githubProvider =
-  env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET
-    ? {
-        github: {
-          clientId: env.GITHUB_CLIENT_ID,
-          clientSecret: env.GITHUB_CLIENT_SECRET,
-        },
-      }
-    : {};
 
 export const auth = betterAuth({
   database: drizzleAdapter(dbCli, {
@@ -23,6 +17,12 @@ export const auth = betterAuth({
   }),
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 300,
+    },
+  },
   socialProviders: githubProvider,
   user: {
     additionalFields: {

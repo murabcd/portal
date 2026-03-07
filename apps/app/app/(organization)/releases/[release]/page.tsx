@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import {
   currentMembers,
   currentOrganizationId,
@@ -71,10 +71,10 @@ const ReleasePage = async (props: ReleasePageProps) => {
         <div className="flex items-start justify-between gap-3">
           <ReleaseTitle
             defaultTitle={release.title}
-            editable={user.organizationRole !== FlowniRole.Member}
+            editable={user.organizationRole !== PortalRole.Member}
             releaseId={release.id}
           />
-          {user.organizationRole !== FlowniRole.Member && (
+          {user.organizationRole !== PortalRole.Member && (
             <ReleaseSettingsDropdown releaseId={release.id} />
           )}
         </div>
@@ -82,7 +82,7 @@ const ReleasePage = async (props: ReleasePageProps) => {
           <div>
             <ReleaseStatePicker
               defaultValue={release.state}
-              disabled={user.organizationRole === FlowniRole.Member}
+              disabled={user.organizationRole === PortalRole.Member}
               releaseId={release.id}
             />
           </div>
@@ -90,7 +90,7 @@ const ReleasePage = async (props: ReleasePageProps) => {
             <ReleaseDatePicker
               defaultEndAt={release.endAt}
               defaultStartAt={release.startAt}
-              disabled={user.organizationRole === FlowniRole.Member}
+              disabled={user.organizationRole === PortalRole.Member}
               releaseId={release.id}
             />
           </div>
@@ -115,7 +115,7 @@ const ReleasePage = async (props: ReleasePageProps) => {
               This release doesn't have any features yet! Head over to your
               feature backlog to assign some.
             </p>
-            {user.organizationRole !== FlowniRole.Member && (
+            {user.organizationRole !== PortalRole.Member && (
               <Button asChild className="w-fit" variant="outline">
                 <Link className="no-underline" href="/features">
                   Browse features

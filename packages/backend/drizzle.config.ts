@@ -1,10 +1,12 @@
-import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
+import { loadMonorepoEnv } from "./load-env";
 
-const postgresUrl = process.env.POSTGRES_URL_NON_POOLING;
+loadMonorepoEnv();
+
+const postgresUrl = process.env.DATABASE_URL;
 
 if (!postgresUrl) {
-  throw new Error("POSTGRES_URL_NON_POOLING is not set");
+  throw new Error("DATABASE_URL is not set");
 }
 
 export default defineConfig({

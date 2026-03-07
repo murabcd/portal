@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
 import { desc, eq } from "drizzle-orm";
@@ -41,7 +41,7 @@ const Releases = async () => {
     .where(eq(tables.release.organizationId, organizationId))
     .orderBy(desc(tables.release.startAt), desc(tables.release.title));
 
-  if (!releases.length && user.organizationRole === FlowniRole.Member) {
+  if (!releases.length && user.organizationRole === PortalRole.Member) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <EmptyState
@@ -77,7 +77,7 @@ const Releases = async () => {
             </h1>
             <p className="text-muted-foreground">{description}</p>
           </div>
-          {user.organizationRole !== FlowniRole.Member && (
+          {user.organizationRole !== PortalRole.Member && (
             <CreateReleaseButton />
           )}
         </div>

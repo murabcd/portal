@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import {
   currentMembers,
   currentOrganizationId,
@@ -124,7 +124,7 @@ const FeatureProduct = async (props: FeatureSeachPageProperties) => {
     notFound();
   }
 
-  const role = user.organizationRole ?? FlowniRole.Member;
+  const role = user.organizationRole ?? PortalRole.Member;
 
   return (
     <div className="h-full overflow-y-auto">
@@ -132,7 +132,7 @@ const FeatureProduct = async (props: FeatureSeachPageProperties) => {
         <FeaturesList
           breadcrumbs={[{ href: "/features", text: "Features" }]}
           count={totalCount}
-          editable={role !== FlowniRole.Member}
+          editable={role !== PortalRole.Member}
           groups={databaseOrganization.groups}
           members={membersLite}
           products={databaseOrganization.products}

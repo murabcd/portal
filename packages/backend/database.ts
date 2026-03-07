@@ -6,7 +6,6 @@ import { type JsonValue, schema } from "./drizzle/schema";
 export const database = db;
 export const tables = schema;
 
-/* Workaround for https://github.com/prisma/prisma/issues/11842 */
 export async function getJsonColumnFromTable(
   tableName:
     | "changelog"

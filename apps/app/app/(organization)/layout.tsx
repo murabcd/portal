@@ -1,4 +1,4 @@
-import { FlowniRole, type User } from "@repo/backend/auth";
+import { PortalRole, type User } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
 import {
@@ -76,7 +76,7 @@ const OrganizationLayout = async ({
     email: safeUser.email,
     image: safeUser.image ?? undefined,
     organizationRole: (safeUser.organizationRole ??
-      FlowniRole.Member) as FlowniRole,
+      PortalRole.Member) as PortalRole,
   };
 
   const sidebarOrganization = {

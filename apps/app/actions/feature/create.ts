@@ -1,6 +1,6 @@
 "use server";
 
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import { tables } from "@repo/backend/database";
 import { createId } from "@repo/backend/id";
@@ -40,7 +40,7 @@ export const createFeature = async ({
       throw new Error("You must be logged in to create a feature.");
     }
 
-    if (user.organizationRole === FlowniRole.Member) {
+    if (user.organizationRole === PortalRole.Member) {
       throw new Error("You must be an editor to create a feature.");
     }
 

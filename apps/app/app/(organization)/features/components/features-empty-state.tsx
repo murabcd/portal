@@ -1,6 +1,6 @@
 "use client";
 
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import type { Group, Product } from "@repo/backend/types";
 import { Button } from "@repo/design-system/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
@@ -24,7 +24,7 @@ export const FeaturesEmptyState = ({
 
   return (
     <EmptyState {...emptyStates.feature}>
-      {role !== FlowniRole.Member && (
+      {role !== PortalRole.Member && (
         <Button className="w-fit" onClick={handleShow}>
           Create a feature
         </Button>

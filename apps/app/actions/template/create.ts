@@ -1,6 +1,6 @@
 "use server";
 
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import {
   database,
@@ -36,7 +36,7 @@ export const createTemplate = async (
       throw new Error("Not logged in");
     }
 
-    if (user.organizationRole === FlowniRole.Member) {
+    if (user.organizationRole === PortalRole.Member) {
       throw new Error(
         "You don't have permission to create templates for this organization"
       );
@@ -86,7 +86,7 @@ export const createTemplateFromFeature = async (
       throw new Error("Not logged in");
     }
 
-    if (user.organizationRole === FlowniRole.Member) {
+    if (user.organizationRole === PortalRole.Member) {
       throw new Error(
         "You don't have permission to create templates for this organization"
       );

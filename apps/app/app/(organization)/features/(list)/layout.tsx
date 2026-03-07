@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { getUserName } from "@repo/backend/auth/format";
 import {
   currentMembers,
@@ -107,7 +107,7 @@ const FeatureListLayout = async ({ children }: FeatureListLayoutProperties) => {
 
   const modifiedFeatures = await Promise.all(promises);
 
-  const role = user.organizationRole ?? FlowniRole.Member;
+  const role = user.organizationRole ?? PortalRole.Member;
 
   return (
     <FeaturesDragProvider
@@ -128,7 +128,7 @@ const FeatureListLayout = async ({ children }: FeatureListLayoutProperties) => {
         >
           <div className="h-full border-r">
             <Header badge={productsWithGroups.length} title="Products">
-              {role === FlowniRole.Member ? null : (
+              {role === PortalRole.Member ? null : (
                 <FeatureCreateDropdown
                   hasProducts={productsWithGroups.length > 0}
                 />

@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import { notFound } from "next/navigation";
 import { type ReactNode, Suspense } from "react";
@@ -14,7 +14,7 @@ const SettingsLayout = async ({ children }: SettingsLayoutProperties) => {
     currentOrganizationId(),
   ]);
 
-  if (!(user && organizationId) || user.organizationRole !== FlowniRole.Admin) {
+  if (!(user && organizationId) || user.organizationRole !== PortalRole.Admin) {
     notFound();
   }
 

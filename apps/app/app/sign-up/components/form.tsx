@@ -4,8 +4,19 @@ import { Button } from "@repo/design-system/components/ui/button";
 import Link from "next/link";
 import { toast } from "sonner";
 
-export const SignupForm = () => {
+type SignupFormProperties = {
+  readonly githubAuthEnabled: boolean;
+};
+
+export const SignupForm = ({ githubAuthEnabled }: SignupFormProperties) => {
   const handleGithubSignUp = async () => {
+    if (!githubAuthEnabled) {
+      toast.error(
+        "GitHub sign-in requires GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET in .env.local."
+      );
+      return;
+    }
+
     try {
       await authClient.signIn.social({
         provider: "github",

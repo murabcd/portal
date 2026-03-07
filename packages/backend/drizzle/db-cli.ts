@@ -1,12 +1,15 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { keys } from "../keys";
+import { loadMonorepoEnv } from "../load-env";
 import { schema } from "./schema";
+
+loadMonorepoEnv();
 
 const env = keys();
 
 const pool = new Pool({
-  connectionString: env.POSTGRES_URL_NON_POOLING,
+  connectionString: env.DATABASE_URL,
   max: 1,
   idleTimeoutMillis: 10_000,
   connectionTimeoutMillis: 2000,

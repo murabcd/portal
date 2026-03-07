@@ -1,6 +1,6 @@
 "use server";
 
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { getUserName } from "@repo/backend/auth/format";
 import {
   currentMembers,
@@ -33,7 +33,7 @@ export const generateInitiativeUpdateContent = async (
       throw new Error("Not logged in");
     }
 
-    if (user.organizationRole === FlowniRole.Member) {
+    if (user.organizationRole === PortalRole.Member) {
       throw new Error(
         "You do not have permission to generate initiative updates"
       );

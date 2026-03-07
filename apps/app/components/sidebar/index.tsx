@@ -1,6 +1,6 @@
 "use client";
 
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { signOut } from "@repo/backend/auth/client";
 import { getUserName } from "@repo/backend/auth/format";
 import {
@@ -56,7 +56,7 @@ type SidebarUser = {
   readonly name: string;
   readonly email: string;
   readonly image?: string;
-  readonly organizationRole: FlowniRole;
+  readonly organizationRole: PortalRole;
 };
 
 type SidebarOrganization = {
@@ -152,12 +152,12 @@ export const Sidebar = ({ user, organization }: SidebarProps) => {
             ))}
           </SidebarMenu>
         </SidebarGroup>
-        {user.organizationRole !== FlowniRole.Member ? (
+        {user.organizationRole !== PortalRole.Member ? (
           <SidebarGroup className="mt-auto">
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarItem {...data} />
-                {user.organizationRole === FlowniRole.Admin ? (
+                {user.organizationRole === PortalRole.Admin ? (
                   <SidebarItem {...settings} />
                 ) : null}
               </SidebarMenu>

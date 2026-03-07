@@ -26,7 +26,7 @@ export const InstallJira = async () => {
 
   const webhookUrl = new URL(
     `/webhooks/jira/${databaseOrganization.slug}`,
-    env.FLOWNI_API_URL
+    env.PORTAL_API_URL
   );
 
   return (

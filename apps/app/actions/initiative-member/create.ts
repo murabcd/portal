@@ -1,7 +1,7 @@
 "use server";
 
 import type { User } from "@repo/backend/auth";
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
 import { createId } from "@repo/backend/id";
@@ -30,7 +30,7 @@ export const addInitiativeMember = async ({
       throw new Error("Not logged in");
     }
 
-    if (user.organizationRole === FlowniRole.Member) {
+    if (user.organizationRole === PortalRole.Member) {
       throw new Error("You don't have permission to add members");
     }
 

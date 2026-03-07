@@ -1,5 +1,5 @@
 import emojiData from "@emoji-mart/data";
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import {
   currentMembers,
   currentOrganizationId,
@@ -106,7 +106,7 @@ const Initiatives = async () => {
     };
   });
 
-  if (initiatives.length === 0 && user.organizationRole === FlowniRole.Member) {
+  if (initiatives.length === 0 && user.organizationRole === PortalRole.Member) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center">
         <EmptyState
@@ -136,7 +136,7 @@ const Initiatives = async () => {
             </h1>
             <p className="text-muted-foreground">{description}</p>
           </div>
-          {user.organizationRole !== FlowniRole.Member && (
+          {user.organizationRole !== PortalRole.Member && (
             <CreateInitiativeButton />
           )}
         </div>

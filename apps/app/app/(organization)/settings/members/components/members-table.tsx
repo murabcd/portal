@@ -1,6 +1,6 @@
 "use client";
 
-import { FlowniRole, type User } from "@repo/backend/auth";
+import { PortalRole, type User } from "@repo/backend/auth";
 import { getUserName } from "@repo/backend/auth/format";
 import {
   TableBody,
@@ -29,7 +29,7 @@ type MembersTableProps = {
 
 export const MembersTable = ({ data }: MembersTableProps) => {
   const handleUpdateUserRole = useCallback(
-    async (userId: string, value: FlowniRole) => {
+    async (userId: string, value: PortalRole) => {
       try {
         const response = await updateUserRole(userId, value);
 
@@ -109,12 +109,12 @@ export const MembersTable = ({ data }: MembersTableProps) => {
       ),
       cell: ({ row }) => (
         <Select
-          data={Object.values(FlowniRole).map((role) => ({
+          data={Object.values(PortalRole).map((role) => ({
             label: capitalize(role),
             value: role,
           }))}
           onChange={(value) =>
-            handleUpdateUserRole(row.original.id, value as FlowniRole)
+            handleUpdateUserRole(row.original.id, value as PortalRole)
           }
           value={row.original.organizationRole ?? undefined}
         />
@@ -131,7 +131,7 @@ export const MembersTable = ({ data }: MembersTableProps) => {
       ),
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          {row.original.organizationRole === FlowniRole.Admin ? null : (
+          {row.original.organizationRole === PortalRole.Admin ? null : (
             <DeleteUserButton userId={row.original.id} />
           )}
         </div>

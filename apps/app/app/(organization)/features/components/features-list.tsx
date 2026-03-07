@@ -1,6 +1,6 @@
 "use client";
 
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { getUserName } from "@repo/backend/auth/format";
 import type {
   FeatureStatus,
@@ -449,7 +449,7 @@ const FeaturesHeaderActions = ({
         placeholder="Search"
       />
     </form>
-    {role === FlowniRole.Member ? null : (
+    {role === PortalRole.Member ? null : (
       <Button className="shrink-0" onClick={handleShow} size="sm">
         Create
       </Button>

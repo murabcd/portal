@@ -1,6 +1,6 @@
 "use server";
 
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
 import type { Changelog, ChangelogTag } from "@repo/backend/types";
@@ -29,7 +29,7 @@ export const removeChangelogTag = async ({
       throw new Error("Not logged in");
     }
 
-    if (user.organizationRole === FlowniRole.Member) {
+    if (user.organizationRole === PortalRole.Member) {
       throw new Error("You do not have permission to remove changelog tags");
     }
 

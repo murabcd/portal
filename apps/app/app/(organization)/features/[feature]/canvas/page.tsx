@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentUser } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
 import type { CanvasState } from "@repo/canvas";
@@ -40,7 +40,7 @@ const FeatureCanvas = async (props: FeatureCanvasProperties) => {
     <div className="relative flex flex-1">
       <FeatureCanvasLoader
         defaultValue={feature.canvas as unknown as CanvasState | undefined}
-        editable={user.organizationRole !== FlowniRole.Member}
+        editable={user.organizationRole !== PortalRole.Member}
         featureId={params.feature}
       />
     </div>

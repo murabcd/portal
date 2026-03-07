@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import {
   database,
@@ -88,13 +88,13 @@ const FeaturePage = async (props: FeaturePageProperties) => {
       <div className="mx-auto grid w-full max-w-prose gap-6">
         <FeatureTitle
           defaultTitle={feature.title}
-          editable={user.organizationRole !== FlowniRole.Member}
+          editable={user.organizationRole !== PortalRole.Member}
           featureId={params.feature}
         />
         {content ? (
           <FeatureEditor
             defaultValue={content as JSONContent}
-            editable={user.organizationRole !== FlowniRole.Member}
+            editable={user.organizationRole !== PortalRole.Member}
             featureId={params.feature}
           />
         ) : (

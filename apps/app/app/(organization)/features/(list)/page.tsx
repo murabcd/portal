@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import {
   currentMembers,
   currentOrganizationId,
@@ -107,7 +107,7 @@ const FeaturesIndex = async () => {
   ]);
 
   const count = countResult ?? 0;
-  const role = user.organizationRole ?? FlowniRole.Member;
+  const role = user.organizationRole ?? PortalRole.Member;
 
   if (!(databaseOrganization && count)) {
     return <FeaturesEmptyState role={role} />;
@@ -118,7 +118,7 @@ const FeaturesIndex = async () => {
       <Suspense fallback={null}>
         <FeaturesList
           count={count}
-          editable={role !== FlowniRole.Member}
+          editable={role !== PortalRole.Member}
           groups={databaseOrganization.groups}
           members={membersLite}
           products={databaseOrganization.products}

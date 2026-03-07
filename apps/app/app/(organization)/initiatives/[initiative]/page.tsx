@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import {
   database,
@@ -134,7 +134,7 @@ const Initiative = async (props: InitiativeProperties) => {
           <div className="flex items-center justify-between gap-2">
             <InitiativeEmoji
               defaultEmoji={initiative.emoji}
-              editable={user.organizationRole !== FlowniRole.Member}
+              editable={user.organizationRole !== PortalRole.Member}
               initiativeId={params.initiative}
             />
             <CreateInitiativeUpdateButton
@@ -144,7 +144,7 @@ const Initiative = async (props: InitiativeProperties) => {
           </div>
           <InitiativeTitle
             defaultTitle={initiative.title}
-            editable={user.organizationRole !== FlowniRole.Member}
+            editable={user.organizationRole !== PortalRole.Member}
             initiativeId={params.initiative}
           />
           <InitiativeQuestionCard
@@ -153,7 +153,7 @@ const Initiative = async (props: InitiativeProperties) => {
           />
           <InitiativePageEditor
             defaultValue={content as JSONContent}
-            editable={user.organizationRole !== FlowniRole.Member}
+            editable={user.organizationRole !== PortalRole.Member}
             pageId={page.id}
           />
           <Suspense fallback={<Skeleton className="h-[366px] w-full" />}>

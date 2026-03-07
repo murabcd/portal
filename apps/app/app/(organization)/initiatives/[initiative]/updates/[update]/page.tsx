@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { getUserName } from "@repo/backend/auth/format";
 import {
   currentMembers,
@@ -122,7 +122,7 @@ const InitiativeUpdatePage = async (props: InitiativeUpdatePageProperties) => {
         <div className="mx-auto grid max-w-prose gap-8">
           <InitiativeUpdateTitle
             defaultTitle={update.title}
-            editable={user.organizationRole !== FlowniRole.Member}
+            editable={user.organizationRole !== PortalRole.Member}
             initiativeUpdateId={params.update}
           />
           <UpdateEmptyState
@@ -170,7 +170,7 @@ const InitiativeUpdatePage = async (props: InitiativeUpdatePageProperties) => {
           <div className="flex items-start justify-between gap-2">
             <InitiativeUpdateTitle
               defaultTitle={update.title}
-              editable={user.organizationRole !== FlowniRole.Member}
+              editable={user.organizationRole !== PortalRole.Member}
               initiativeUpdateId={params.update}
             />
             {update.emailSentAt ? (
@@ -197,7 +197,7 @@ const InitiativeUpdatePage = async (props: InitiativeUpdatePageProperties) => {
           {hasContent ? (
             <InitiativeUpdateEditor
               defaultValue={content as JSONContent}
-              editable={user.organizationRole !== FlowniRole.Member}
+              editable={user.organizationRole !== PortalRole.Member}
               initiativeUpdateId={params.update}
             />
           ) : (

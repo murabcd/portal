@@ -1,3 +1,4 @@
+import { isGithubAuthEnabled } from "@repo/backend/auth/config";
 import type { Metadata } from "next";
 import { handleAuthedState } from "@/lib/auth";
 import { createMetadata } from "@/lib/metadata";
@@ -14,7 +15,7 @@ const SignUpPage = async () => {
   return (
     <div className="flex h-screen w-screen items-center justify-center">
       <div className="w-full max-w-[400px] space-y-8">
-        <SignupForm />
+        <SignupForm githubAuthEnabled={isGithubAuthEnabled} />
         <p className="text-balance text-center text-muted-foreground text-sm">
           By signing in, you agree to our{" "}
           <a

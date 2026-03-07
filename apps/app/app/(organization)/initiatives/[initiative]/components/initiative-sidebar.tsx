@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { getUserName } from "@repo/backend/auth/format";
 import {
   currentMembers,
@@ -488,8 +488,8 @@ export const InitiativeSidebar = async ({
     ...product,
     initiatives: linkedProductIds.has(product.id) ? [{ id: initiativeId }] : [],
   }));
-  const canEdit = user.organizationRole !== FlowniRole.Member;
-  const isMember = user.organizationRole === FlowniRole.Member;
+  const canEdit = user.organizationRole !== PortalRole.Member;
+  const isMember = user.organizationRole === PortalRole.Member;
 
   return (
     <SettingsBarRoot>

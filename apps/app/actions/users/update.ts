@@ -1,6 +1,6 @@
 "use server";
 
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentMembers, currentUser } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
 import { parseError } from "@repo/lib/parse-error";
@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
 
 export const updateUserRole = async (
   userId: string,
-  role: FlowniRole
+  role: PortalRole
 ): Promise<{ error?: string }> => {
   try {
     const user = await currentUser();
@@ -18,19 +18,19 @@ export const updateUserRole = async (
       throw new Error("User not found");
     }
 
-    if (user.organizationRole !== FlowniRole.Admin) {
+    if (user.organizationRole !== PortalRole.Admin) {
       throw new Error("You are not authorized to update user roles");
     }
 
     const members = await currentMembers();
     const admins = members.filter(
-      (member) => member.organizationRole === FlowniRole.Admin
+      (member) => member.organizationRole === PortalRole.Admin
     );
 
     if (admins.length === 1) {
       const [admin] = admins;
 
-      if (admin.id === userId && role !== FlowniRole.Admin) {
+      if (admin.id === userId && role !== PortalRole.Admin) {
         throw new Error("There must be at least one admin.");
       }
     }

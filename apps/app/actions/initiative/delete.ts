@@ -1,6 +1,6 @@
 "use server";
 
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentUser } from "@repo/backend/auth/utils";
 import { tables } from "@repo/backend/database";
 import type { Initiative } from "@repo/backend/types";
@@ -21,7 +21,7 @@ export const deleteInitiative = async (
       throw new Error("Not logged in");
     }
 
-    if (user.organizationRole === FlowniRole.Member) {
+    if (user.organizationRole === PortalRole.Member) {
       throw new Error("You don't have permission to delete an initiative.");
     }
 

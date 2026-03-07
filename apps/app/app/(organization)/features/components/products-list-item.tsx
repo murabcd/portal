@@ -1,5 +1,5 @@
 import { useDroppable } from "@dnd-kit/core";
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { Emoji } from "@repo/design-system/components/emoji";
 import { EmojiSelector } from "@repo/design-system/components/emoji-selector";
 import { Link } from "@repo/design-system/components/link";
@@ -241,7 +241,7 @@ const ProductsListItemRow = ({
           <LoadingCircle />
         ) : (
           <div>
-            {role === FlowniRole.Member ? (
+            {role === PortalRole.Member ? (
               <div className="flex h-4 w-4 items-center justify-center">
                 <p className="text-sm">
                   <Emoji id={emoji} size="0.825rem" />
@@ -369,7 +369,7 @@ export const ProductsListItem = ({
   });
   const handleCreateFeature = createFeatureHandler(featureForm, createProps);
   const isActive = active ?? isOver;
-  const canManage = Boolean(onRename && onDelete) && role !== FlowniRole.Member;
+  const canManage = Boolean(onRename && onDelete) && role !== PortalRole.Member;
 
   return (
     <>

@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
 import { Tooltip } from "@repo/design-system/components/precomposed/tooltip";
@@ -71,11 +71,11 @@ const ChangelogLayout = async ({ children }: ChangelogLayoutProperties) => {
   const count = countResult?.[0]?.count ?? 0;
 
   const role =
-    user.organizationRole === FlowniRole.Admin ||
-    user.organizationRole === FlowniRole.Editor ||
-    user.organizationRole === FlowniRole.Member
+    user.organizationRole === PortalRole.Admin ||
+    user.organizationRole === PortalRole.Editor ||
+    user.organizationRole === PortalRole.Member
       ? user.organizationRole
-      : FlowniRole.Member;
+      : PortalRole.Member;
 
   if (count === 0) {
     return (
@@ -100,7 +100,7 @@ const ChangelogLayout = async ({ children }: ChangelogLayoutProperties) => {
       >
         <div className="h-full border-r">
           <Header badge={count} title="Changelog">
-            {role === FlowniRole.Member ? null : (
+            {role === PortalRole.Member ? null : (
               <div className="-m-2">
                 <Tooltip align="end" content="Post a new update" side="bottom">
                   <CreateChangelogButton />

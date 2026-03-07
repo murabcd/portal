@@ -1,7 +1,7 @@
 (() => {
-  const id = window.FlowniWidgetId;
-  const apiUrl = window.FlowniApiUrl ?? "https://api.portal.ai";
-  const darkMode = window.FlowniWidgetDarkMode ?? false;
+  const id = window.PortalWidgetId;
+  const apiUrl = window.PortalApiUrl ?? "https://api.portal.ai";
+  const darkMode = window.PortalWidgetDarkMode ?? false;
 
   if (!id) {
     throw new Error("Portal Widget ID is required");

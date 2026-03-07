@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@repo/atlassian";
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import { getJsonColumnFromTable, tables } from "@repo/backend/database";
 import type { JsonValue } from "@repo/backend/drizzle/schema";
@@ -110,7 +110,7 @@ export const updateFeature = async (
       throw new Error("Not logged in");
     }
 
-    if (user.organizationRole === FlowniRole.Member) {
+    if (user.organizationRole === PortalRole.Member) {
       throw new Error("You don't have permission to update features");
     }
 
@@ -192,7 +192,7 @@ export const updateFeatureFromTemplate = async (
       throw new Error("Not logged in");
     }
 
-    if (user.organizationRole === FlowniRole.Member) {
+    if (user.organizationRole === PortalRole.Member) {
       throw new Error("You don't have permission to update features");
     }
 

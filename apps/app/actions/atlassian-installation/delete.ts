@@ -1,6 +1,6 @@
 "use server";
 
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentUser } from "@repo/backend/auth/utils";
 import { tables } from "@repo/backend/database";
 import { parseError } from "@repo/lib/parse-error";
@@ -22,7 +22,7 @@ export const deleteAtlassianInstallation = async (): Promise<
       throw new Error("User not found");
     }
 
-    if (user.organizationRole === FlowniRole.Member) {
+    if (user.organizationRole === PortalRole.Member) {
       throw new Error(
         "You do not have permission to delete Atlassian installations"
       );

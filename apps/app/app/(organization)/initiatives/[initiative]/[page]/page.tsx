@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import {
   database,
@@ -132,7 +132,7 @@ const Initiative = async (props: InitiativeProperties) => {
         />
         <InitiativeCanvasLoader
           defaultValue={content as unknown as CanvasState | undefined}
-          editable={user.organizationRole !== FlowniRole.Member}
+          editable={user.organizationRole !== PortalRole.Member}
           initiativeCanvasId={params.page}
         />
       </div>
@@ -153,12 +153,12 @@ const Initiative = async (props: InitiativeProperties) => {
           <div className="mx-auto grid w-full max-w-prose gap-6">
             <InitiativePageTitle
               defaultTitle={page.title}
-              editable={user.organizationRole !== FlowniRole.Member}
+              editable={user.organizationRole !== PortalRole.Member}
               pageId={params.page}
             />
             <InitiativePageEditor
               defaultValue={content as never}
-              editable={user.organizationRole !== FlowniRole.Member}
+              editable={user.organizationRole !== PortalRole.Member}
               pageId={params.page}
             />
           </div>

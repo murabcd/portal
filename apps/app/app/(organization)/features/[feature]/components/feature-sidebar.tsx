@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import {
   currentMembers,
   currentOrganizationId,
@@ -490,7 +490,7 @@ export const FeatureSidebar = async ({
 
   return (
     <SettingsBarRoot>
-      {user.organizationRole !== FlowniRole.Member && (
+      {user.organizationRole !== PortalRole.Member && (
         <FeatureSettingsDropdown
           featureId={featureWithRelations.id}
           templates={templates}
@@ -513,7 +513,7 @@ export const FeatureSidebar = async ({
         <FeatureOwnerPicker
           data={membersLite}
           defaultValue={featureWithRelations.ownerId}
-          disabled={user.organizationRole === FlowniRole.Member}
+          disabled={user.organizationRole === PortalRole.Member}
           featureId={featureWithRelations.id}
         />
       </SettingsBarItem>
@@ -522,7 +522,7 @@ export const FeatureSidebar = async ({
         <FeatureProductPicker
           data={productsWithGroups}
           defaultValue={featureWithRelations.product?.id ?? undefined}
-          disabled={user.organizationRole === FlowniRole.Member}
+          disabled={user.organizationRole === PortalRole.Member}
           featureId={featureWithRelations.id}
         />
       </SettingsBarItem>
@@ -533,7 +533,7 @@ export const FeatureSidebar = async ({
             data={product?.groups ?? []}
             defaultValue={featureWithRelations.group?.id ?? undefined}
             disabled={
-              user.organizationRole === FlowniRole.Member ||
+              user.organizationRole === PortalRole.Member ||
               !(product?.groups.length ?? 0)
             }
             featureId={featureWithRelations.id}
@@ -544,7 +544,7 @@ export const FeatureSidebar = async ({
       <SettingsBarItem title="Status">
         <FeatureStatusPicker
           defaultValue={featureWithRelations.statusId}
-          disabled={user.organizationRole === FlowniRole.Member}
+          disabled={user.organizationRole === PortalRole.Member}
           featureId={featureWithRelations.id}
           statuses={featureStatuses}
         />
@@ -552,7 +552,7 @@ export const FeatureSidebar = async ({
 
       <SettingsBarItem
         action={
-          user.organizationRole !== FlowniRole.Member && (
+          user.organizationRole !== PortalRole.Member && (
             <FeatureClearReleaseButton featureId={featureWithRelations.id} />
           )
         }
@@ -560,7 +560,7 @@ export const FeatureSidebar = async ({
       >
         <FeatureReleasePicker
           defaultValue={featureWithRelations.releaseId ?? undefined}
-          disabled={user.organizationRole === FlowniRole.Member}
+          disabled={user.organizationRole === PortalRole.Member}
           featureId={featureWithRelations.id}
           releases={releases}
         />
@@ -568,7 +568,7 @@ export const FeatureSidebar = async ({
 
       <SettingsBarItem
         action={
-          user.organizationRole !== FlowniRole.Member && (
+          user.organizationRole !== PortalRole.Member && (
             <FeatureClearDateButton featureId={featureWithRelations.id} />
           )
         }
@@ -577,7 +577,7 @@ export const FeatureSidebar = async ({
         <FeatureDateRangePicker
           defaultEndAt={featureWithRelations.endAt}
           defaultStartAt={featureWithRelations.startAt}
-          disabled={user.organizationRole === FlowniRole.Member}
+          disabled={user.organizationRole === PortalRole.Member}
           featureId={featureWithRelations.id}
         />
       </SettingsBarItem>
@@ -585,7 +585,7 @@ export const FeatureSidebar = async ({
       <SettingsBarItem action={riceScoreCaption} title="RICE Score">
         <FeatureRiceEditor
           aiRice={featureWithRelations.aiRice}
-          disabled={user.organizationRole === FlowniRole.Member}
+          disabled={user.organizationRole === PortalRole.Member}
           featureId={featureWithRelations.id}
           rice={featureWithRelations.rice}
         />
@@ -619,7 +619,7 @@ export const FeatureSidebar = async ({
           </>
         ) : (
           <div className="flex flex-col">
-            {user.organizationRole === FlowniRole.Member ? null : (
+            {user.organizationRole === PortalRole.Member ? null : (
               <ConnectButton featureId={featureWithRelations.id} />
             )}
           </div>

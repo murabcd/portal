@@ -1,14 +1,12 @@
+import { isGithubAuthEnabled } from "@repo/backend/auth/config";
 import { getUserName } from "@repo/backend/auth/format";
-import {
-  database,
-  getJsonColumnFromTable,
-  tables,
-} from "@repo/backend/database";
+import { database, tables } from "@repo/backend/database";
+import { getLatestPublishedChangelogEntry } from "@repo/backend/public-changelog";
 import { Prose } from "@repo/design-system/components/prose";
 import { Badge } from "@repo/design-system/components/ui/badge";
 import { contentToMarkdown } from "@repo/editor/lib/tiptap";
 import { formatDate } from "@repo/lib/format";
-import { desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AvatarTooltip } from "@/components/avatar-tooltip";
@@ -48,51 +46,16 @@ const ContributorAvatar = async ({ userId }: { readonly userId: string }) => {
 const SignInPage = async () => {
   await handleAuthedState();
 
-  const latestUpdate = await database
-    .select({
-      id: tables.changelog.id,
-      title: tables.changelog.title,
-      publishAt: tables.changelog.publishAt,
-    })
-    .from(tables.changelog)
-    .where(eq(tables.changelog.status, "PUBLISHED"))
-    .orderBy(desc(tables.changelog.publishAt))
-    .limit(1)
-    .then((rows) => rows[0] ?? null);
-
-  const [contributors, tags] = latestUpdate
-    ? await Promise.all([
-        database
-          .select({ userId: tables.changelogContributor.userId })
-          .from(tables.changelogContributor)
-          .where(eq(tables.changelogContributor.changelogId, latestUpdate.id)),
-        database
-          .select({
-            id: tables.changelogTag.id,
-            name: tables.changelogTag.name,
-          })
-          .from(tables.changelogToChangelogTag)
-          .innerJoin(
-            tables.changelogTag,
-            eq(tables.changelogTag.id, tables.changelogToChangelogTag.b)
-          )
-          .where(eq(tables.changelogToChangelogTag.a, latestUpdate.id)),
-      ])
-    : [[], []];
-
-  const latestUpdateWithRelations = latestUpdate
-    ? { ...latestUpdate, contributors, tags }
-    : null;
-  const content = latestUpdate
-    ? await getJsonColumnFromTable("changelog", "content", latestUpdate.id)
-    : null;
-  const markdown = content ? await contentToMarkdown(content) : "No content.";
+  const latestUpdate = await getLatestPublishedChangelogEntry();
+  const markdown = latestUpdate?.content
+    ? await contentToMarkdown(latestUpdate.content)
+    : "No content.";
 
   return (
     <div className="grid h-screen w-screen divide-x lg:grid-cols-2">
       <div className="flex items-center justify-center">
         <div className="w-full max-w-[400px] space-y-8">
-          <LoginForm />
+          <LoginForm githubAuthEnabled={isGithubAuthEnabled} />
           <p className="text-balance text-center text-muted-foreground text-sm">
             By signing in, you agree to our{" "}
             <a
@@ -118,46 +81,44 @@ const SignInPage = async () => {
       </div>
       <div className="hidden h-full w-full items-start justify-center overflow-y-auto bg-background px-24 py-24 lg:flex">
         <div className="flex w-full flex-col gap-8">
-          {latestUpdateWithRelations ? (
+          {latestUpdate ? (
             <Prose
               className="mx-auto prose-img:rounded-lg"
-              key={latestUpdateWithRelations.id}
+              key={latestUpdate.id}
             >
               <p className="font-medium text-muted-foreground text-sm">
                 Latest update
               </p>
 
               <h1 className="mt-6 font-semibold! text-4xl!">
-                {latestUpdateWithRelations.title}
+                {latestUpdate.title}
               </h1>
 
               <div className="mt-4 mb-12 flex items-center gap-2">
                 <span className="text-sm">by</span>
                 <div className="not-prose flex items-center -space-x-1 hover:space-x-1 [&>*]:transition-all">
-                  {latestUpdateWithRelations.contributors.map((contributor) => (
+                  {latestUpdate.contributors.map((contributor) => (
                     <div key={contributor.userId}>
                       <ContributorAvatar userId={contributor.userId} />
                     </div>
                   ))}{" "}
                 </div>
                 <span className="text-sm">
-                  on {formatDate(new Date(latestUpdateWithRelations.publishAt))}
+                  on {formatDate(new Date(latestUpdate.publishAt))}
                 </span>
               </div>
 
               <MemoizedReactMarkdown>{markdown}</MemoizedReactMarkdown>
 
               <div className="my-8 flex flex-wrap items-center gap-1">
-                {latestUpdateWithRelations.tags.map((tag) => (
+                {latestUpdate.tags.map((tag) => (
                   <Badge key={tag.id} variant="secondary">
                     {tag.name}
                   </Badge>
                 ))}
               </div>
             </Prose>
-          ) : (
-            <p className="text-muted-foreground text-sm">No updates yet.</p>
-          )}
+          ) : null}
         </div>
       </div>
       <Suspense fallback={null}>

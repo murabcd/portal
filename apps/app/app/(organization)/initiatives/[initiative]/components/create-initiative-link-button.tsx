@@ -19,7 +19,7 @@ import JiraIcon from "@/public/jira.svg";
 import MiroIcon from "@/public/miro.svg";
 import NotionIcon from "@/public/notion.svg";
 import PitchIcon from "@/public/pitch.svg";
-import FlowniIcon from "@/public/portal.svg";
+import PortalIcon from "@/public/portal.svg";
 import WhimsicalIcon from "@/public/whimsical.svg";
 import ZoomIcon from "@/public/zoom.svg";
 
@@ -35,7 +35,7 @@ export const externalLinkProperties: {
   {
     value: "portal",
     regex: /portal.ai/u,
-    icon: FlowniIcon as StaticImageData,
+    icon: PortalIcon as StaticImageData,
   },
   {
     value: "dropbox",

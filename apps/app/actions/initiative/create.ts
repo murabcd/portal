@@ -1,6 +1,6 @@
 "use server";
 
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import { tables } from "@repo/backend/database";
 import type { JsonValue } from "@repo/backend/drizzle/schema";
@@ -29,7 +29,7 @@ export const createInitiative = async (
       throw new Error("You must be logged in to create an initiative.");
     }
 
-    if (user.organizationRole === FlowniRole.Member) {
+    if (user.organizationRole === PortalRole.Member) {
       throw new Error("You don't have permission to create an initiative.");
     }
 

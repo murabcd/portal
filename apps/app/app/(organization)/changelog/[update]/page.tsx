@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import {
   database,
@@ -101,13 +101,13 @@ const ChangelogPage = async (props: ChangelogPageProperties) => {
           <ChangelogTitle
             changelogId={changelog.id}
             defaultTitle={changelog.title}
-            editable={user.organizationRole !== FlowniRole.Member}
+            editable={user.organizationRole !== PortalRole.Member}
           />
           {content ? (
             <ChangelogEditor
               changelogId={changelog.id}
               defaultValue={content as JSONContent}
-              editable={user.organizationRole !== FlowniRole.Member}
+              editable={user.organizationRole !== PortalRole.Member}
             />
           ) : (
             <UpdateEmptyState changelogId={changelog.id} />

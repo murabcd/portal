@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentUser } from "@repo/backend/auth/utils";
 import { EmptyState } from "@/components/empty-state";
 import { emptyStates } from "@/lib/empty-states";
@@ -13,7 +13,7 @@ export const InitiativesEmptyState = async () => {
 
   return (
     <EmptyState {...emptyStates.initiative}>
-      {user.organizationRole !== FlowniRole.Member && (
+      {user.organizationRole !== PortalRole.Member && (
         <CreateInitiativeButton />
       )}
     </EmptyState>

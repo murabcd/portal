@@ -6,8 +6,19 @@ import { parseError } from "@repo/lib/parse-error";
 import Link from "next/link";
 import { toast } from "sonner";
 
-export const LoginForm = () => {
+type LoginFormProperties = {
+  readonly githubAuthEnabled: boolean;
+};
+
+export const LoginForm = ({ githubAuthEnabled }: LoginFormProperties) => {
   const handleGithubSignIn = async () => {
+    if (!githubAuthEnabled) {
+      toast.error(
+        "GitHub sign-in requires GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET in .env.local."
+      );
+      return;
+    }
+
     try {
       await authClient.signIn.social({
         provider: "github",

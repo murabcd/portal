@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { getUserName } from "@repo/backend/auth/format";
 import { currentMembers, currentUser } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
@@ -70,7 +70,7 @@ export const ChangelogSidebar = async ({
 
   return (
     <SettingsBarRoot>
-      {user.organizationRole !== FlowniRole.Member && (
+      {user.organizationRole !== PortalRole.Member && (
         <ChangelogSettingsDropdown changelogId={changelogId} />
       )}
 
@@ -82,13 +82,13 @@ export const ChangelogSidebar = async ({
         <ChangelogDatePicker
           changelogId={changelog.id}
           defaultPublishAt={changelog.publishAt}
-          disabled={user.organizationRole === FlowniRole.Member}
+          disabled={user.organizationRole === PortalRole.Member}
         />
       </SettingsBarItem>
 
       <SettingsBarItem
         action={
-          user.organizationRole !== FlowniRole.Member && (
+          user.organizationRole !== PortalRole.Member && (
             <ChangelogContributorsPicker
               changelogId={changelog.id}
               defaultContributors={contributors.map(({ userId }) => userId)}
@@ -125,7 +125,7 @@ export const ChangelogSidebar = async ({
         <ChangelogStatusPicker
           changelogId={changelog.id}
           defaultValue={changelog.status}
-          disabled={user.organizationRole === FlowniRole.Member}
+          disabled={user.organizationRole === PortalRole.Member}
         />
       </SettingsBarItem>
 
@@ -133,13 +133,13 @@ export const ChangelogSidebar = async ({
         <ChangelogSlugInput
           changelogId={changelog.id}
           defaultValue={changelog.slug ?? null}
-          disabled={user.organizationRole === FlowniRole.Member}
+          disabled={user.organizationRole === PortalRole.Member}
         />
       </SettingsBarItem>
 
       <SettingsBarItem
         action={
-          user.organizationRole !== FlowniRole.Member && (
+          user.organizationRole !== PortalRole.Member && (
             <ChangelogTagsPicker
               changelogId={changelog.id}
               defaultTags={tags.map(({ id }) => id)}

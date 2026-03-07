@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import {
   database,
@@ -100,12 +100,12 @@ const TemplatePage = async (props: TemplatePageProperties) => {
     <>
       <TemplateTitle
         defaultTitle={template.title}
-        editable={user.organizationRole !== FlowniRole.Member}
+        editable={user.organizationRole !== PortalRole.Member}
         templateId={params.templateId}
       />
       <TemplateEditor
         defaultValue={content as JSONContent}
-        editable={user.organizationRole !== FlowniRole.Member}
+        editable={user.organizationRole !== PortalRole.Member}
         templateId={params.templateId}
       />
     </>

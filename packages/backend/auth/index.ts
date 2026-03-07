@@ -3,10 +3,10 @@ import type { auth } from "./auth";
 export type Session = typeof auth.$Infer.Session;
 export type User = Session["user"];
 
-export const FlowniRole = {
+export const PortalRole = {
   Admin: "admin",
   Editor: "editor",
   Member: "member",
 } as const;
 
-export type FlowniRole = (typeof FlowniRole)[keyof typeof FlowniRole];
+export type PortalRole = (typeof PortalRole)[keyof typeof PortalRole];

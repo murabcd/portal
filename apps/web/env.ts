@@ -5,10 +5,10 @@ import { z } from "zod/v3";
 export const env = createEnv({
   extends: [core()],
   server: {
-    FLOWNI_ADMIN_WIDGET_ID: z.string().min(1),
+    PORTAL_ADMIN_WIDGET_ID: z.string().min(1),
   },
   client: {},
   runtimeEnv: {
-    FLOWNI_ADMIN_WIDGET_ID: process.env.FLOWNI_ADMIN_WIDGET_ID,
+    PORTAL_ADMIN_WIDGET_ID: process.env.PORTAL_ADMIN_WIDGET_ID,
   },
 });

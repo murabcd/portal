@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import {
   database,
@@ -139,7 +139,7 @@ const FeedbackPage = async (props: FeedbackPageProperties) => {
       <div className="mx-auto grid w-full max-w-prose gap-6 px-6 py-16">
         <FeedbackTitle
           defaultTitle={feedback.title}
-          editable={user.organizationRole !== FlowniRole.Member}
+          editable={user.organizationRole !== PortalRole.Member}
           feedbackId={params.feedback}
         />
         <Suspense fallback={<Skeleton className={cn("w-full", "h-[315px]")} />}>
@@ -186,7 +186,7 @@ const FeedbackPage = async (props: FeedbackPageProperties) => {
         ) : (
           <FeedbackEditor
             defaultValue={content as JSONContent}
-            editable={user.organizationRole !== FlowniRole.Member}
+            editable={user.organizationRole !== PortalRole.Member}
             feedbackId={params.feedback}
           >
             <TriageMenu

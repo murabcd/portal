@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import {
   currentMembers,
   currentOrganizationId,
@@ -104,7 +104,7 @@ export const Forms = async () => {
         userEmail={user.email ?? undefined}
         users={feedbackUsers}
       />
-      {user.organizationRole !== FlowniRole.Member && (
+      {user.organizationRole !== PortalRole.Member && (
         <>
           <FeatureForm
             groups={groups}

@@ -1,4 +1,4 @@
-import { FlowniRole } from "@repo/backend/auth";
+import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
 import type { Feedback } from "@repo/backend/types";
@@ -283,7 +283,7 @@ export const FeedbackPanel = async ({ feedbackId }: FeedbackPanelProps) => {
           </Accordion>
         ) : null}
       </div>
-      {user.organizationRole === FlowniRole.Member ? null : (
+      {user.organizationRole === PortalRole.Member ? null : (
         <div className="flex items-center justify-between border-t p-1">
           <ProcessFeedbackButton
             defaultValue={feedback.processed}
