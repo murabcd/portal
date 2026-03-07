@@ -5,7 +5,7 @@ export type MemberInfo = Pick<
   "id" | "name" | "email" | "image" | "organizationRole"
 >;
 
-export const toMemberInfo = (member: User): MemberInfo => ({
+const toMemberInfo = (member: User): MemberInfo => ({
   id: member.id,
   name: member.name,
   email: member.email,

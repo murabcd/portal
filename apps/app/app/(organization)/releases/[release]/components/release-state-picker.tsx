@@ -45,10 +45,11 @@ export const ReleaseStatePicker = ({
   defaultValue,
   disabled,
 }: ReleaseStatePickerProperties) => {
-  const [value, setValue] = useState(defaultValue);
+  const [pendingValue, setPendingValue] = useState<release_state | undefined>();
+  const value = pendingValue ?? defaultValue;
 
   const handleSelect = async (newValue: string) => {
-    setValue(newValue as release_state);
+    setPendingValue(newValue as release_state);
 
     try {
       const { error } = await updateRelease(releaseId, {
@@ -59,6 +60,7 @@ export const ReleaseStatePicker = ({
         throw new Error(error);
       }
     } catch (error) {
+      setPendingValue(undefined);
       handleError(error);
     }
   };

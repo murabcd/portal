@@ -21,8 +21,9 @@ export const FeatureProductPicker = ({
   disabled,
   data,
 }: FeatureProductPickerProperties) => {
-  const [value, setValue] = useState(defaultValue);
   const [loading, setLoading] = useState(false);
+  const [pendingValue, setPendingValue] = useState<string | undefined>();
+  const value = pendingValue ?? defaultValue;
 
   const handleSelect = async (newValue: string) => {
     if (newValue === value || loading) {
@@ -30,7 +31,7 @@ export const FeatureProductPicker = ({
     }
 
     setLoading(true);
-    setValue(newValue);
+    setPendingValue(newValue);
 
     try {
       const { error } = await updateFeature(featureId, { productId: newValue });
@@ -41,6 +42,7 @@ export const FeatureProductPicker = ({
 
       toast.success("Product updated");
     } catch (error) {
+      setPendingValue(undefined);
       handleError(error);
     } finally {
       setLoading(false);

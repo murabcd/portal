@@ -19,7 +19,10 @@ type FeatureStatusesListProperties = {
 export const FeatureStatusesList = ({
   initialStatuses,
 }: FeatureStatusesListProperties) => {
-  const [statuses, setStatuses] = useState(initialStatuses);
+  const [pendingStatuses, setPendingStatuses] = useState<
+    FeatureStatusesListProperties["initialStatuses"] | undefined
+  >();
+  const statuses = pendingStatuses ?? initialStatuses;
   const [dragging, setDragging] = useState(false);
 
   const handleDragEnd = async () => {
@@ -34,6 +37,7 @@ export const FeatureStatusesList = ({
         throw new Error(error);
       }
     } catch (error) {
+      setPendingStatuses(undefined);
       handleError(error);
     }
   };
@@ -42,7 +46,7 @@ export const FeatureStatusesList = ({
     <Reorder.Group
       axis="y"
       className="divide-y"
-      onReorder={setStatuses}
+      onReorder={setPendingStatuses}
       values={statuses}
     >
       {statuses.map((status) => (

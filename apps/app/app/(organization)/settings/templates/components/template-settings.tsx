@@ -10,7 +10,7 @@ import { handleError } from "@repo/design-system/lib/handle-error";
 import { toast } from "@repo/design-system/lib/toast";
 import { EllipsisIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useReducer } from "react";
 import { deleteTemplate } from "@/actions/template/delete";
 import { updateTemplate } from "@/actions/template/update";
 
@@ -20,16 +20,63 @@ type TemplateSettingsProps = {
   readonly defaultDescription: TemplateClass["description"];
 };
 
+type TemplateSettingsState = {
+  deleteOpen: boolean;
+  description: string;
+  loading: boolean;
+  renameOpen: boolean;
+  title: string;
+};
+
+type TemplateSettingsAction =
+  | { type: "set-delete-open"; value: boolean }
+  | { type: "set-description"; value: string }
+  | { type: "set-loading"; value: boolean }
+  | { type: "set-rename-open"; value: boolean }
+  | { type: "set-title"; value: string };
+
+const createInitialState = (
+  title: string,
+  description: string | null
+): TemplateSettingsState => ({
+  deleteOpen: false,
+  description: description ?? "",
+  loading: false,
+  renameOpen: false,
+  title,
+});
+
+const templateSettingsReducer = (
+  state: TemplateSettingsState,
+  action: TemplateSettingsAction
+): TemplateSettingsState => {
+  switch (action.type) {
+    case "set-delete-open":
+      return { ...state, deleteOpen: action.value };
+    case "set-description":
+      return { ...state, description: action.value };
+    case "set-loading":
+      return { ...state, loading: action.value };
+    case "set-rename-open":
+      return { ...state, renameOpen: action.value };
+    case "set-title":
+      return { ...state, title: action.value };
+    default:
+      return state;
+  }
+};
+
 export const TemplateSettings = ({
   templateId,
   defaultTitle,
   defaultDescription,
 }: TemplateSettingsProps) => {
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [renameOpen, setRenameOpen] = useState(false);
-  const [title, setTitle] = useState(defaultTitle);
-  const [description, setDescription] = useState(defaultDescription);
-  const [loading, setLoading] = useState(false);
+  const [state, dispatch] = useReducer(
+    templateSettingsReducer,
+    { title: defaultTitle, description: defaultDescription },
+    ({ title, description }) => createInitialState(title, description)
+  );
+  const { deleteOpen, description, loading, renameOpen, title } = state;
   const router = useRouter();
 
   const handleDelete = async () => {
@@ -37,7 +84,7 @@ export const TemplateSettings = ({
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: "set-loading", value: true });
 
     try {
       const { error } = await deleteTemplate(templateId);
@@ -47,11 +94,11 @@ export const TemplateSettings = ({
       }
 
       toast.success("Template deleted successfully");
-      setDeleteOpen(false);
+      dispatch({ type: "set-delete-open", value: false });
     } catch (error) {
       handleError(error);
     } finally {
-      setLoading(false);
+      dispatch({ type: "set-loading", value: false });
     }
   };
 
@@ -60,7 +107,7 @@ export const TemplateSettings = ({
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: "set-loading", value: true });
 
     try {
       const { error } = await updateTemplate(templateId, {
@@ -73,11 +120,11 @@ export const TemplateSettings = ({
       }
 
       toast.success("template renamed successfully");
-      setRenameOpen(false);
+      dispatch({ type: "set-rename-open", value: false });
     } catch (error) {
       handleError(error);
     } finally {
-      setLoading(false);
+      dispatch({ type: "set-loading", value: false });
     }
   };
   return (
@@ -85,7 +132,7 @@ export const TemplateSettings = ({
       <DropdownMenu
         data={[
           {
-            onClick: () => setRenameOpen(true),
+            onClick: () => dispatch({ type: "set-rename-open", value: true }),
             disabled: loading,
             children: "Rename",
           },
@@ -95,7 +142,7 @@ export const TemplateSettings = ({
             children: "Edit",
           },
           {
-            onClick: () => setDeleteOpen(true),
+            onClick: () => dispatch({ type: "set-delete-open", value: true }),
             disabled: loading,
             children: "Delete",
           },
@@ -110,7 +157,7 @@ export const TemplateSettings = ({
         description="This action cannot be undone. This will permanently this template."
         disabled={loading}
         onClick={handleDelete}
-        onOpenChange={setDeleteOpen}
+        onOpenChange={(value) => dispatch({ type: "set-delete-open", value })}
         open={deleteOpen}
         title="Are you absolutely sure?"
       />
@@ -120,7 +167,7 @@ export const TemplateSettings = ({
         description="What would you like to rename this template to?"
         disabled={loading || !title.trim()}
         onClick={handleRename}
-        onOpenChange={setRenameOpen}
+        onOpenChange={(value) => dispatch({ type: "set-rename-open", value })}
         open={renameOpen}
         title="Rename template"
       >
@@ -128,7 +175,7 @@ export const TemplateSettings = ({
           autoComplete="off"
           label="Title"
           maxLength={191}
-          onChangeText={setTitle}
+          onChangeText={(value) => dispatch({ type: "set-title", value })}
           placeholder="My new template"
           value={title}
         />
@@ -136,7 +183,7 @@ export const TemplateSettings = ({
           autoComplete="off"
           label="Description"
           maxLength={191}
-          onChangeText={setDescription}
+          onChangeText={(value) => dispatch({ type: "set-description", value })}
           placeholder="My template description"
           value={description ?? ""}
         />

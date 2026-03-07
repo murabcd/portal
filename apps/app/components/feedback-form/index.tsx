@@ -25,7 +25,7 @@ import { nanoid } from "nanoid";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import type { KeyboardEventHandler } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
 import { createFeedback } from "@/actions/feedback/create";
 import { staticify } from "@/lib/staticify";
 import { FeedbackOrganizationPicker } from "./feedback-organization-picker";
@@ -71,6 +71,103 @@ const getDefaultFeedbackOrganizationId = (
   null;
 
 const getInitialFeedbackType = () => undefined;
+
+type FeedbackFormState = {
+  readonly audio: File | undefined;
+  readonly content: object | undefined;
+  readonly feedbackOrganization: string | null;
+  readonly feedbackUserId: string | null;
+  readonly loading: boolean;
+  readonly title: string;
+  readonly type: string | undefined;
+  readonly video: File | undefined;
+};
+
+type FeedbackFormAction =
+  | { readonly type: "clear-form" }
+  | { readonly type: "set-audio"; readonly value: File | undefined }
+  | { readonly type: "set-content"; readonly value: object | undefined }
+  | {
+      readonly type: "set-feedback-organization";
+      readonly value: string | null;
+    }
+  | { readonly type: "set-feedback-user-id"; readonly value: string | null }
+  | { readonly type: "set-loading"; readonly value: boolean }
+  | { readonly type: "set-title"; readonly value: string }
+  | { readonly type: "set-type"; readonly value: string | undefined }
+  | { readonly type: "set-video"; readonly value: File | undefined }
+  | { readonly type: "undo-type" };
+
+const createFeedbackFormState = ({
+  users,
+  userEmail,
+}: Pick<FeedbackFormProperties, "userEmail" | "users">): FeedbackFormState => ({
+  audio: undefined,
+  content: undefined,
+  feedbackOrganization: getDefaultFeedbackOrganizationId(users, userEmail),
+  feedbackUserId: getDefaultFeedbackUserId(users, userEmail),
+  loading: false,
+  title: "",
+  type: getInitialFeedbackType(),
+  video: undefined,
+});
+
+const feedbackFormReducer = (
+  state: FeedbackFormState,
+  action: FeedbackFormAction
+): FeedbackFormState => {
+  switch (action.type) {
+    case "clear-form": {
+      return {
+        ...state,
+        audio: undefined,
+        content: undefined,
+        feedbackOrganization: null,
+        feedbackUserId: null,
+        loading: false,
+        title: "",
+        type: undefined,
+        video: undefined,
+      };
+    }
+    case "set-audio": {
+      return { ...state, audio: action.value };
+    }
+    case "set-content": {
+      return { ...state, content: action.value };
+    }
+    case "set-feedback-organization": {
+      return { ...state, feedbackOrganization: action.value };
+    }
+    case "set-feedback-user-id": {
+      return { ...state, feedbackUserId: action.value };
+    }
+    case "set-loading": {
+      return { ...state, loading: action.value };
+    }
+    case "set-title": {
+      return { ...state, title: action.value };
+    }
+    case "set-type": {
+      return { ...state, type: action.value };
+    }
+    case "set-video": {
+      return { ...state, video: action.value };
+    }
+    case "undo-type": {
+      return {
+        ...state,
+        audio: undefined,
+        content: undefined,
+        type: undefined,
+        video: undefined,
+      };
+    }
+    default: {
+      return state;
+    }
+  }
+};
 
 const getFeedbackFormDisabled = ({
   feedbackUserId,
@@ -281,21 +378,22 @@ export const FeedbackForm = ({
   organizations,
   userEmail,
 }: FeedbackFormProperties) => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState<object | undefined>();
-  const [feedbackUserId, setFeedbackUserId] = useState<string | null>(() =>
-    getDefaultFeedbackUserId(users, userEmail)
+  const [state, dispatch] = useReducer(
+    feedbackFormReducer,
+    { users, userEmail },
+    createFeedbackFormState
   );
-  const [feedbackOrganization, setFeedbackOrganization] = useState<
-    string | null
-  >(() => getDefaultFeedbackOrganizationId(users, userEmail));
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const [type, setType] = useState<string | undefined>(() =>
-    getInitialFeedbackType()
-  );
-  const [audio, setAudio] = useState<File | undefined>();
-  const [video, setVideo] = useState<File | undefined>();
+  const {
+    audio,
+    content,
+    feedbackOrganization,
+    feedbackUserId,
+    loading,
+    title,
+    type,
+    video,
+  } = state;
   const disabled = getFeedbackFormDisabled({
     feedbackUserId,
     loading,
@@ -315,15 +413,19 @@ export const FeedbackForm = ({
 
   useEffect(() => {
     if (!feedbackUserId) {
+      dispatch({ type: "set-feedback-organization", value: null });
       return;
     }
 
     const user = users.find(({ id }) => id === feedbackUserId);
 
     if (user?.feedbackOrganizationId) {
-      setFeedbackOrganization(user.feedbackOrganizationId);
+      dispatch({
+        type: "set-feedback-organization",
+        value: user.feedbackOrganizationId,
+      });
     } else {
-      setFeedbackOrganization("");
+      dispatch({ type: "set-feedback-organization", value: "" });
     }
   }, [feedbackUserId, users]);
 
@@ -412,7 +514,7 @@ export const FeedbackForm = ({
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: "set-loading", value: true });
 
     try {
       let id: string | null = null;
@@ -431,13 +533,7 @@ export const FeedbackForm = ({
 
       hide();
 
-      setTitle("");
-      setContent(undefined);
-      setType(undefined);
-      setAudio(undefined);
-      setVideo(undefined);
-      setFeedbackUserId(null);
-      setFeedbackOrganization(null);
+      dispatch({ type: "clear-form" });
 
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["feedback"] }),
@@ -449,7 +545,7 @@ export const FeedbackForm = ({
     } catch (error) {
       handleError(error);
     } finally {
-      setLoading(false);
+      dispatch({ type: "set-loading", value: false });
     }
   };
 
@@ -458,14 +554,11 @@ export const FeedbackForm = ({
       return;
     }
 
-    setContent(editor.getJSON());
+    dispatch({ type: "set-content", value: editor.getJSON() });
   };
 
   const handleUndo = () => {
-    setType(undefined);
-    setAudio(undefined);
-    setVideo(undefined);
-    setContent(undefined);
+    dispatch({ type: "undo-type" });
   };
 
   const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (event) => {
@@ -488,8 +581,12 @@ export const FeedbackForm = ({
         <FeedbackFormFooter
           feedbackOrganization={feedbackOrganization}
           feedbackUserId={feedbackUserId}
-          onOrganizationChange={setFeedbackOrganization}
-          onUserChange={setFeedbackUserId}
+          onOrganizationChange={(value) =>
+            dispatch({ type: "set-feedback-organization", value })
+          }
+          onUserChange={(value) =>
+            dispatch({ type: "set-feedback-user-id", value })
+          }
           organizations={organizations}
           users={users}
         />
@@ -510,21 +607,24 @@ export const FeedbackForm = ({
         <Input
           autoComplete="off"
           className="border-none p-0 font-medium shadow-none focus-visible:ring-0 md:text-lg"
-          onChangeText={setTitle}
+          onChangeText={(value) => dispatch({ type: "set-title", value })}
           onKeyDown={handleKeyDown}
           placeholder="Add ability to customize dashboard"
           value={title}
         />
 
         {showTypePicker ? (
-          <FeedbackTypePicker onSelect={setType} selectedType={type} />
+          <FeedbackTypePicker
+            onSelect={(value) => dispatch({ type: "set-type", value })}
+            selectedType={type}
+          />
         ) : null}
 
         <FeedbackContent
           audioSource={audioSource}
-          onAudioDrop={setAudio}
+          onAudioDrop={(file) => dispatch({ type: "set-audio", value: file })}
           onEditorUpdate={handleUpdate}
-          onVideoDrop={setVideo}
+          onVideoDrop={(file) => dispatch({ type: "set-video", value: file })}
           type={type}
           videoSource={videoSource}
         />

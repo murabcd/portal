@@ -19,9 +19,11 @@ export const FeatureStatusPicker = ({
   statuses,
   disabled,
 }: FeatureStatusPickerProperties) => {
-  const [value, setValue] = useState(defaultValue);
+  const [pendingValue, setPendingValue] = useState<string | undefined>();
+  const value = pendingValue ?? defaultValue;
+
   const handleSelect = async (newValue: string) => {
-    setValue(newValue);
+    setPendingValue(newValue);
 
     try {
       const { error } = await updateFeature(featureId, { statusId: newValue });
@@ -30,6 +32,7 @@ export const FeatureStatusPicker = ({
         throw new Error(error);
       }
     } catch (error) {
+      setPendingValue(undefined);
       handleError(error);
     }
   };

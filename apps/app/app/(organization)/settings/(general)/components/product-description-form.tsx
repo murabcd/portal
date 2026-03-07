@@ -15,7 +15,10 @@ export const ProductDescriptionForm = ({
   defaultValue,
 }: ProductDescriptionFormProperties) => {
   const [loading, setLoading] = useState(false);
-  const [description, setDescription] = useState(defaultValue);
+  const [pendingDescription, setPendingDescription] = useState<
+    string | undefined
+  >();
+  const description = pendingDescription ?? defaultValue;
   const disabled = loading || !description.trim();
 
   const handleSubmit: FormEventHandler = async (event) => {
@@ -36,6 +39,7 @@ export const ProductDescriptionForm = ({
         throw new Error(error);
       }
     } catch (error) {
+      setPendingDescription(undefined);
       handleError(error);
     } finally {
       setLoading(false);
@@ -46,7 +50,7 @@ export const ProductDescriptionForm = ({
     <form className="w-full space-y-2" onSubmit={handleSubmit}>
       <Textarea
         className="max-h-[20rem] min-h-[10rem] resize-y bg-background"
-        onChangeText={setDescription}
+        onChangeText={setPendingDescription}
         placeholder="Portal is a new standard for modern product management. It's a web application designed to help Product teams at SaaS companies explore problems, ideate solutions, prioritize features and plan your roadmap all in one place."
         value={description}
       />

@@ -15,7 +15,7 @@ import { Button } from "@repo/design-system/components/ui/button";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { toast } from "@repo/design-system/lib/toast";
 import { PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useReducer } from "react";
 import { linkInitiativeFeature } from "../actions/link-initiative-feature";
 import { linkInitiativeGroup } from "../actions/link-initiative-group";
 import { linkInitiativeProduct } from "../actions/link-initiative-product";
@@ -29,34 +29,85 @@ type InitiativeLinkDialogProps = {
   products: Pick<Product, "id" | "name" | "emoji">[];
 };
 
+type InitiativeLinkDialogState = {
+  loading: boolean;
+  selectedFeature: string | undefined;
+  selectedGroup: string | undefined;
+  selectedProduct: string | undefined;
+  showFeatureDialog: boolean;
+  showGroupDialog: boolean;
+  showProductDialog: boolean;
+};
+
+type InitiativeLinkDialogAction =
+  | { type: "set-loading"; value: boolean }
+  | { type: "set-selected-feature"; value: string | undefined }
+  | { type: "set-selected-group"; value: string | undefined }
+  | { type: "set-selected-product"; value: string | undefined }
+  | { type: "set-show-feature-dialog"; value: boolean }
+  | { type: "set-show-group-dialog"; value: boolean }
+  | { type: "set-show-product-dialog"; value: boolean };
+
+const initialState: InitiativeLinkDialogState = {
+  loading: false,
+  selectedFeature: undefined,
+  selectedGroup: undefined,
+  selectedProduct: undefined,
+  showFeatureDialog: false,
+  showGroupDialog: false,
+  showProductDialog: false,
+};
+
+const initiativeLinkDialogReducer = (
+  state: InitiativeLinkDialogState,
+  action: InitiativeLinkDialogAction
+): InitiativeLinkDialogState => {
+  switch (action.type) {
+    case "set-loading":
+      return { ...state, loading: action.value };
+    case "set-selected-feature":
+      return { ...state, selectedFeature: action.value };
+    case "set-selected-group":
+      return { ...state, selectedGroup: action.value };
+    case "set-selected-product":
+      return { ...state, selectedProduct: action.value };
+    case "set-show-feature-dialog":
+      return { ...state, showFeatureDialog: action.value };
+    case "set-show-group-dialog":
+      return { ...state, showGroupDialog: action.value };
+    case "set-show-product-dialog":
+      return { ...state, showProductDialog: action.value };
+    default:
+      return state;
+  }
+};
+
 export const InitiativeLinkDialog = ({
   initiativeId,
   features,
   groups,
   products,
 }: InitiativeLinkDialogProps) => {
-  const [loading, setLoading] = useState(false);
-
-  const [showFeatureDialog, setShowFeatureDialog] = useState(false);
-  const [showGroupDialog, setShowGroupDialog] = useState(false);
-  const [showProductDialog, setShowProductDialog] = useState(false);
-
-  const [selectedFeature, setSelectedFeature] = useState<string | undefined>(
-    undefined
+  const [state, dispatch] = useReducer(
+    initiativeLinkDialogReducer,
+    initialState
   );
-  const [selectedGroup, setSelectedGroup] = useState<string | undefined>(
-    undefined
-  );
-  const [selectedProduct, setSelectedProduct] = useState<string | undefined>(
-    undefined
-  );
+  const {
+    loading,
+    selectedFeature,
+    selectedGroup,
+    selectedProduct,
+    showFeatureDialog,
+    showGroupDialog,
+    showProductDialog,
+  } = state;
 
   const handleLinkFeature = async () => {
     if (!selectedFeature || loading) {
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: "set-loading", value: true });
 
     try {
       const response = await linkInitiativeFeature(
@@ -69,11 +120,11 @@ export const InitiativeLinkDialog = ({
       }
 
       toast.success("Feature linked successfully");
-      setShowFeatureDialog(false);
+      dispatch({ type: "set-show-feature-dialog", value: false });
     } catch (error) {
       handleError(error);
     } finally {
-      setLoading(false);
+      dispatch({ type: "set-loading", value: false });
     }
   };
 
@@ -82,7 +133,7 @@ export const InitiativeLinkDialog = ({
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: "set-loading", value: true });
 
     try {
       const response = await linkInitiativeGroup(initiativeId, selectedGroup);
@@ -92,11 +143,11 @@ export const InitiativeLinkDialog = ({
       }
 
       toast.success("Group linked successfully");
-      setShowGroupDialog(false);
+      dispatch({ type: "set-show-group-dialog", value: false });
     } catch (error) {
       handleError(error);
     } finally {
-      setLoading(false);
+      dispatch({ type: "set-loading", value: false });
     }
   };
 
@@ -105,7 +156,7 @@ export const InitiativeLinkDialog = ({
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: "set-loading", value: true });
 
     try {
       const response = await linkInitiativeProduct(
@@ -118,22 +169,31 @@ export const InitiativeLinkDialog = ({
       }
 
       toast.success("Product linked successfully");
-      setShowProductDialog(false);
+      dispatch({ type: "set-show-product-dialog", value: false });
     } catch (error) {
       handleError(error);
     } finally {
-      setLoading(false);
+      dispatch({ type: "set-loading", value: false });
     }
   };
 
   const handleShowFeatureDialog = () =>
-    setTimeout(() => setShowFeatureDialog(true), 200);
+    setTimeout(
+      () => dispatch({ type: "set-show-feature-dialog", value: true }),
+      200
+    );
 
   const handleShowGroupDialog = () =>
-    setTimeout(() => setShowGroupDialog(true), 200);
+    setTimeout(
+      () => dispatch({ type: "set-show-group-dialog", value: true }),
+      200
+    );
 
   const handleShowProductDialog = () =>
-    setTimeout(() => setShowProductDialog(true), 200);
+    setTimeout(
+      () => dispatch({ type: "set-show-product-dialog", value: true }),
+      200
+    );
 
   return (
     <>
@@ -163,7 +223,9 @@ export const InitiativeLinkDialog = ({
           </Button>
         }
         modal={false}
-        onOpenChange={setShowFeatureDialog}
+        onOpenChange={(value) =>
+          dispatch({ type: "set-show-feature-dialog", value })
+        }
         open={showFeatureDialog}
         title="Link a Feature"
       >
@@ -172,7 +234,9 @@ export const InitiativeLinkDialog = ({
             value: feature.id,
             label: feature.title,
           }))}
-          onChange={setSelectedFeature}
+          onChange={(value) =>
+            dispatch({ type: "set-selected-feature", value })
+          }
           renderItem={(item) => {
             const status = features.find(
               (feature) => feature.id === item.value
@@ -208,7 +272,9 @@ export const InitiativeLinkDialog = ({
           </Button>
         }
         modal={false}
-        onOpenChange={setShowGroupDialog}
+        onOpenChange={(value) =>
+          dispatch({ type: "set-show-group-dialog", value })
+        }
         open={showGroupDialog}
         title="Link a Group"
       >
@@ -217,7 +283,7 @@ export const InitiativeLinkDialog = ({
             value: group.id,
             label: group.name,
           }))}
-          onChange={setSelectedGroup}
+          onChange={(value) => dispatch({ type: "set-selected-group", value })}
           renderItem={(item) => {
             const selectedGroupItem = groups.find(
               (group) => group.id === item.value
@@ -250,7 +316,9 @@ export const InitiativeLinkDialog = ({
           </Button>
         }
         modal={false}
-        onOpenChange={setShowProductDialog}
+        onOpenChange={(value) =>
+          dispatch({ type: "set-show-product-dialog", value })
+        }
         open={showProductDialog}
         title="Link a Product"
       >
@@ -259,7 +327,9 @@ export const InitiativeLinkDialog = ({
             value: product.id,
             label: product.name,
           }))}
-          onChange={setSelectedProduct}
+          onChange={(value) =>
+            dispatch({ type: "set-selected-product", value })
+          }
           renderItem={(item) => {
             const selectedProductItem = products.find(
               (product) => product.id === item.value

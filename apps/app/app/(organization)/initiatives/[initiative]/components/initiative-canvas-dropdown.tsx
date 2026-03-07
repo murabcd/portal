@@ -19,7 +19,8 @@ export const InitiativeCanvasDropdown = ({
   defaultTitle,
 }: InitiativeCanvasDropdownProperties) => {
   const [renameOpen, setRenameOpen] = useState(false);
-  const [title, setTitle] = useState(defaultTitle);
+  const [pendingTitle, setPendingTitle] = useState<string | undefined>();
+  const title = pendingTitle ?? defaultTitle;
   const [loading, setLoading] = useState(false);
 
   const handleRename = async () => {
@@ -30,6 +31,7 @@ export const InitiativeCanvasDropdown = ({
       setRenameOpen(false);
       toast.success("Canvas renamed");
     } catch (error) {
+      setPendingTitle(undefined);
       handleError(error);
     } finally {
       setLoading(false);
@@ -60,7 +62,7 @@ export const InitiativeCanvasDropdown = ({
           autoComplete="off"
           label="Canvas title"
           maxLength={191}
-          onChangeText={setTitle}
+          onChangeText={setPendingTitle}
           placeholder="My new canvas"
           value={title}
         />

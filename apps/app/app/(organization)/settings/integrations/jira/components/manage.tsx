@@ -3,18 +3,11 @@ import { database, tables } from "@repo/backend/database";
 import { Skeleton } from "@repo/design-system/components/precomposed/skeleton";
 import { StackCard } from "@repo/design-system/components/stack-card";
 import { eq } from "drizzle-orm";
-import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { createMetadata } from "@/lib/metadata";
 import { JiraFieldMappings } from "./jira-field-mappings";
 import { JiraStatusMappings } from "./jira-status-mappings";
 import { RemoveJiraButton } from "./remove-jira-button";
-
-export const metadata: Metadata = createMetadata({
-  title: "Jira Integration",
-  description: "Configure your Jira integration settings.",
-});
 
 export const ManageJira = async () => {
   const organizationId = await currentOrganizationId();

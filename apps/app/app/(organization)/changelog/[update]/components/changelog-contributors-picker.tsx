@@ -25,11 +25,13 @@ export const ChangelogContributorsPicker = ({
   defaultContributors,
 }: ChangelogContributorsPickerProperties) => {
   const [loading, setLoading] = useState(false);
-  const [contributors, setContributors] =
-    useState<string[]>(defaultContributors);
+  const [pendingContributors, setPendingContributors] = useState<
+    string[] | undefined
+  >();
+  const contributors = pendingContributors ?? defaultContributors;
 
   const handleAddContributor = async (userId: string) => {
-    setContributors((previous) => [...previous, userId]);
+    setPendingContributors([...contributors, userId]);
     setLoading(true);
 
     try {
@@ -42,7 +44,7 @@ export const ChangelogContributorsPicker = ({
         throw new Error(error);
       }
     } catch (error) {
-      setContributors((previous) => previous.filter((id) => id !== userId));
+      setPendingContributors(undefined);
       handleError(error);
     } finally {
       setLoading(false);
@@ -50,7 +52,7 @@ export const ChangelogContributorsPicker = ({
   };
 
   const handleRemoveContributor = async (userId: string) => {
-    setContributors((previous) => previous.filter((id) => id !== userId));
+    setPendingContributors(contributors.filter((id) => id !== userId));
     setLoading(true);
 
     try {
@@ -63,7 +65,7 @@ export const ChangelogContributorsPicker = ({
         throw new Error(error);
       }
     } catch (error) {
-      setContributors((previous) => [...previous, userId]);
+      setPendingContributors(undefined);
       handleError(error);
     } finally {
       setLoading(false);

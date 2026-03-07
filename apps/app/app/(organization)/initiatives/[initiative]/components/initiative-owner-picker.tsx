@@ -22,10 +22,11 @@ export const InitiativeOwnerPicker = ({
   disabled,
   data,
 }: InitiativeOwnerPickerProperties) => {
-  const [value, setValue] = useState(defaultValue);
+  const [pendingValue, setPendingValue] = useState<string | undefined>();
+  const value = pendingValue ?? defaultValue;
 
   const handleSelect = async (newValue: string) => {
-    setValue(newValue);
+    setPendingValue(newValue);
 
     try {
       const { error } = await updateInitiative(initiativeId, {
@@ -36,6 +37,7 @@ export const InitiativeOwnerPicker = ({
         throw new Error(error);
       }
     } catch (error) {
+      setPendingValue(undefined);
       handleError(error);
     }
   };

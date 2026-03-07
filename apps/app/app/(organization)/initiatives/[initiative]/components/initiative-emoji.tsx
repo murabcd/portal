@@ -18,11 +18,12 @@ export const InitiativeEmoji = ({
   defaultEmoji,
   editable,
 }: InitiativeEmojiProperties) => {
-  const [emoji, setEmoji] = useState(defaultEmoji);
   const [loading, setLoading] = useState(false);
+  const [pendingEmoji, setPendingEmoji] = useState<string | undefined>();
+  const emoji = pendingEmoji ?? defaultEmoji;
 
   const handleChange = async (newEmoji: string): Promise<void> => {
-    setEmoji(emoji);
+    setPendingEmoji(newEmoji);
     setLoading(true);
 
     try {
@@ -34,6 +35,7 @@ export const InitiativeEmoji = ({
         throw new Error(response.error);
       }
     } catch (error) {
+      setPendingEmoji(undefined);
       handleError(error);
     } finally {
       setLoading(false);

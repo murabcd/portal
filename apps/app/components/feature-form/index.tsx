@@ -33,7 +33,8 @@ export const FeatureForm = ({
   userId,
 }: FeatureFormProperties) => {
   const [title, setTitle] = useState("");
-  const [assignee, setAssignee] = useState(userId);
+  const [pendingAssignee, setPendingAssignee] = useState<string | undefined>();
+  const assignee = pendingAssignee ?? userId;
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const disabled = !title.trim() || loading;
@@ -79,7 +80,7 @@ export const FeatureForm = ({
       }
 
       setTitle("");
-      setAssignee(userId);
+      setPendingAssignee(undefined);
       setProductId(undefined);
       setGroupId(undefined);
 
@@ -117,7 +118,7 @@ export const FeatureForm = ({
         <div className="flex items-center gap-3">
           <FeatureAssigneePicker
             data={members}
-            onChange={setAssignee}
+            onChange={setPendingAssignee}
             value={assignee}
           />
           {products.length > 0 ? (

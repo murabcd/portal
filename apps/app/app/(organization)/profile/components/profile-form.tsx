@@ -4,6 +4,7 @@ import { authClient } from "@repo/backend/auth/client";
 import { Input } from "@repo/design-system/components/precomposed/input";
 import { Button } from "@repo/design-system/components/ui/button";
 import { handleError } from "@repo/design-system/lib/handle-error";
+import type { FormEventHandler } from "react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -16,11 +17,14 @@ export const ProfileForm = ({
   defaultName,
   defaultEmail,
 }: ProfileFormProps) => {
-  const [name, setName] = useState(defaultName);
   const [loading, setLoading] = useState(false);
+  const [pendingName, setPendingName] = useState<string | undefined>();
+  const name = pendingName ?? defaultName;
   const disabled = loading || name === defaultName;
 
-  const updateProfile = async () => {
+  const updateProfile: FormEventHandler<HTMLFormElement> = async (event) => {
+    event.preventDefault();
+
     try {
       if (disabled) {
         return;
@@ -34,6 +38,7 @@ export const ProfileForm = ({
 
       toast.success("Profile updated");
     } catch (error) {
+      setPendingName(undefined);
       handleError(error);
     } finally {
       setLoading(false);
@@ -45,7 +50,7 @@ export const ProfileForm = ({
       <Input
         label="Name"
         name="name"
-        onChange={(e) => setName(e.target.value)}
+        onChange={(e) => setPendingName(e.target.value)}
         placeholder="Your name"
         value={name}
       />

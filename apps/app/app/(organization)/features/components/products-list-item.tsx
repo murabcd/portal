@@ -13,7 +13,7 @@ import { handleError } from "@repo/design-system/lib/handle-error";
 import { cn } from "@repo/design-system/lib/utils";
 import { ChevronDown, MoreHorizontalIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useReducer } from "react";
 import { useFeatureForm } from "@/components/feature-form/use-feature-form";
 
 type ProductsListItemProperties = {
@@ -127,6 +127,54 @@ const createDeleteHandler =
 
 type FeatureFormApi = {
   show: (properties?: { groupId?: string; productId?: string }) => void;
+};
+
+type ProductsListItemState = {
+  childrenOpen: boolean;
+  emojiLoading: boolean;
+  loading: boolean;
+  newName: string;
+  showDeleteDialog: boolean;
+  showRenameDialog: boolean;
+};
+
+type ProductsListItemAction =
+  | { type: "set-children-open"; value: boolean }
+  | { type: "set-emoji-loading"; value: boolean }
+  | { type: "set-loading"; value: boolean }
+  | { type: "set-new-name"; value: string }
+  | { type: "set-show-delete-dialog"; value: boolean }
+  | { type: "set-show-rename-dialog"; value: boolean };
+
+const createInitialState = (name: string): ProductsListItemState => ({
+  childrenOpen: false,
+  emojiLoading: false,
+  loading: false,
+  newName: name,
+  showDeleteDialog: false,
+  showRenameDialog: false,
+});
+
+const productsListItemReducer = (
+  state: ProductsListItemState,
+  action: ProductsListItemAction
+): ProductsListItemState => {
+  switch (action.type) {
+    case "set-children-open":
+      return { ...state, childrenOpen: action.value };
+    case "set-emoji-loading":
+      return { ...state, emojiLoading: action.value };
+    case "set-loading":
+      return { ...state, loading: action.value };
+    case "set-new-name":
+      return { ...state, newName: action.value };
+    case "set-show-delete-dialog":
+      return { ...state, showDeleteDialog: action.value };
+    case "set-show-rename-dialog":
+      return { ...state, showRenameDialog: action.value };
+    default:
+      return state;
+  }
 };
 
 const createFeatureHandler =
@@ -282,33 +330,42 @@ export const ProductsListItem = ({
   role,
 }: ProductsListItemProperties) => {
   const featureForm = useFeatureForm();
-  const [newName, setNewName] = useState(name);
-  const [emojiLoading, setEmojiLoading] = useState(false);
-  const [showRenameDialog, setShowRenameDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [state, dispatch] = useReducer(
+    productsListItemReducer,
+    name,
+    createInitialState
+  );
+  const {
+    childrenOpen,
+    emojiLoading,
+    loading,
+    newName,
+    showDeleteDialog,
+    showRenameDialog,
+  } = state;
   const { isOver, setNodeRef } = useDroppable({ id });
-  const [childrenOpen, setChildrenOpen] = useState(false);
 
   const handleEmojiSelect = createEmojiSelectHandler({
     emojiLoading,
     loading,
-    setEmojiLoading,
-    setLoading,
+    setEmojiLoading: (value) => dispatch({ type: "set-emoji-loading", value }),
+    setLoading: (value) => dispatch({ type: "set-loading", value }),
     onEmojiSelect,
   });
   const handleRename = createRenameHandler({
     loading,
     newName,
     onRename,
-    setLoading,
-    setShowRenameDialog,
+    setLoading: (value) => dispatch({ type: "set-loading", value }),
+    setShowRenameDialog: (value) =>
+      dispatch({ type: "set-show-rename-dialog", value }),
   });
   const handleDelete = createDeleteHandler({
     loading,
     onDelete,
-    setLoading,
-    setShowDeleteDialog,
+    setLoading: (value) => dispatch({ type: "set-loading", value }),
+    setShowDeleteDialog: (value) =>
+      dispatch({ type: "set-show-delete-dialog", value }),
   });
   const handleCreateFeature = createFeatureHandler(featureForm, createProps);
   const isActive = active ?? isOver;
@@ -329,10 +386,16 @@ export const ProductsListItem = ({
         isActive={isActive}
         name={name}
         role={role}
-        setChildrenOpen={setChildrenOpen}
+        setChildrenOpen={(value) =>
+          dispatch({ type: "set-children-open", value })
+        }
         setNodeRef={setNodeRef}
-        setShowDeleteDialog={setShowDeleteDialog}
-        setShowRenameDialog={setShowRenameDialog}
+        setShowDeleteDialog={(value) =>
+          dispatch({ type: "set-show-delete-dialog", value })
+        }
+        setShowRenameDialog={(value) =>
+          dispatch({ type: "set-show-rename-dialog", value })
+        }
       >
         {children}
       </ProductsListItemRow>
@@ -341,14 +404,16 @@ export const ProductsListItem = ({
         description={`Enter a new name for ${name} below.`}
         disabled={loading}
         onClick={handleRename}
-        onOpenChange={setShowRenameDialog}
+        onOpenChange={(value) =>
+          dispatch({ type: "set-show-rename-dialog", value })
+        }
         open={showRenameDialog}
         title={`Rename ${name}`}
       >
         <Input
           autoComplete="off"
           maxLength={191}
-          onChangeText={setNewName}
+          onChangeText={(value) => dispatch({ type: "set-new-name", value })}
           value={newName}
         />
       </Dialog>
@@ -356,7 +421,9 @@ export const ProductsListItem = ({
         description={`This will permanently delete ${name}. This action cannot be undone.`}
         disabled={loading}
         onClick={handleDelete}
-        onOpenChange={setShowDeleteDialog}
+        onOpenChange={(value) =>
+          dispatch({ type: "set-show-delete-dialog", value })
+        }
         open={showDeleteDialog}
         title="Are you absolutely sure?"
       />

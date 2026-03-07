@@ -16,24 +16,27 @@ export const ProcessFeedbackButton = ({
   feedbackId,
   defaultValue,
 }: ProcessFeedbackButtonProperties) => {
-  const [processed, setProcessed] = useState(defaultValue);
+  const [pendingProcessed, setPendingProcessed] = useState<
+    boolean | undefined
+  >();
+  const processed = pendingProcessed ?? defaultValue;
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleClick = async () => {
     setLoading(true);
     const originalProcessed = processed;
+    const nextProcessed = !processed;
+    setPendingProcessed(nextProcessed);
 
     try {
       const response = await updateFeedback(feedbackId, {
-        processed: !processed,
+        processed: nextProcessed,
       });
 
       if ("error" in response) {
         throw new Error(response.error);
       }
-
-      setProcessed(!processed);
 
       if (!originalProcessed) {
         if ("id" in response) {
@@ -43,6 +46,7 @@ export const ProcessFeedbackButton = ({
         }
       }
     } catch (error) {
+      setPendingProcessed(undefined);
       handleError(error);
     } finally {
       setLoading(false);

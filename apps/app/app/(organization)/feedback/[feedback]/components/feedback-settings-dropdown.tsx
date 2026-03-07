@@ -14,7 +14,7 @@ import { handleError } from "@repo/design-system/lib/handle-error";
 import { QueryClient } from "@tanstack/react-query";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useReducer } from "react";
 import { deleteFeedback } from "@/actions/feedback/delete";
 import { updateFeedback } from "@/actions/feedback/update";
 import { FeedbackOrganizationPicker } from "@/components/feedback-form/feedback-organization-picker";
@@ -31,6 +31,52 @@ type FeedbackSettingsDropdownProperties = {
   >[];
 };
 
+type FeedbackSettingsState = {
+  changeUserOpen: boolean;
+  deleteOpen: boolean;
+  feedbackOrganizationId: string | null;
+  feedbackUserId: string | null;
+  loading: boolean;
+};
+
+type FeedbackSettingsAction =
+  | { type: "set-change-user-open"; value: boolean }
+  | { type: "set-delete-open"; value: boolean }
+  | { type: "set-feedback-organization-id"; value: string | null }
+  | { type: "set-feedback-user-id"; value: string | null }
+  | { type: "set-loading"; value: boolean };
+
+const createInitialState = (
+  defaultFeedbackUserId: string | undefined,
+  defaultFeedbackOrganizationId: string | undefined
+): FeedbackSettingsState => ({
+  changeUserOpen: false,
+  deleteOpen: false,
+  feedbackOrganizationId: defaultFeedbackOrganizationId ?? null,
+  feedbackUserId: defaultFeedbackUserId ?? null,
+  loading: false,
+});
+
+const feedbackSettingsReducer = (
+  state: FeedbackSettingsState,
+  action: FeedbackSettingsAction
+): FeedbackSettingsState => {
+  switch (action.type) {
+    case "set-change-user-open":
+      return { ...state, changeUserOpen: action.value };
+    case "set-delete-open":
+      return { ...state, deleteOpen: action.value };
+    case "set-feedback-organization-id":
+      return { ...state, feedbackOrganizationId: action.value };
+    case "set-feedback-user-id":
+      return { ...state, feedbackUserId: action.value };
+    case "set-loading":
+      return { ...state, loading: action.value };
+    default:
+      return state;
+  }
+};
+
 export const FeedbackSettingsDropdown = ({
   feedbackId,
   defaultFeedbackUserId,
@@ -38,15 +84,22 @@ export const FeedbackSettingsDropdown = ({
   users,
   organizations,
 }: FeedbackSettingsDropdownProperties) => {
-  const [feedbackUserId, setFeedbackUserId] = useState<string | null>(
-    defaultFeedbackUserId ?? null
+  const [state, dispatch] = useReducer(
+    feedbackSettingsReducer,
+    {
+      defaultFeedbackOrganizationId,
+      defaultFeedbackUserId,
+    },
+    ({ defaultFeedbackOrganizationId, defaultFeedbackUserId }) =>
+      createInitialState(defaultFeedbackUserId, defaultFeedbackOrganizationId)
   );
-  const [feedbackOrganizationId, setFeedbackOrganizationId] = useState<
-    string | null
-  >(defaultFeedbackOrganizationId ?? null);
-  const [changeUserOpen, setChangeUserOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const {
+    changeUserOpen,
+    deleteOpen,
+    feedbackOrganizationId,
+    feedbackUserId,
+    loading,
+  } = state;
   const router = useRouter();
   const queryClient = new QueryClient();
 
@@ -55,7 +108,7 @@ export const FeedbackSettingsDropdown = ({
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: "set-loading", value: true });
 
     try {
       const { error } = await deleteFeedback(feedbackId);
@@ -66,12 +119,12 @@ export const FeedbackSettingsDropdown = ({
 
       await queryClient.invalidateQueries({ queryKey: ["feedback"] });
 
-      setDeleteOpen(false);
+      dispatch({ type: "set-delete-open", value: false });
       router.push("/feedback");
     } catch (error) {
       handleError(error);
     } finally {
-      setLoading(false);
+      dispatch({ type: "set-loading", value: false });
     }
   };
 
@@ -80,7 +133,7 @@ export const FeedbackSettingsDropdown = ({
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: "set-loading", value: true });
 
     try {
       const response = await updateFeedback(feedbackId, {
@@ -91,11 +144,11 @@ export const FeedbackSettingsDropdown = ({
         throw new Error(response.error);
       }
 
-      setChangeUserOpen(false);
+      dispatch({ type: "set-change-user-open", value: false });
     } catch (error) {
       handleError(error);
     } finally {
-      setLoading(false);
+      dispatch({ type: "set-loading", value: false });
     }
   };
 
@@ -104,12 +157,13 @@ export const FeedbackSettingsDropdown = ({
       <DropdownMenu
         data={[
           {
-            onClick: () => setDeleteOpen(true),
+            onClick: () => dispatch({ type: "set-delete-open", value: true }),
             disabled: loading,
             children: "Delete",
           },
           {
-            onClick: () => setChangeUserOpen(true),
+            onClick: () =>
+              dispatch({ type: "set-change-user-open", value: true }),
             disabled: loading,
             children: "Change user",
           },
@@ -126,7 +180,7 @@ export const FeedbackSettingsDropdown = ({
         description="This action cannot be undone. This will permanently this feedback."
         disabled={loading}
         onClick={handleDelete}
-        onOpenChange={setDeleteOpen}
+        onOpenChange={(value) => dispatch({ type: "set-delete-open", value })}
         open={deleteOpen}
         title="Are you absolutely sure?"
       />
@@ -136,13 +190,17 @@ export const FeedbackSettingsDropdown = ({
         description="Who submitted this feedback?"
         disabled={loading}
         onClick={handleChangeUser}
-        onOpenChange={setChangeUserOpen}
+        onOpenChange={(value) =>
+          dispatch({ type: "set-change-user-open", value })
+        }
         open={changeUserOpen}
         title="Change user"
       >
         <div className="flex items-center gap-2">
           <FeedbackUserPicker
-            onChange={setFeedbackUserId}
+            onChange={(value) =>
+              dispatch({ type: "set-feedback-user-id", value })
+            }
             usersData={users.map((user) => ({
               value: user.id,
               label: user.name,
@@ -154,7 +212,9 @@ export const FeedbackSettingsDropdown = ({
           {feedbackUserId ? (
             <FeedbackOrganizationPicker
               feedbackUser={feedbackUserId}
-              onChange={setFeedbackOrganizationId}
+              onChange={(value) =>
+                dispatch({ type: "set-feedback-organization-id", value })
+              }
               organizationsData={organizations.map((organization) => ({
                 value: organization.id,
                 label: organization.name,

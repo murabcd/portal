@@ -25,10 +25,11 @@ export const InitiativeMemberPicker = ({
   defaultMembers,
 }: InitiativeMemberPickerProperties) => {
   const [loading, setLoading] = useState(false);
-  const [members, setMembers] = useState<string[]>(defaultMembers);
+  const [pendingMembers, setPendingMembers] = useState<string[] | undefined>();
+  const members = pendingMembers ?? defaultMembers;
 
   const handleAddMember = async (userId: string) => {
-    setMembers((previous) => [...previous, userId]);
+    setPendingMembers([...members, userId]);
     setLoading(true);
 
     try {
@@ -41,7 +42,7 @@ export const InitiativeMemberPicker = ({
         throw new Error(error);
       }
     } catch (error) {
-      setMembers((previous) => previous.filter((id) => id !== userId));
+      setPendingMembers(undefined);
       handleError(error);
     } finally {
       setLoading(false);
@@ -49,7 +50,7 @@ export const InitiativeMemberPicker = ({
   };
 
   const handleRemoveMember = async (userId: string) => {
-    setMembers((previous) => previous.filter((id) => id !== userId));
+    setPendingMembers(members.filter((id) => id !== userId));
     setLoading(true);
 
     try {
@@ -62,7 +63,7 @@ export const InitiativeMemberPicker = ({
         throw new Error(error);
       }
     } catch (error) {
-      setMembers((previous) => [...previous, userId]);
+      setPendingMembers(undefined);
       handleError(error);
     } finally {
       setLoading(false);

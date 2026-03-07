@@ -17,8 +17,10 @@ export const OrganizationDetailsForm = ({
   defaultSlug,
 }: OrganizationDetailsFormProperties) => {
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState(defaultName);
-  const [slug, setSlug] = useState(defaultSlug);
+  const [pendingName, setPendingName] = useState<string | undefined>();
+  const [pendingSlug, setPendingSlug] = useState<string | undefined>();
+  const name = pendingName ?? defaultName;
+  const slug = pendingSlug ?? defaultSlug;
   const disabled = loading || !name.trim() || !slug.trim();
 
   const handleSubmit: FormEventHandler = async (event) => {
@@ -40,6 +42,8 @@ export const OrganizationDetailsForm = ({
         throw new Error(error);
       }
     } catch (error) {
+      setPendingName(undefined);
+      setPendingSlug(undefined);
       handleError(error);
     } finally {
       setLoading(false);
@@ -51,7 +55,7 @@ export const OrganizationDetailsForm = ({
       <Input
         className="bg-background"
         label="Name"
-        onChangeText={setName}
+        onChangeText={setPendingName}
         placeholder="Portal"
         value={name}
       />
@@ -59,7 +63,7 @@ export const OrganizationDetailsForm = ({
         className="bg-background"
         disabled
         label="Slug"
-        onChangeText={setSlug}
+        onChangeText={setPendingSlug}
         placeholder="portal"
         value={slug}
       />

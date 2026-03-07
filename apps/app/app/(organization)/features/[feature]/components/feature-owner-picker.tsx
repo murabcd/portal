@@ -22,10 +22,11 @@ export const FeatureOwnerPicker = ({
   disabled,
   data,
 }: FeatureOwnerPickerProperties) => {
-  const [value, setValue] = useState(defaultValue);
+  const [pendingValue, setPendingValue] = useState<string | undefined>();
+  const value = pendingValue ?? defaultValue;
 
   const handleSelect = async (newValue: string) => {
-    setValue(newValue);
+    setPendingValue(newValue);
 
     try {
       const { error } = await updateFeature(featureId, { ownerId: newValue });
@@ -34,6 +35,7 @@ export const FeatureOwnerPicker = ({
         throw new Error(error);
       }
     } catch (error) {
+      setPendingValue(undefined);
       handleError(error);
     }
   };

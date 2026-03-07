@@ -22,7 +22,8 @@ export const ChangelogTagsPicker = ({
   storedTags,
   defaultTags,
 }: ChangelogTagsPickerProperties) => {
-  const [tags, setTags] = useState<string[]>(defaultTags);
+  const [pendingTags, setPendingTags] = useState<string[] | undefined>();
+  const tags = pendingTags ?? defaultTags;
   const [loading, setLoading] = useState(false);
 
   const handleCreateTag = async (name: string) => {
@@ -38,7 +39,7 @@ export const ChangelogTagsPicker = ({
         throw new Error(response.error);
       }
 
-      setTags((previous) => [...previous, response.id]);
+      setPendingTags([...tags, response.id]);
     } catch (error) {
       handleError(error);
     } finally {
@@ -47,7 +48,7 @@ export const ChangelogTagsPicker = ({
   };
 
   const handleAddTag = async (changelogTagId: string) => {
-    setTags((previous) => [...previous, changelogTagId]);
+    setPendingTags([...tags, changelogTagId]);
     setLoading(true);
 
     try {
@@ -60,7 +61,7 @@ export const ChangelogTagsPicker = ({
         throw new Error(response.error);
       }
     } catch (error) {
-      setTags((previous) => previous.filter((id) => id !== changelogTagId));
+      setPendingTags(undefined);
       handleError(error);
     } finally {
       setLoading(false);
@@ -68,7 +69,7 @@ export const ChangelogTagsPicker = ({
   };
 
   const handleRemoveTag = async (tag: string) => {
-    setTags((previous) => previous.filter((id) => id !== tag));
+    setPendingTags(tags.filter((id) => id !== tag));
     setLoading(true);
 
     try {
@@ -81,7 +82,7 @@ export const ChangelogTagsPicker = ({
         throw new Error(error);
       }
     } catch (error) {
-      setTags((previous) => [...previous, tag]);
+      setPendingTags(undefined);
       handleError(error);
     } finally {
       setLoading(false);

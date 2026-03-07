@@ -18,7 +18,8 @@ export const DocumentInput = ({
   disabled = false,
   className,
 }: DocumentInputProperties) => {
-  const [value, setValue] = useState(defaultValue);
+  const [pendingValue, setPendingValue] = useState<string | undefined>();
+  const value = pendingValue ?? defaultValue;
   const debouncedUpdates = useDebouncedCallback(
     (nextValue: string) => onDebouncedUpdate?.(nextValue),
     750
@@ -29,7 +30,7 @@ export const DocumentInput = ({
 
     onUpdate?.(newTitle);
     debouncedUpdates(newTitle);
-    setValue(newTitle);
+    setPendingValue(newTitle);
   };
 
   return (

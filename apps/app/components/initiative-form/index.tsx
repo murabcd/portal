@@ -22,7 +22,8 @@ export const InitiativeForm = ({
   userId,
 }: InitiativeFormProperties) => {
   const [name, setName] = useState("");
-  const [ownerId, setOwnerId] = useState(userId);
+  const [pendingOwnerId, setPendingOwnerId] = useState<string | undefined>();
+  const ownerId = pendingOwnerId ?? userId;
   const [loading, setLoading] = useState(false);
   const [emoji, setEmoji] = useState("rocket");
   const router = useRouter();
@@ -48,6 +49,7 @@ export const InitiativeForm = ({
       }
 
       setName("");
+      setPendingOwnerId(undefined);
       hide();
       router.push(`/initiatives/${id}`);
     } catch (error) {
@@ -76,7 +78,7 @@ export const InitiativeForm = ({
       footer={
         <FeatureAssigneePicker
           data={members}
-          onChange={setOwnerId}
+          onChange={setPendingOwnerId}
           value={ownerId}
         />
       }

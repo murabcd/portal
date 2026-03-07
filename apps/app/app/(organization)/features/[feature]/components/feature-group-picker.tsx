@@ -22,14 +22,15 @@ export const FeatureGroupPicker = ({
   data,
 }: FeatureGroupPickerProperties) => {
   const [loading, setLoading] = useState(false);
-  const [value, setValue] = useState(defaultValue);
+  const [pendingValue, setPendingValue] = useState<string | undefined>();
+  const value = pendingValue ?? defaultValue;
 
   const handleSelect = async (newValue: string) => {
     if (newValue === value || loading) {
       return;
     }
 
-    setValue(newValue);
+    setPendingValue(newValue);
     setLoading(true);
 
     try {
@@ -41,6 +42,7 @@ export const FeatureGroupPicker = ({
 
       toast.success("Group updated");
     } catch (error) {
+      setPendingValue(undefined);
       handleError(error);
     } finally {
       setLoading(false);

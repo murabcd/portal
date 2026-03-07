@@ -9,26 +9,71 @@ import { Dialog } from "@repo/design-system/components/precomposed/dialog";
 import { Select } from "@repo/design-system/components/precomposed/select";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { toast } from "@repo/design-system/lib/toast";
-import { useState } from "react";
+import { useReducer } from "react";
 import { importMarkdown } from "@/actions/markdown/import";
 import { parseMarkdown } from "@/actions/markdown/parse";
 
-export const MarkdownImportForm = () => {
-  const [results, setResults] = useState<
-    {
-      data: Record<string, unknown>;
-      content: string;
-      filename: string;
-    }[]
-  >([]);
-  const [loading, setLoading] = useState(false);
+type MarkdownImportResult = {
+  data: Record<string, unknown>;
+  content: string;
+  filename: string;
+};
 
-  const [titleField, setTitleField] = useState<string | undefined>(undefined);
-  const [createdAtField, setCreatedAtField] = useState<string | undefined>(
-    undefined
-  );
-  const [slugField, setSlugField] = useState<string | undefined>(undefined);
-  const [tagsField, setTagsField] = useState<string | undefined>(undefined);
+type MarkdownImportState = {
+  createdAtField: string | undefined;
+  loading: boolean;
+  results: MarkdownImportResult[];
+  slugField: string | undefined;
+  tagsField: string | undefined;
+  titleField: string | undefined;
+};
+
+type MarkdownImportAction =
+  | { type: "reset" }
+  | { type: "set-created-at-field"; value: string | undefined }
+  | { type: "set-loading"; value: boolean }
+  | { type: "set-results"; value: MarkdownImportResult[] }
+  | { type: "set-slug-field"; value: string | undefined }
+  | { type: "set-tags-field"; value: string | undefined }
+  | { type: "set-title-field"; value: string | undefined };
+
+const initialState: MarkdownImportState = {
+  createdAtField: undefined,
+  loading: false,
+  results: [],
+  slugField: undefined,
+  tagsField: undefined,
+  titleField: undefined,
+};
+
+const markdownImportReducer = (
+  state: MarkdownImportState,
+  action: MarkdownImportAction
+): MarkdownImportState => {
+  switch (action.type) {
+    case "reset":
+      return initialState;
+    case "set-created-at-field":
+      return { ...state, createdAtField: action.value };
+    case "set-loading":
+      return { ...state, loading: action.value };
+    case "set-results":
+      return { ...state, results: action.value };
+    case "set-slug-field":
+      return { ...state, slugField: action.value };
+    case "set-tags-field":
+      return { ...state, tagsField: action.value };
+    case "set-title-field":
+      return { ...state, titleField: action.value };
+    default:
+      return state;
+  }
+};
+
+export const MarkdownImportForm = () => {
+  const [state, dispatch] = useReducer(markdownImportReducer, initialState);
+  const { createdAtField, loading, results, slugField, tagsField, titleField } =
+    state;
 
   const disabled = !titleField || results.length === 0 || loading;
 
@@ -37,7 +82,7 @@ export const MarkdownImportForm = () => {
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: "set-loading", value: true });
 
     try {
       const promises = files.map(
@@ -68,11 +113,11 @@ export const MarkdownImportForm = () => {
         throw new Error(response.error);
       }
 
-      setResults(response.data);
+      dispatch({ type: "set-results", value: response.data });
     } catch (error) {
       handleError(error);
     } finally {
-      setLoading(false);
+      dispatch({ type: "set-loading", value: false });
     }
   };
 
@@ -106,7 +151,7 @@ export const MarkdownImportForm = () => {
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: "set-loading", value: true });
 
     const changelogs = results.map((result) => ({
       title: getFieldContent(titleField, result),
@@ -124,11 +169,11 @@ export const MarkdownImportForm = () => {
       }
 
       toast.success(`Successfully imported ${results.length} files`);
-      setResults([]);
+      dispatch({ type: "reset" });
     } catch (error) {
       handleError(error);
     } finally {
-      setLoading(false);
+      dispatch({ type: "set-loading", value: false });
     }
   };
 
@@ -168,16 +213,28 @@ export const MarkdownImportForm = () => {
   ];
 
   const handleTitleFieldChange = (value: string) =>
-    setTitleField(value === "[none]" ? undefined : value);
+    dispatch({
+      type: "set-title-field",
+      value: value === "[none]" ? undefined : value,
+    });
 
   const handleCreatedAtFieldChange = (value: string) =>
-    setCreatedAtField(value === "[none]" ? undefined : value);
+    dispatch({
+      type: "set-created-at-field",
+      value: value === "[none]" ? undefined : value,
+    });
 
   const handleSlugFieldChange = (value: string) =>
-    setSlugField(value === "[none]" ? undefined : value);
+    dispatch({
+      type: "set-slug-field",
+      value: value === "[none]" ? undefined : value,
+    });
 
   const handleTagsFieldChange = (value: string) =>
-    setTagsField(value === "[none]" ? undefined : value);
+    dispatch({
+      type: "set-tags-field",
+      value: value === "[none]" ? undefined : value,
+    });
 
   return (
     <>
@@ -186,7 +243,7 @@ export const MarkdownImportForm = () => {
         className="rounded-none border-none"
         maxFiles={100}
         onDrop={handleDrop}
-        onError={console.error}
+        onError={handleError}
       >
         <DropzoneEmptyState />
         <DropzoneContent />
@@ -198,7 +255,7 @@ export const MarkdownImportForm = () => {
         disabled={disabled}
         modal={false}
         onClick={handleImport}
-        onOpenChange={() => setResults([])}
+        onOpenChange={() => dispatch({ type: "reset" })}
         open={results.length > 0}
         title={`Import ${results.length} files`}
       >
