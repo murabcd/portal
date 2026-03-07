@@ -8,7 +8,7 @@ import { database, tables } from "@repo/backend/database";
 import { Link } from "@repo/design-system/components/link";
 import { StackCard } from "@repo/design-system/components/stack-card";
 import { Button } from "@repo/design-system/components/ui/button";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { TablePropertiesIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -51,13 +51,23 @@ const ReleasePage = async (props: ReleasePageProps) => {
         state: tables.release.state,
       })
       .from(tables.release)
-      .where(eq(tables.release.id, params.release))
+      .where(
+        and(
+          eq(tables.release.id, params.release),
+          eq(tables.release.organizationId, organizationId)
+        )
+      )
       .limit(1)
       .then((rows) => rows[0] ?? null),
     database
       .select({ id: tables.feature.id, ownerId: tables.feature.ownerId })
       .from(tables.feature)
-      .where(eq(tables.feature.releaseId, params.release)),
+      .where(
+        and(
+          eq(tables.feature.releaseId, params.release),
+          eq(tables.feature.organizationId, organizationId)
+        )
+      ),
     currentMembers(),
   ]);
 

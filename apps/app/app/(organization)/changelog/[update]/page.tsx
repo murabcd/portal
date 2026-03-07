@@ -7,7 +7,7 @@ import {
 } from "@repo/backend/database";
 import type { JSONContent } from "@repo/editor";
 import { contentToText } from "@repo/editor/lib/tiptap";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createMetadata } from "@/lib/metadata";
@@ -28,13 +28,24 @@ export const generateMetadata = async (
   props: ChangelogPageProperties
 ): Promise<Metadata> => {
   const params = await props.params;
+  const organizationId = await currentOrganizationId();
+
+  if (!organizationId) {
+    return {};
+  }
+
   const [changelog] = await database
     .select({
       id: tables.changelog.id,
       title: tables.changelog.title,
     })
     .from(tables.changelog)
-    .where(eq(tables.changelog.id, params.update))
+    .where(
+      and(
+        eq(tables.changelog.id, params.update),
+        eq(tables.changelog.organizationId, organizationId)
+      )
+    )
     .limit(1);
 
   if (!changelog) {
@@ -72,7 +83,12 @@ const ChangelogPage = async (props: ChangelogPageProperties) => {
         title: tables.changelog.title,
       })
       .from(tables.changelog)
-      .where(eq(tables.changelog.id, params.update))
+      .where(
+        and(
+          eq(tables.changelog.id, params.update),
+          eq(tables.changelog.organizationId, organizationId)
+        )
+      )
       .limit(1),
     database
       .select({ id: tables.organization.id })

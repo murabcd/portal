@@ -40,7 +40,7 @@ export const Breadcrumbs: FC<BreadcrumbsProperties> = ({
   ...properties
 }) => (
   <BreadcrumbComponent.Breadcrumb {...properties} className="text-sm">
-    <BreadcrumbComponent.BreadcrumbList className="flex-nowrap sm:gap-1.5">
+    <BreadcrumbComponent.BreadcrumbList className="min-w-0 flex-nowrap sm:gap-1.5">
       {data.map((item) => (
         <BreadcrumbItem key={item.href} {...item} />
       ))}

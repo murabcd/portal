@@ -1,6 +1,5 @@
 import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
-import { Skeleton } from "@repo/design-system/components/precomposed/skeleton";
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -42,7 +41,7 @@ const AiSettings = async () => {
             Manage your organization&apos;s AI settings.
           </p>
         </div>
-        <Suspense fallback={<Skeleton className="h-full max-h-[391px]" />}>
+        <Suspense fallback={null}>
           <AiIndexingChart />
         </Suspense>
       </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { LoadingCircle } from "@repo/design-system/components/loading-circle";
 import { Avatar } from "@repo/design-system/components/precomposed/avatar";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { formatDate } from "@repo/lib/format";
@@ -68,11 +67,7 @@ export const FeedbackList = () => {
   const hasNextPage = Boolean(lastPage?.nextCursor);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-6">
-        <LoadingCircle />
-      </div>
-    );
+    return null;
   }
 
   return (

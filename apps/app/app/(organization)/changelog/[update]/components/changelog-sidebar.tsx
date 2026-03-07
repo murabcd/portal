@@ -1,11 +1,15 @@
 import { PortalRole } from "@repo/backend/auth";
 import { getUserName } from "@repo/backend/auth/format";
-import { currentMembers, currentUser } from "@repo/backend/auth/utils";
+import {
+  currentMembers,
+  currentOrganizationId,
+  currentUser,
+} from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
 import type { Changelog } from "@repo/backend/types";
 import { Badge } from "@repo/design-system/components/ui/badge";
 import { formatDate } from "@repo/lib/format";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { AvatarTooltip } from "@/components/avatar-tooltip";
 import {
@@ -27,9 +31,17 @@ type ChangelogSidebarProperties = {
 export const ChangelogSidebar = async ({
   changelogId,
 }: ChangelogSidebarProperties) => {
-  const [user, changelogRows, members, changelogTags, contributors, tags] =
+  const [user, organizationId] = await Promise.all([
+    currentUser(),
+    currentOrganizationId(),
+  ]);
+
+  if (!(user && organizationId)) {
+    notFound();
+  }
+
+  const [changelogRows, members, changelogTags, contributors, tags] =
     await Promise.all([
-      currentUser(),
       database
         .select({
           id: tables.changelog.id,
@@ -39,12 +51,18 @@ export const ChangelogSidebar = async ({
           status: tables.changelog.status,
         })
         .from(tables.changelog)
-        .where(eq(tables.changelog.id, changelogId))
+        .where(
+          and(
+            eq(tables.changelog.id, changelogId),
+            eq(tables.changelog.organizationId, organizationId)
+          )
+        )
         .limit(1),
       currentMembers(),
       database
         .select({ id: tables.changelogTag.id, name: tables.changelogTag.name })
-        .from(tables.changelogTag),
+        .from(tables.changelogTag)
+        .where(eq(tables.changelogTag.organizationId, organizationId)),
       database
         .select({ userId: tables.changelogContributor.userId })
         .from(tables.changelogContributor)
@@ -59,12 +77,17 @@ export const ChangelogSidebar = async ({
           tables.changelogToChangelogTag,
           eq(tables.changelogToChangelogTag.b, tables.changelogTag.id)
         )
-        .where(eq(tables.changelogToChangelogTag.a, changelogId)),
+        .where(
+          and(
+            eq(tables.changelogToChangelogTag.a, changelogId),
+            eq(tables.changelogTag.organizationId, organizationId)
+          )
+        ),
     ]);
 
   const changelog = changelogRows[0];
 
-  if (!(user && changelog)) {
+  if (!changelog) {
     notFound();
   }
 

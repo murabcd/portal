@@ -14,9 +14,9 @@ import {
   SidebarMenuSubItem,
 } from "@repo/design-system/components/ui/sidebar";
 import { ChevronRight } from "lucide-react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type * as navigation from "@/lib/navigation";
+import { SidebarRouteLink } from "./sidebar-route-link";
 
 export const SidebarItem = ({
   active,
@@ -32,19 +32,21 @@ export const SidebarItem = ({
   return (
     <Collapsible asChild defaultOpen={isActive}>
       <SidebarMenuItem>
-        <SidebarMenuButton asChild={!hasItems} isActive={isActive}>
-          {hasItems ? (
-            <>
+        {hasItems ? (
+          <CollapsibleTrigger asChild>
+            <SidebarMenuButton isActive={isActive}>
               <Icon className="opacity-70" />
               <span>{label}</span>
-            </>
-          ) : (
-            <Link href={href}>
+            </SidebarMenuButton>
+          </CollapsibleTrigger>
+        ) : (
+          <SidebarMenuButton asChild isActive={isActive}>
+            <SidebarRouteLink href={href}>
               <Icon className="opacity-70" />
               <span>{label}</span>
-            </Link>
-          )}
-        </SidebarMenuButton>
+            </SidebarRouteLink>
+          </SidebarMenuButton>
+        )}
         {hasItems ? (
           <>
             <CollapsibleTrigger asChild>
@@ -61,9 +63,9 @@ export const SidebarItem = ({
                       asChild
                       isActive={subItem.active(pathname)}
                     >
-                      <Link href={subItem.href}>
+                      <SidebarRouteLink href={subItem.href}>
                         <span>{subItem.label}</span>
-                      </Link>
+                      </SidebarRouteLink>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                 ))}

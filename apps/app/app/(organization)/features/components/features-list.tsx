@@ -59,7 +59,7 @@ import { AvatarTooltip } from "@/components/avatar-tooltip";
 import { EmptyState } from "@/components/empty-state";
 import { useFeatureForm } from "@/components/feature-form/use-feature-form";
 import { Header } from "@/components/header";
-import { fetcher } from "@/lib/fetcher";
+import { fetcher, withSearchParameters } from "@/lib/fetcher";
 import { calculateRice } from "@/lib/rice";
 import type { MemberInfo } from "@/lib/serialization";
 import { FeatureRiceScore } from "../[feature]/components/feature-rice-score";
@@ -457,59 +457,62 @@ const FeaturesHeaderActions = ({
 );
 
 type FeaturesTableProperties = {
-  readonly columns: ColumnDef<GetFeaturesResponse[number]>[];
   readonly table: DataTable<GetFeaturesResponse[number]>;
 };
 
-const FeaturesTable = ({ columns, table }: FeaturesTableProperties) => (
-  <Table>
-    <TableHeader className="sticky top-[45px] z-10 bg-backdrop/90 backdrop-blur-sm">
-      {table.getHeaderGroups().map((headerGroup) => (
-        <TableRow key={headerGroup.id}>
-          {headerGroup.headers.map((header) => (
-            <TableHead key={header.id}>
-              {header.isPlaceholder
-                ? null
-                : flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-            </TableHead>
+const FeaturesTable = ({ table }: FeaturesTableProperties) => {
+  const rows = table.getRowModel().rows;
+
+  return (
+    <div className="flex h-[calc(100dvh-8rem)] flex-col">
+      <Table>
+        <TableHeader className="sticky top-0 z-10 bg-backdrop/90 backdrop-blur-sm">
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
+              ))}
+            </TableRow>
           ))}
-        </TableRow>
-      ))}
-    </TableHeader>
-    <TableBody>
-      {table.getRowModel().rows.length > 0 ? (
-        table.getRowModel().rows.map((row) => (
-          <TableRow
-            className="h-[53px]"
-            data-state={row.getIsSelected() && "selected"}
-            key={row.id}
-          >
-            {row.getVisibleCells().map((cell) => (
-              <TableCell key={cell.id}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </TableCell>
+        </TableHeader>
+        {rows.length > 0 ? (
+          <TableBody>
+            {rows.map((row) => (
+              <TableRow
+                className="h-[53px]"
+                data-state={row.getIsSelected() && "selected"}
+                key={row.id}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
             ))}
-          </TableRow>
-        ))
-      ) : (
-        <TableRow>
-          <TableCell
-            className="h-24 py-16 text-center"
-            colSpan={columns.length}
-          >
-            <EmptyState
-              description="Try adjusting your filters or search query."
-              title="No features found."
-            />
-          </TableCell>
-        </TableRow>
-      )}
-    </TableBody>
-  </Table>
-);
+          </TableBody>
+        ) : null}
+      </Table>
+      {rows.length === 0 ? (
+        <div className="flex flex-1 border-t">
+          <EmptyState
+            className="h-full min-h-0 flex-1"
+            compact
+            description="Try adjusting your filters or search query."
+            title="No features found."
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+};
 
 const FeaturesListContent = ({
   title = "Features",
@@ -556,7 +559,7 @@ const FeaturesListContent = ({
           searchParameters.set("cursorId", previousPageData.nextCursor.id);
         }
 
-        return `/api/features?${searchParameters.toString()}`;
+        return withSearchParameters("/api/features", searchParameters);
       },
       fetcher,
       {
@@ -703,8 +706,7 @@ const FeaturesListContent = ({
           table={table}
         />
       </Header>
-
-      <FeaturesTable columns={columns} table={table} />
+      <FeaturesTable table={table} />
 
       {table.getFilteredSelectedRowModel().rows.length > 0 && editable ? (
         <FeaturesToolbar

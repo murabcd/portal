@@ -1,6 +1,5 @@
 import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
-import { Skeleton } from "@repo/design-system/components/precomposed/skeleton";
 import { endOfQuarter, startOfQuarter } from "date-fns";
 import { and, eq, gte, lte, or, sql } from "drizzle-orm";
 import { Suspense } from "react";
@@ -56,11 +55,11 @@ export const RoadmapSection = async () => {
     <section className="space-y-4 p-4 sm:p-8">
       <div>
         <p className="font-medium text-sm">Roadmap</p>
-        <Suspense fallback={<Skeleton className="h-5 w-64" />}>
+        <Suspense fallback={null}>
           <RoadmapTrend />
         </Suspense>
       </div>
-      <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+      <Suspense fallback={null}>
         <QuarterlyRoadmap />
       </Suspense>
     </section>

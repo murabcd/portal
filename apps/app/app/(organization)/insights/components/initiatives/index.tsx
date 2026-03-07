@@ -1,6 +1,5 @@
 import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
-import { Skeleton } from "@repo/design-system/components/precomposed/skeleton";
 import { eq, sql } from "drizzle-orm";
 import { Suspense } from "react";
 import { InitiativesEmptyState } from "@/app/(organization)/initiatives/components/initiatives-empty-state";
@@ -37,10 +36,10 @@ export const InitiativesSection = async () => {
         <InitiativesTrend />
       </div>
       <div className="grid gap-8 sm:grid-cols-2">
-        <Suspense fallback={<Skeleton className="h-[461px] w-full" />}>
+        <Suspense fallback={null}>
           <NewInitiatives />
         </Suspense>
-        <Suspense fallback={<Skeleton className="h-[461px] w-full" />}>
+        <Suspense fallback={null}>
           <NewInitiativePages />
         </Suspense>
       </div>

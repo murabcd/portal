@@ -1,4 +1,3 @@
-import { LoadingCircle } from "@repo/design-system/components/loading-circle";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { useInView } from "motion/react";
 import { useEffect, useRef, useState } from "react";
@@ -30,12 +29,5 @@ export const InfiniteLoader = ({
     }
   }, [inView, onView, visible, loading]);
 
-  return (
-    <div
-      className="flex w-full items-center justify-center p-3"
-      ref={listReference}
-    >
-      <LoadingCircle />
-    </div>
-  );
+  return <div className="h-1 w-full" ref={listReference} />;
 };

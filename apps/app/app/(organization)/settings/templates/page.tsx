@@ -1,5 +1,4 @@
 import { database, tables } from "@repo/backend/database";
-import { Skeleton } from "@repo/design-system/components/precomposed/skeleton";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { createMetadata } from "@/lib/metadata";
@@ -30,10 +29,7 @@ const Templates = async () => {
       </div>
       <div className="grid grid-cols-3 gap-8">
         {templates.map((template) => (
-          <Suspense
-            fallback={<Skeleton className="aspect-[2/3] w-full" />}
-            key={template.id}
-          >
+          <Suspense fallback={null} key={template.id}>
             <TemplateComponent id={template.id} />
           </Suspense>
         ))}

@@ -1,11 +1,10 @@
 "use client";
-import { LoadingCircle } from "@repo/design-system/components/loading-circle";
 import { toast } from "@repo/design-system/lib/toast";
 import { cn } from "@repo/design-system/lib/utils";
 import { formatDate } from "@repo/lib/format";
 import useSWRInfinite from "swr/infinite";
 import { ItemList } from "@/components/item-list";
-import { fetcher } from "@/lib/fetcher";
+import { fetcher, withSearchParameters } from "@/lib/fetcher";
 
 type GetChangelogResponse = {
   id: string;
@@ -39,7 +38,7 @@ export const ChangelogList = () => {
           searchParameters.set("cursorId", previousPageData.nextCursor.id);
         }
 
-        return `/api/changelog?${searchParameters.toString()}`;
+        return withSearchParameters("/api/changelog", searchParameters);
       },
       fetcher,
       {
@@ -60,11 +59,7 @@ export const ChangelogList = () => {
   const hasNextPage = Boolean(lastPage?.nextCursor);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-6">
-        <LoadingCircle />
-      </div>
-    );
+    return null;
   }
 
   return (

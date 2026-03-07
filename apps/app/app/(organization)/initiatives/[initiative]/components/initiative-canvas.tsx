@@ -7,7 +7,6 @@ import { handleError } from "@repo/design-system/lib/handle-error";
 import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
 import { updateInitiativeCanvas } from "@/actions/initiative-canvas/update";
-import { CanvasSkeleton } from "@/components/skeletons/canvas";
 
 type InitiativeCanvasLoaderProperties = {
   readonly initiativeCanvasId: InitiativeCanvas["id"];
@@ -26,7 +25,7 @@ const Canvas = dynamic(
   },
   {
     ssr: false,
-    loading: () => <CanvasSkeleton />,
+    loading: () => null,
   }
 );
 

@@ -21,3 +21,12 @@ export const fetcher = async <T>(input: string): Promise<T> => {
 
   return (await response.json()) as T;
 };
+
+export const withSearchParameters = (
+  pathname: string,
+  searchParameters: URLSearchParams
+) => {
+  const query = searchParameters.toString();
+
+  return query ? `${pathname}?${query}` : pathname;
+};

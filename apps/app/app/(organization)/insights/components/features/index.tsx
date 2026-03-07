@@ -1,7 +1,6 @@
 import { PortalRole } from "@repo/backend/auth";
 import { currentOrganizationId, currentUser } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
-import { Skeleton } from "@repo/design-system/components/precomposed/skeleton";
 import { eq, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -47,19 +46,19 @@ export const FeaturesSection = async () => {
     <section className="space-y-4 p-4 sm:p-8">
       <div>
         <p className="font-medium text-sm">Features</p>
-        <Suspense fallback={<Skeleton className="h-5 w-64" />}>
+        <Suspense fallback={null}>
           <FeaturesTrend />
         </Suspense>
       </div>
       <div className="grid gap-8 sm:grid-cols-2">
-        <Suspense fallback={<Skeleton className="h-[431px] w-full" />}>
+        <Suspense fallback={null}>
           <StatusesChart />
         </Suspense>
-        <Suspense fallback={<Skeleton className="h-[431px] w-full" />}>
+        <Suspense fallback={null}>
           <OwnersChart />
         </Suspense>
         <div className="sm:col-span-2">
-          <Suspense fallback={<Skeleton className="h-[433px] w-full" />}>
+          <Suspense fallback={null}>
             <AssignedFeatures />
           </Suspense>
         </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import type { Changelog } from "@repo/backend/types";
-import { LoadingCircle } from "@repo/design-system/components/loading-circle";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { PencilIcon, SparklesIcon } from "lucide-react";
 import { useState } from "react";
@@ -52,15 +51,11 @@ export const UpdateEmptyState = ({
     }
   };
 
-  if (loading) {
-    return <LoadingCircle />;
-  }
-
   return (
     <div className="grid w-full grid-cols-2 gap-4">
       {startTypes.map((option) => (
         <button
-          className="space-y-2 rounded border bg-background p-4 transition-colors hover:bg-card"
+          className="space-y-2 rounded border bg-background p-4 transition-colors hover:bg-card disabled:cursor-not-allowed disabled:opacity-60"
           disabled={option.disabled}
           key={option.id}
           onClick={() => handleClick(option.id)}

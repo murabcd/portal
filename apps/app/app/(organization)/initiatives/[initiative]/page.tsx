@@ -7,7 +7,6 @@ import {
 } from "@repo/backend/database";
 import type { JsonValue } from "@repo/backend/drizzle/schema";
 import { createId } from "@repo/backend/id";
-import { Skeleton } from "@repo/design-system/components/precomposed/skeleton";
 import type { JSONContent } from "@repo/editor";
 import { textToContent } from "@repo/editor/lib/tiptap";
 import { and, eq } from "drizzle-orm";
@@ -34,10 +33,21 @@ export const generateMetadata = async (
   props: InitiativeProperties
 ): Promise<Metadata> => {
   const params = await props.params;
+  const organizationId = await currentOrganizationId();
+
+  if (!organizationId) {
+    return {};
+  }
+
   const [initiative] = await database
     .select({ title: tables.initiative.title })
     .from(tables.initiative)
-    .where(eq(tables.initiative.id, params.initiative))
+    .where(
+      and(
+        eq(tables.initiative.id, params.initiative),
+        eq(tables.initiative.organizationId, organizationId)
+      )
+    )
     .limit(1);
 
   if (!initiative) {
@@ -86,6 +96,7 @@ const Initiative = async (props: InitiativeProperties) => {
     .where(
       and(
         eq(tables.initiativePage.initiativeId, params.initiative),
+        eq(tables.initiativePage.organizationId, organizationId),
         eq(tables.initiativePage.default, true)
       )
     )
@@ -156,10 +167,10 @@ const Initiative = async (props: InitiativeProperties) => {
             editable={user.organizationRole !== PortalRole.Member}
             pageId={page.id}
           />
-          <Suspense fallback={<Skeleton className="h-[366px] w-full" />}>
+          <Suspense fallback={null}>
             <InitiativeUpdatesCard initiativeId={params.initiative} />
           </Suspense>
-          <Suspense fallback={<Skeleton className="h-[366px] w-full" />}>
+          <Suspense fallback={null}>
             <InitiativeFeatures initiativeId={params.initiative} />
           </Suspense>
         </div>

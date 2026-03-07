@@ -1,6 +1,5 @@
 import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
-import { Skeleton } from "@repo/design-system/components/precomposed/skeleton";
 import { eq, sql } from "drizzle-orm";
 import { Suspense } from "react";
 import { FeedbackEmptyState } from "@/app/(organization)/feedback/components/feedback-empty-state";
@@ -35,19 +34,19 @@ export const FeedbackSection = async () => {
     <section className="space-y-4 p-4 sm:p-8">
       <div>
         <p className="font-medium text-sm">Feedback</p>
-        <Suspense fallback={<Skeleton className="h-5 w-64" />}>
+        <Suspense fallback={null}>
           <FeedbackTrend />
         </Suspense>
       </div>
       <div className="grid gap-8 sm:grid-cols-2">
-        <Suspense fallback={<Skeleton className="h-[391px] w-full" />}>
+        <Suspense fallback={null}>
           <SentimentChart />
         </Suspense>
-        <Suspense fallback={<Skeleton className="h-[391px] w-full" />}>
+        <Suspense fallback={null}>
           <ProcessedChart />
         </Suspense>
         <div className="sm:col-span-2">
-          <Suspense fallback={<Skeleton className="h-[367px] w-full" />}>
+          <Suspense fallback={null}>
             <IncomingChart />
           </Suspense>
         </div>

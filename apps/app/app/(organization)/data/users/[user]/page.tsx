@@ -1,3 +1,4 @@
+import { currentOrganizationId } from "@repo/backend/auth/utils";
 import {
   database,
   getJsonColumnFromTable,
@@ -6,7 +7,7 @@ import {
 import { Separator } from "@repo/design-system/components/ui/separator";
 import { cn } from "@repo/design-system/lib/utils";
 import { contentToText } from "@repo/editor/lib/tiptap";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -24,13 +25,24 @@ export const generateMetadata = async (
   props: FeedbackUserPageProperties
 ): Promise<Metadata> => {
   const params = await props.params;
+  const organizationId = await currentOrganizationId();
+
+  if (!organizationId) {
+    return {};
+  }
+
   const user = await database
     .select({
       name: tables.feedbackUser.name,
       email: tables.feedbackUser.email,
     })
     .from(tables.feedbackUser)
-    .where(eq(tables.feedbackUser.id, params.user))
+    .where(
+      and(
+        eq(tables.feedbackUser.id, params.user),
+        eq(tables.feedbackUser.organizationId, organizationId)
+      )
+    )
     .limit(1)
     .then((rows) => rows[0] ?? null);
 
@@ -46,6 +58,12 @@ export const generateMetadata = async (
 
 const FeedbackUserPage = async (props: FeedbackUserPageProperties) => {
   const params = await props.params;
+  const organizationId = await currentOrganizationId();
+
+  if (!organizationId) {
+    notFound();
+  }
+
   const [user, feedback] = await Promise.all([
     database
       .select({
@@ -55,7 +73,12 @@ const FeedbackUserPage = async (props: FeedbackUserPageProperties) => {
         imageUrl: tables.feedbackUser.imageUrl,
       })
       .from(tables.feedbackUser)
-      .where(eq(tables.feedbackUser.id, params.user))
+      .where(
+        and(
+          eq(tables.feedbackUser.id, params.user),
+          eq(tables.feedbackUser.organizationId, organizationId)
+        )
+      )
       .limit(1)
       .then((rows) => rows[0] ?? null),
     database
@@ -73,7 +96,12 @@ const FeedbackUserPage = async (props: FeedbackUserPageProperties) => {
         tables.feedbackUser,
         eq(tables.feedbackUser.id, tables.feedback.feedbackUserId)
       )
-      .where(eq(tables.feedback.feedbackUserId, params.user)),
+      .where(
+        and(
+          eq(tables.feedback.feedbackUserId, params.user),
+          eq(tables.feedback.organizationId, organizationId)
+        )
+      ),
   ]);
 
   if (!user) {

@@ -1,21 +1,14 @@
-import { database, tables } from "@repo/backend/database";
-import { desc } from "drizzle-orm";
-import { redirect } from "next/navigation";
+import { ClockIcon } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 
-const Changelog = async () => {
-  const changelogs = await database
-    .select({ id: tables.changelog.id })
-    .from(tables.changelog)
-    .orderBy(desc(tables.changelog.createdAt))
-    .limit(1);
-
-  const first = changelogs.at(0);
-
-  if (!first) {
-    return null;
-  }
-
-  return redirect(`/changelog/${first.id}`);
-};
+const Changelog = async () => (
+  <div className="flex flex-1 items-center justify-center">
+    <EmptyState
+      description="Select an update from the sidebar to view or edit its contents."
+      icon={ClockIcon}
+      title="Choose an update"
+    />
+  </div>
+);
 
 export default Changelog;

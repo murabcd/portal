@@ -6,11 +6,6 @@ import {
   currentUser,
 } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@repo/design-system/components/ui/resizable";
 import { formatDate } from "@repo/lib/format";
 import { desc, eq, inArray } from "drizzle-orm";
 import { notFound } from "next/navigation";
@@ -114,19 +109,9 @@ const FeatureListLayout = async ({ children }: FeatureListLayoutProperties) => {
       features={modifiedFeatures}
       products={productsWithGroups}
     >
-      <ResizablePanelGroup
-        className="min-w-0 flex-1"
-        direction="horizontal"
-        style={{ overflow: "unset" }}
-      >
-        <ResizablePanel
-          className="sticky top-0 h-screen min-w-72"
-          defaultSize={20}
-          maxSize={25}
-          minSize={15}
-          style={{ overflow: "auto" }}
-        >
-          <div className="h-full border-r">
+      <div className="flex min-w-0 flex-1">
+        <aside className="sticky top-0 h-screen w-72 shrink-0 overflow-auto border-r">
+          <div className="h-full">
             <Header badge={productsWithGroups.length} title="Products">
               {role === PortalRole.Member ? null : (
                 <FeatureCreateDropdown
@@ -138,16 +123,9 @@ const FeatureListLayout = async ({ children }: FeatureListLayoutProperties) => {
               <ProductsList products={productsWithGroups} role={role} />
             </Suspense>
           </div>
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel
-          className="min-w-0"
-          defaultSize={80}
-          style={{ overflow: "unset" }}
-        >
-          {children}
-        </ResizablePanel>
-      </ResizablePanelGroup>
+        </aside>
+        <div className="min-w-0 flex-1 overflow-hidden">{children}</div>
+      </div>
     </FeaturesDragProvider>
   );
 };

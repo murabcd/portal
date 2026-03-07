@@ -25,7 +25,7 @@ const SettingsLayout = async ({ children }: SettingsLayoutProperties) => {
           <SettingsNavigation />
         </Suspense>
       </aside>
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col overflow-hidden">
         {children}
       </div>
     </div>

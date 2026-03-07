@@ -1,7 +1,6 @@
 "use client";
 
 import { Link } from "@repo/design-system/components/link";
-import { LoadingCircle } from "@repo/design-system/components/loading-circle";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { cn } from "@repo/design-system/lib/utils";
 import { useInView } from "motion/react";
@@ -96,14 +95,7 @@ export const ItemList = ({
       {data.map((item) => (
         <ListItem data={item} key={item.id} />
       ))}
-      {hasNextPage ? (
-        <div
-          className="flex w-full items-center justify-center p-3"
-          ref={listReference}
-        >
-          <LoadingCircle />
-        </div>
-      ) : null}
+      {hasNextPage ? <div className="h-1 w-full" ref={listReference} /> : null}
     </div>
   );
 };

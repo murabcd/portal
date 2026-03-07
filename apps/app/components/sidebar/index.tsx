@@ -36,6 +36,7 @@ import { ChevronsUpDown, LogOut, UserCircleIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useMemo } from "react";
 import {
   activity,
   changelog,
@@ -49,6 +50,7 @@ import {
   roadmap,
   settings,
 } from "../../lib/navigation";
+import { warmSidebarNavigation } from "../../lib/navigation-prefetch";
 import { SidebarItem } from "./sidebar-item";
 
 type SidebarUser = {
@@ -73,6 +75,41 @@ type SidebarProps = {
 export const Sidebar = ({ user, organization }: SidebarProps) => {
   const router = useRouter();
   const sidebar = useSidebar();
+  const prefetchTargets = useMemo(() => {
+    const roadmapItems = roadmap.items ?? [];
+    const dataItems = data.items ?? [];
+    const targets = [
+      home.href,
+      activity.href,
+      insights.href,
+      feedback.href,
+      initiatives.href,
+      features.href,
+      roadmap.href,
+      ...roadmapItems.map((item) => item.href),
+      releases.href,
+      changelog.href,
+    ];
+
+    if (user.organizationRole !== PortalRole.Member) {
+      targets.push(...dataItems.map((item) => item.href));
+
+      if (user.organizationRole === PortalRole.Admin) {
+        targets.push(
+          settings.href,
+          "/settings/statuses",
+          "/settings/integrations",
+          "/settings/import"
+        );
+      }
+    }
+
+    return targets;
+  }, [user.organizationRole]);
+
+  useEffect(() => {
+    warmSidebarNavigation(router, prefetchTargets);
+  }, [prefetchTargets, router]);
 
   const handleSignOut = async () => {
     try {

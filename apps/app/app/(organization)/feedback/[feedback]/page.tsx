@@ -17,12 +17,10 @@ import {
   VideoPlayerTimeRange,
   VideoPlayerVolumeRange,
 } from "@repo/design-system/components/kibo-ui/video-player";
-import { Skeleton } from "@repo/design-system/components/precomposed/skeleton";
 import { StackCard } from "@repo/design-system/components/stack-card";
-import { cn } from "@repo/design-system/lib/utils";
 import type { JSONContent } from "@repo/editor";
 import { contentToText } from "@repo/editor/lib/tiptap";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -44,10 +42,21 @@ export const generateMetadata = async (
   props: FeedbackPageProperties
 ): Promise<Metadata> => {
   const params = await props.params;
+  const organizationId = await currentOrganizationId();
+
+  if (!organizationId) {
+    return {};
+  }
+
   const feedback = await database
     .select({ title: tables.feedback.title, id: tables.feedback.id })
     .from(tables.feedback)
-    .where(eq(tables.feedback.id, params.feedback))
+    .where(
+      and(
+        eq(tables.feedback.id, params.feedback),
+        eq(tables.feedback.organizationId, organizationId)
+      )
+    )
     .limit(1)
     .then((rows) => rows[0] ?? null);
 
@@ -90,7 +99,12 @@ const FeedbackPage = async (props: FeedbackPageProperties) => {
         transcript: tables.feedback.transcript,
       })
       .from(tables.feedback)
-      .where(eq(tables.feedback.id, params.feedback))
+      .where(
+        and(
+          eq(tables.feedback.id, params.feedback),
+          eq(tables.feedback.organizationId, organizationId)
+        )
+      )
       .limit(1)
       .then((rows) => rows[0] ?? null),
     database
@@ -107,7 +121,8 @@ const FeedbackPage = async (props: FeedbackPageProperties) => {
       .leftJoin(
         tables.featureStatus,
         eq(tables.featureStatus.id, tables.feature.statusId)
-      ),
+      )
+      .where(eq(tables.feature.organizationId, organizationId)),
     database
       .select({ id: tables.organization.id })
       .from(tables.organization)
@@ -142,7 +157,7 @@ const FeedbackPage = async (props: FeedbackPageProperties) => {
           editable={user.organizationRole !== PortalRole.Member}
           feedbackId={params.feedback}
         />
-        <Suspense fallback={<Skeleton className={cn("w-full", "h-[315px]")} />}>
+        <Suspense fallback={null}>
           <FeedbackPanel feedbackId={params.feedback} />
         </Suspense>
         {feedback.audioUrl ? (

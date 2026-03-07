@@ -1,6 +1,5 @@
 import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
-import { Skeleton } from "@repo/design-system/components/precomposed/skeleton";
 import { Button } from "@repo/design-system/components/ui/button";
 import {
   Sheet,
@@ -68,7 +67,7 @@ const APIPage = async () => {
             </SheetContent>
           </Sheet>
         </div>
-        <Suspense fallback={<Skeleton className="aspect-video w-full" />}>
+        <Suspense fallback={null}>
           <ApiKeysTable />
         </Suspense>
       </div>

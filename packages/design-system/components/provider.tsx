@@ -1,8 +1,6 @@
 "use client";
 
-import { colors } from "@repo/design-system/lib/colors";
 import Script from "next/script";
-import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 import type { ThemeProviderProps } from "next-themes";
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 import type { ReactNode } from "react";
@@ -43,12 +41,6 @@ export const DesignSystemProvider = ({
   >
     <TooltipProvider>{children}</TooltipProvider>
     <Toaster />
-    <ProgressBar
-      color={colors.violet}
-      height="2px"
-      options={{ showSpinner: false }}
-      shallowRouting
-    />
     <IframelyEmbed />
   </NextThemesProvider>
 );

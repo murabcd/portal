@@ -14,7 +14,7 @@ import {
   AccordionTrigger,
 } from "@repo/design-system/components/ui/accordion";
 import { formatDate } from "@repo/lib/format";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { SparklesIcon } from "lucide-react";
 import Markdown from "react-markdown";
 import { CompanyLogo } from "@/app/(organization)/components/company-logo";
@@ -128,7 +128,12 @@ const loadFeedbackPanelData = async (feedbackId: Feedback["id"]) => {
             tables.feedbackUser.feedbackOrganizationId
           )
         )
-        .where(eq(tables.feedback.id, feedbackId))
+        .where(
+          and(
+            eq(tables.feedback.id, feedbackId),
+            eq(tables.feedback.organizationId, organizationId)
+          )
+        )
         .limit(1)
         .then((rows) => rows[0] ?? null),
       database
@@ -138,14 +143,16 @@ const loadFeedbackPanelData = async (feedbackId: Feedback["id"]) => {
           imageUrl: tables.feedbackUser.imageUrl,
           email: tables.feedbackUser.email,
         })
-        .from(tables.feedbackUser),
+        .from(tables.feedbackUser)
+        .where(eq(tables.feedbackUser.organizationId, organizationId)),
       database
         .select({
           id: tables.feedbackOrganization.id,
           name: tables.feedbackOrganization.name,
           domain: tables.feedbackOrganization.domain,
         })
-        .from(tables.feedbackOrganization),
+        .from(tables.feedbackOrganization)
+        .where(eq(tables.feedbackOrganization.organizationId, organizationId)),
     ]
   );
 

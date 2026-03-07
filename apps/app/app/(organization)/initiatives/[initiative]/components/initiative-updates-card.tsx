@@ -95,6 +95,7 @@ export const InitiativeUpdatesCard = async ({
     return (
       <StackCard className="not-prose p-8" icon={NewspaperIcon} title="Updates">
         <EmptyState
+          compact
           description="No updates have been sent for this initiative yet."
           title="No updates"
         />
@@ -106,6 +107,7 @@ export const InitiativeUpdatesCard = async ({
     return (
       <StackCard className="not-prose p-8" icon={NewspaperIcon} title="Updates">
         <EmptyState
+          compact
           description="Send an update to all members on the initiative."
           title="Send your first update"
         >

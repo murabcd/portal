@@ -1,5 +1,6 @@
+import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { createMetadata } from "@/lib/metadata";
@@ -16,10 +17,21 @@ export const generateMetadata = async (
   props: FeaturePageLayoutProperties
 ): Promise<Metadata> => {
   const params = await props.params;
+  const organizationId = await currentOrganizationId();
+
+  if (!organizationId) {
+    return {};
+  }
+
   const feature = await database
     .select({ title: tables.feature.title })
     .from(tables.feature)
-    .where(eq(tables.feature.id, params.feature))
+    .where(
+      and(
+        eq(tables.feature.id, params.feature),
+        eq(tables.feature.organizationId, organizationId)
+      )
+    )
     .limit(1)
     .then((rows) => rows[0] ?? null);
 

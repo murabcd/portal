@@ -6,7 +6,6 @@ import { handleError } from "@repo/design-system/lib/handle-error";
 import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
 import { updateFeature } from "@/actions/feature/update";
-import { CanvasSkeleton } from "@/components/skeletons/canvas";
 
 const Canvas = dynamic(
   async () => {
@@ -17,7 +16,7 @@ const Canvas = dynamic(
 
     return component.Canvas;
   },
-  { ssr: false, loading: () => <CanvasSkeleton /> }
+  { ssr: false, loading: () => null }
 );
 
 type FeatureCanvasLoaderProperties = {

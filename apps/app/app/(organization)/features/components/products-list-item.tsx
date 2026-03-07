@@ -228,10 +228,10 @@ const ProductsListItemRow = ({
   <>
     <div
       className={cn(
-        "group flex items-center gap-2 transition-colors",
+        "group flex min-w-0 items-center gap-2 transition-colors",
         className,
         isActive
-          ? "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary"
+          ? "bg-accent text-foreground hover:bg-accent hover:text-foreground"
           : ""
       )}
       ref={setNodeRef}
@@ -258,7 +258,7 @@ const ProductsListItemRow = ({
         )}
       </div>
       <Link
-        className="flex-1 truncate py-3 text-sm transition-colors"
+        className="min-w-0 flex-1 truncate py-3 text-sm transition-colors"
         href={href}
       >
         {name}

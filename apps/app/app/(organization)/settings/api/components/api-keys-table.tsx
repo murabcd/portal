@@ -45,6 +45,7 @@ export const ApiKeysTable = async () => {
       {keys.length === 0 ? (
         <div className="not-prose p-8">
           <EmptyState
+            compact
             description="You haven't created any API keys yet."
             title="No API keys"
           />

@@ -1,6 +1,5 @@
 import { currentOrganizationId } from "@repo/backend/auth/utils";
 import { database, tables } from "@repo/backend/database";
-import { Skeleton } from "@repo/design-system/components/precomposed/skeleton";
 import { StackCard } from "@repo/design-system/components/stack-card";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
@@ -36,11 +35,11 @@ export const ManageJira = async () => {
         </p>
       </div>
 
-      <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+      <Suspense fallback={null}>
         <JiraStatusMappings />
       </Suspense>
 
-      <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+      <Suspense fallback={null}>
         <JiraFieldMappings />
       </Suspense>
 
