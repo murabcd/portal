@@ -8,7 +8,7 @@ import {
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Suspense } from "react";
 import { Sidebar } from "@/components/sidebar";
 import { Forms } from "./components/forms";
@@ -90,14 +90,7 @@ const OrganizationLayout = async ({
     : undefined;
 
   return (
-    <SidebarProvider
-      defaultOpen={sidebarDefaultOpen}
-      style={
-        {
-          "--sidebar-width": "220px",
-        } as CSSProperties
-      }
-    >
+    <SidebarProvider defaultOpen={sidebarDefaultOpen}>
       <Sidebar organization={sidebarOrganization} user={sidebarUser} />
       <SidebarInset className="bg-transparent">
         <div className="flex min-h-screen flex-1 flex-col">

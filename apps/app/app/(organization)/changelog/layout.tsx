@@ -86,30 +86,36 @@ const ChangelogLayout = async ({ children }: ChangelogLayoutProperties) => {
   }
 
   return (
-    <ResizablePanelGroup direction="horizontal" style={{ overflow: "unset" }}>
+    <ResizablePanelGroup
+      className="min-w-0 flex-1"
+      direction="horizontal"
+      style={{ overflow: "unset" }}
+    >
       <ResizablePanel
-        className="sticky top-0 h-screen"
+        className="sticky top-0 h-screen min-w-80"
         defaultSize={30}
         maxSize={35}
         minSize={25}
         style={{ overflow: "auto" }}
       >
-        <Header badge={count} title="Changelog">
-          {role === FlowniRole.Member ? null : (
-            <div className="-m-2">
-              <Tooltip align="end" content="Post a new update" side="bottom">
-                <CreateChangelogButton />
-              </Tooltip>
-            </div>
-          )}
-        </Header>
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <ChangelogList />
-        </HydrationBoundary>
+        <div className="h-full border-r">
+          <Header badge={count} title="Changelog">
+            {role === FlowniRole.Member ? null : (
+              <div className="-m-2">
+                <Tooltip align="end" content="Post a new update" side="bottom">
+                  <CreateChangelogButton />
+                </Tooltip>
+              </div>
+            )}
+          </Header>
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <ChangelogList />
+          </HydrationBoundary>
+        </div>
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel
-        className="self-start"
+        className="min-w-0 self-start"
         defaultSize={70}
         style={{ overflow: "unset" }}
       >

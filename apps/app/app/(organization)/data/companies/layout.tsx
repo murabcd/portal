@@ -59,20 +59,30 @@ const CompaniesDataLayout = async ({
   }
 
   return (
-    <ResizablePanelGroup direction="horizontal" style={{ overflow: "unset" }}>
+    <ResizablePanelGroup
+      className="min-w-0 flex-1"
+      direction="horizontal"
+      style={{ overflow: "unset" }}
+    >
       <ResizablePanel
-        className="sticky top-0 h-screen"
+        className="sticky top-0 h-screen min-w-80"
         defaultSize={30}
         maxSize={35}
         minSize={25}
         style={{ overflow: "auto" }}
       >
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <FeedbackCompanyList />
-        </HydrationBoundary>
+        <div className="h-full border-r">
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <FeedbackCompanyList />
+          </HydrationBoundary>
+        </div>
       </ResizablePanel>
       <ResizableHandle />
-      <ResizablePanel defaultSize={70} style={{ overflow: "unset" }}>
+      <ResizablePanel
+        className="min-w-0"
+        defaultSize={70}
+        style={{ overflow: "unset" }}
+      >
         {children}
       </ResizablePanel>
     </ResizablePanelGroup>

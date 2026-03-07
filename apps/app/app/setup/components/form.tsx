@@ -5,14 +5,6 @@ import { createSupabaseBrowserClient } from "@repo/backend/supabase/client";
 import { Input } from "@repo/design-system/components/precomposed/input";
 import { Textarea } from "@repo/design-system/components/precomposed/textarea";
 import { Button } from "@repo/design-system/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@repo/design-system/components/ui/form";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -86,70 +78,60 @@ export const CreateOrganizationForm = () => {
           organization.
         </p>
       </div>
-      <Form {...form}>
-        <form className="grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Acme" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+      <form className="grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="grid gap-2">
+          <Input placeholder="Acme" {...form.register("name")} label="Name" />
+          {form.formState.errors.name?.message ? (
+            <p className="text-destructive text-sm">
+              {form.formState.errors.name.message}
+            </p>
+          ) : null}
+        </div>
+        <div className="grid gap-2">
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-medium text-sm">Logo</p>
+            <p className="text-muted-foreground text-xs">Optional</p>
+          </div>
+          <Input
+            accept="image/*"
+            label={undefined}
+            onChange={(event) => {
+              form.setValue("logo", event.target.files?.[0], {
+                shouldDirty: true,
+                shouldValidate: true,
+              });
+            }}
+            type="file"
           />
-          <FormField
-            control={form.control}
-            name="logo"
-            render={({ field: { value, onChange, ...fieldProps } }) => (
-              <FormItem>
-                <div className="flex items-center justify-between gap-2">
-                  <FormLabel>Logo URL</FormLabel>
-                  <p className="text-muted-foreground text-xs">Optional</p>
-                </div>
-                <FormControl>
-                  <Input
-                    type="file"
-                    {...fieldProps}
-                    accept="image/*"
-                    onChange={(event) => onChange(event.target.files?.[0])}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+          {form.formState.errors.logo?.message ? (
+            <p className="text-destructive text-sm">
+              {form.formState.errors.logo.message}
+            </p>
+          ) : null}
+        </div>
+        <div className="grid gap-2">
+          <Textarea
+            placeholder="Acme is a platform for creating and managing products."
+            {...form.register("productDescription")}
+            label="Product Description"
           />
-          <FormField
-            control={form.control}
-            name="productDescription"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Product Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Acme is a platform for creating and managing products."
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button
-            disabled={
-              form.formState.disabled ||
-              !form.formState.isValid ||
-              form.formState.isSubmitting
-            }
-            type="submit"
-          >
-            Continue
-          </Button>
-        </form>
-      </Form>
+          {form.formState.errors.productDescription?.message ? (
+            <p className="text-destructive text-sm">
+              {form.formState.errors.productDescription.message}
+            </p>
+          ) : null}
+        </div>
+        <Button
+          disabled={
+            form.formState.disabled ||
+            !form.formState.isValid ||
+            form.formState.isSubmitting
+          }
+          type="submit"
+        >
+          Continue
+        </Button>
+      </form>
     </div>
   );
 };

@@ -89,7 +89,7 @@ export const FeedbackOrganizationPicker = ({
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <div className="h-4 w-4 rounded-full bg-muted-foreground" />
+              <div className="size-4 rounded-full bg-muted-foreground" />
               <p className="text-muted-foreground">Select company...</p>
             </div>
           )}

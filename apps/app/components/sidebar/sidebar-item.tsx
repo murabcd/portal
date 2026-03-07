@@ -14,6 +14,7 @@ import {
   SidebarMenuSubItem,
 } from "@repo/design-system/components/ui/sidebar";
 import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type * as navigation from "@/lib/navigation";
 
@@ -25,29 +26,26 @@ export const SidebarItem = ({
   label,
 }: navigation.SidebarPage) => {
   const pathname = usePathname();
+  const isActive = active(pathname);
+  const hasItems = Boolean(items?.length);
 
   return (
-    <Collapsible asChild defaultOpen>
+    <Collapsible asChild defaultOpen={isActive}>
       <SidebarMenuItem>
-        <SidebarMenuButton
-          asChild
-          className={
-            !items?.length && active(pathname) ? "bg-sidebar-accent" : ""
-          }
-        >
-          {items?.length ? (
-            <div>
+        <SidebarMenuButton asChild={!hasItems} isActive={isActive}>
+          {hasItems ? (
+            <>
               <Icon className="opacity-70" />
               <span>{label}</span>
-            </div>
+            </>
           ) : (
-            <a href={href}>
+            <Link href={href}>
               <Icon className="opacity-70" />
               <span>{label}</span>
-            </a>
+            </Link>
           )}
         </SidebarMenuButton>
-        {items?.length ? (
+        {hasItems ? (
           <>
             <CollapsibleTrigger asChild>
               <SidebarMenuAction className="data-[state=open]:rotate-90">
@@ -61,15 +59,11 @@ export const SidebarItem = ({
                   <SidebarMenuSubItem key={subItem.label}>
                     <SidebarMenuSubButton
                       asChild
-                      className={
-                        subItem.active(pathname)
-                          ? "bg-primary text-primary-foreground"
-                          : ""
-                      }
+                      isActive={subItem.active(pathname)}
                     >
-                      <a href={subItem.href}>
+                      <Link href={subItem.href}>
                         <span>{subItem.label}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                 ))}

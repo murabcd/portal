@@ -114,27 +114,37 @@ const FeatureListLayout = async ({ children }: FeatureListLayoutProperties) => {
       features={modifiedFeatures}
       products={productsWithGroups}
     >
-      <ResizablePanelGroup direction="horizontal" style={{ overflow: "unset" }}>
+      <ResizablePanelGroup
+        className="min-w-0 flex-1"
+        direction="horizontal"
+        style={{ overflow: "unset" }}
+      >
         <ResizablePanel
-          className="sticky top-0 h-screen"
+          className="sticky top-0 h-screen min-w-72"
           defaultSize={20}
           maxSize={25}
           minSize={15}
           style={{ overflow: "auto" }}
         >
-          <Header badge={productsWithGroups.length} title="Products">
-            {role === FlowniRole.Member ? null : (
-              <FeatureCreateDropdown
-                hasProducts={productsWithGroups.length > 0}
-              />
-            )}
-          </Header>
-          <Suspense fallback={null}>
-            <ProductsList products={productsWithGroups} role={role} />
-          </Suspense>
+          <div className="h-full border-r">
+            <Header badge={productsWithGroups.length} title="Products">
+              {role === FlowniRole.Member ? null : (
+                <FeatureCreateDropdown
+                  hasProducts={productsWithGroups.length > 0}
+                />
+              )}
+            </Header>
+            <Suspense fallback={null}>
+              <ProductsList products={productsWithGroups} role={role} />
+            </Suspense>
+          </div>
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel defaultSize={80} style={{ overflow: "unset" }}>
+        <ResizablePanel
+          className="min-w-0"
+          defaultSize={80}
+          style={{ overflow: "unset" }}
+        >
           {children}
         </ResizablePanel>
       </ResizablePanelGroup>

@@ -5,7 +5,7 @@ import {
 } from "@repo/design-system/components/ui/avatar";
 import type { ComponentProps } from "react";
 
-type CompanyLogoProps = ComponentProps<typeof Avatar> & {
+type CompanyLogoProps = Omit<ComponentProps<typeof Avatar>, "size"> & {
   src: string | null | undefined;
   fallback?: string;
   size?: number;
@@ -34,7 +34,7 @@ export const CompanyLogo = ({
     >
       <AvatarImage
         alt=""
-        className="aspect-square h-full w-full object-cover"
+        className="aspect-square size-full object-cover"
         height={size}
         src={imageUrl?.toString()}
         width={size}
