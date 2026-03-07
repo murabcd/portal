@@ -11,7 +11,7 @@ import { createMetadata } from "@repo/lib/metadata";
 import { eq, sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 import { Header } from "@/components/header";
 import { ChangelogEmptyState } from "./components/changelog-empty-state";
 import { ChangelogList } from "./components/changelog-list";
@@ -29,7 +29,9 @@ export const metadata: Metadata = createMetadata({
   description,
 });
 
-const ChangelogLayout = async ({ children }: ChangelogLayoutProperties) => {
+const ChangelogLayoutContent = async ({
+  children,
+}: ChangelogLayoutProperties) => {
   const [user, organizationId] = await Promise.all([
     currentUser(),
     currentOrganizationId(),
@@ -100,5 +102,11 @@ const ChangelogLayout = async ({ children }: ChangelogLayoutProperties) => {
     </ResizablePanelGroup>
   );
 };
+
+const ChangelogLayout = ({ children }: ChangelogLayoutProperties) => (
+  <Suspense fallback={null}>
+    <ChangelogLayoutContent>{children}</ChangelogLayoutContent>
+  </Suspense>
+);
 
 export default ChangelogLayout;

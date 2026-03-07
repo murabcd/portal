@@ -6,14 +6,14 @@ import {
   ResizablePanelGroup,
 } from "@repo/design-system/components/ui/resizable";
 import { eq, sql } from "drizzle-orm";
-import type { ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 import { FeedbackCompanyList } from "./components/feedback-company-list";
 
 type CompaniesDataLayoutProperties = {
   readonly children: ReactNode;
 };
 
-const CompaniesDataLayout = async ({
+const CompaniesDataLayoutContent = async ({
   children,
 }: CompaniesDataLayoutProperties) => {
   const organizationId = await currentOrganizationId();
@@ -63,5 +63,11 @@ const CompaniesDataLayout = async ({
     </ResizablePanelGroup>
   );
 };
+
+const CompaniesDataLayout = ({ children }: CompaniesDataLayoutProperties) => (
+  <Suspense fallback={null}>
+    <CompaniesDataLayoutContent>{children}</CompaniesDataLayoutContent>
+  </Suspense>
+);
 
 export default CompaniesDataLayout;

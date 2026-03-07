@@ -22,6 +22,7 @@ import { SendIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { InitiativeUpdateCopyContentButton } from "./components/initiative-update-copy-content-button";
 import { InitiativeUpdateEditor } from "./components/initiative-update-editor";
 import { UpdateEmptyState } from "./components/initiative-update-empty-state";
@@ -34,8 +35,6 @@ type InitiativeUpdatePageProperties = {
     readonly update: InitiativeUpdate["id"];
   }>;
 };
-
-export const dynamic = "force-dynamic";
 
 export const generateMetadata = async (
   props: InitiativeUpdatePageProperties
@@ -67,7 +66,9 @@ export const generateMetadata = async (
   });
 };
 
-const InitiativeUpdatePage = async (props: InitiativeUpdatePageProperties) => {
+const InitiativeUpdatePageContent = async (
+  props: InitiativeUpdatePageProperties
+) => {
   const params = await props.params;
   const [user, organizationId] = await Promise.all([
     currentUser(),
@@ -211,5 +212,11 @@ const InitiativeUpdatePage = async (props: InitiativeUpdatePageProperties) => {
     </div>
   );
 };
+
+const InitiativeUpdatePage = (props: InitiativeUpdatePageProperties) => (
+  <Suspense fallback={null}>
+    <InitiativeUpdatePageContent {...props} />
+  </Suspense>
+);
 
 export default InitiativeUpdatePage;

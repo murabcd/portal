@@ -11,6 +11,7 @@ import { createMetadata } from "@repo/lib/metadata";
 import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { ChangelogEditor } from "./components/changelog-editor";
 import { ChangelogSidebar } from "./components/changelog-sidebar";
 import { ChangelogTitle } from "./components/changelog-title";
@@ -21,8 +22,6 @@ type ChangelogPageProperties = {
     readonly update: string;
   }>;
 };
-
-export const dynamic = "force-dynamic";
 
 export const generateMetadata = async (
   props: ChangelogPageProperties
@@ -65,7 +64,7 @@ export const generateMetadata = async (
   });
 };
 
-const ChangelogPage = async (props: ChangelogPageProperties) => {
+const ChangelogPageContent = async (props: ChangelogPageProperties) => {
   const params = await props.params;
   const [user, organizationId] = await Promise.all([
     currentUser(),
@@ -134,5 +133,11 @@ const ChangelogPage = async (props: ChangelogPageProperties) => {
     </div>
   );
 };
+
+const ChangelogPage = (props: ChangelogPageProperties) => (
+  <Suspense fallback={null}>
+    <ChangelogPageContent {...props} />
+  </Suspense>
+);
 
 export default ChangelogPage;

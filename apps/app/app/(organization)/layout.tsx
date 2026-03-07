@@ -18,7 +18,7 @@ type OrganizationLayoutProperties = {
   readonly children: ReactNode;
 };
 
-const OrganizationLayout = async ({
+const OrganizationLayoutContent = async ({
   children,
 }: OrganizationLayoutProperties) => {
   const [user, organizationId] = await Promise.all([
@@ -104,5 +104,11 @@ const OrganizationLayout = async ({
     </SidebarProvider>
   );
 };
+
+const OrganizationLayout = ({ children }: OrganizationLayoutProperties) => (
+  <Suspense fallback={null}>
+    <OrganizationLayoutContent>{children}</OrganizationLayoutContent>
+  </Suspense>
+);
 
 export default OrganizationLayout;

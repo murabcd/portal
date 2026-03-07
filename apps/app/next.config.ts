@@ -5,6 +5,7 @@ import { env } from "@/env";
 
 let nextConfig: NextConfig = withBackend({
   ...config,
+  cacheComponents: true,
 
   async redirects() {
     return [

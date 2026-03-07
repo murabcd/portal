@@ -8,7 +8,7 @@ const GlobalBreadcrumbs = dynamic(
 );
 
 export const Navbar = () => (
-  <div className="flex shrink-0 items-center gap-4 border-b px-4 py-2.5">
+  <div className="sticky top-0 z-30 flex shrink-0 items-center gap-4 border-b bg-backdrop/90 px-4 py-2.5 backdrop-blur-sm">
     <SidebarTrigger className="text-muted-foreground" />
     <Suspense fallback={null}>
       <GlobalBreadcrumbs />

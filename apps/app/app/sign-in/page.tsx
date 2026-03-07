@@ -43,7 +43,7 @@ const ContributorAvatar = async ({ userId }: { readonly userId: string }) => {
   );
 };
 
-const SignInPage = async () => {
+const SignInPageContent = async () => {
   await handleAuthedState();
 
   const latestUpdate = await getLatestPublishedChangelogEntry();
@@ -127,5 +127,11 @@ const SignInPage = async () => {
     </div>
   );
 };
+
+const SignInPage = () => (
+  <Suspense fallback={null}>
+    <SignInPageContent />
+  </Suspense>
+);
 
 export default SignInPage;

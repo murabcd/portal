@@ -12,6 +12,7 @@ import { createMetadata } from "@repo/lib/metadata";
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { TemplateEditor } from "./components/template-editor";
 import { TemplateTitle } from "./components/template-title";
 
@@ -20,8 +21,6 @@ type TemplatePageProperties = {
     readonly templateId: string;
   }>;
 };
-
-export const dynamic = "force-dynamic";
 
 export const generateMetadata = async (
   props: TemplatePageProperties
@@ -54,7 +53,7 @@ export const generateMetadata = async (
   });
 };
 
-const TemplatePage = async (props: TemplatePageProperties) => {
+const TemplatePageContent = async (props: TemplatePageProperties) => {
   const params = await props.params;
   const [user, organizationId] = await Promise.all([
     currentUser(),
@@ -111,5 +110,11 @@ const TemplatePage = async (props: TemplatePageProperties) => {
     </>
   );
 };
+
+const TemplatePage = (props: TemplatePageProperties) => (
+  <Suspense fallback={null}>
+    <TemplatePageContent {...props} />
+  </Suspense>
+);
 
 export default TemplatePage;

@@ -12,6 +12,7 @@ import { init } from "emoji-mart";
 import { CompassIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { toMemberInfoList } from "@/lib/serialization";
 import { CreateInitiativeButton } from "./components/create-initiative-button";
@@ -23,12 +24,9 @@ init({ data: emojiData });
 const title = "Initiatives";
 const description = "Create and manage initiatives for your product.";
 
-export const metadata: Metadata = createMetadata({
-  title,
-  description,
-});
+export const metadata: Metadata = createMetadata({ title, description });
 
-const Initiatives = async () => {
+const InitiativesContent = async () => {
   const [user, organizationId] = await Promise.all([
     currentUser(),
     currentOrganizationId(),
@@ -127,51 +125,51 @@ const Initiatives = async () => {
   }
 
   return (
-    <div className="px-6 py-16">
-      <div className="mx-auto w-full max-w-3xl">
-        <div className="flex items-start justify-between gap-3">
-          <div className="grid gap-2">
-            <h1 className="m-0 font-semibold text-4xl tracking-tight">
-              {title}
-            </h1>
-            <p className="text-muted-foreground">{description}</p>
-          </div>
-          {user.organizationRole !== PortalRole.Member && (
-            <CreateInitiativeButton />
-          )}
+    <>
+      {user.organizationRole !== PortalRole.Member ? (
+        <div className="mt-4 flex justify-end">
+          <CreateInitiativeButton />
         </div>
-        <div className="mt-8 divide-y">
-          {[...initiatives]
-            .sort((initiativeA, initiativeB) => {
-              const stateOrder = [
-                "ACTIVE",
-                "PLANNED",
-                "COMPLETED",
-                "CANCELLED",
-              ];
-              const stateA = stateOrder.indexOf(initiativeA.state);
-              const stateB = stateOrder.indexOf(initiativeB.state);
+      ) : null}
+      <div className="mt-8 divide-y">
+        {[...initiatives]
+          .sort((initiativeA, initiativeB) => {
+            const stateOrder = ["ACTIVE", "PLANNED", "COMPLETED", "CANCELLED"];
+            const stateA = stateOrder.indexOf(initiativeA.state);
+            const stateB = stateOrder.indexOf(initiativeB.state);
 
-              if (stateA !== stateB) {
-                return stateA - stateB;
-              }
+            if (stateA !== stateB) {
+              return stateA - stateB;
+            }
 
-              // If states are the same, sort by title
-              return initiativeA.title.localeCompare(initiativeB.title);
-            })
-            .map((initiative) => (
-              <InitiativeItem
-                initiative={initiative}
-                key={initiative.id}
-                members={membersLite.filter((member) =>
-                  initiative.team.some((team) => team.userId === member.id)
-                )}
-              />
-            ))}
-        </div>
+            return initiativeA.title.localeCompare(initiativeB.title);
+          })
+          .map((initiative) => (
+            <InitiativeItem
+              initiative={initiative}
+              key={initiative.id}
+              members={membersLite.filter((member) =>
+                initiative.team.some((team) => team.userId === member.id)
+              )}
+            />
+          ))}
       </div>
-    </div>
+    </>
   );
 };
+
+const Initiatives = () => (
+  <div className="px-6 py-16">
+    <div className="mx-auto w-full max-w-3xl">
+      <div className="grid gap-2">
+        <h1 className="m-0 font-semibold text-4xl tracking-tight">{title}</h1>
+        <p className="text-muted-foreground">{description}</p>
+      </div>
+      <Suspense fallback={null}>
+        <InitiativesContent />
+      </Suspense>
+    </div>
+  </div>
+);
 
 export default Initiatives;

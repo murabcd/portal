@@ -19,7 +19,9 @@ type FeatureListLayoutProperties = {
   readonly children: ReactNode;
 };
 
-const FeatureListLayout = async ({ children }: FeatureListLayoutProperties) => {
+const FeatureListLayoutContent = async ({
+  children,
+}: FeatureListLayoutProperties) => {
   const [user, organizationId] = await Promise.all([
     currentUser(),
     currentOrganizationId(),
@@ -129,5 +131,11 @@ const FeatureListLayout = async ({ children }: FeatureListLayoutProperties) => {
     </FeaturesDragProvider>
   );
 };
+
+const FeatureListLayout = ({ children }: FeatureListLayoutProperties) => (
+  <Suspense fallback={null}>
+    <FeatureListLayoutContent>{children}</FeatureListLayoutContent>
+  </Suspense>
+);
 
 export default FeatureListLayout;

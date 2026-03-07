@@ -36,8 +36,6 @@ type FeedbackPageProperties = {
   }>;
 };
 
-export const dynamic = "force-dynamic";
-
 export const generateMetadata = async (
   props: FeedbackPageProperties
 ): Promise<Metadata> => {
@@ -78,7 +76,7 @@ export const generateMetadata = async (
   });
 };
 
-const FeedbackPage = async (props: FeedbackPageProperties) => {
+const FeedbackPageContent = async (props: FeedbackPageProperties) => {
   const params = await props.params;
   const [user, organizationId] = await Promise.all([
     currentUser(),
@@ -215,5 +213,11 @@ const FeedbackPage = async (props: FeedbackPageProperties) => {
     </div>
   );
 };
+
+const FeedbackPage = (props: FeedbackPageProperties) => (
+  <Suspense fallback={null}>
+    <FeedbackPageContent {...props} />
+  </Suspense>
+);
 
 export default FeedbackPage;

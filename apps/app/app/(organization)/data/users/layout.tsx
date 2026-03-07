@@ -6,14 +6,16 @@ import {
   ResizablePanelGroup,
 } from "@repo/design-system/components/ui/resizable";
 import { eq, sql } from "drizzle-orm";
-import type { ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 import { FeedbackUsersList } from "./components/feedback-user-list";
 
 type UsersDataLayoutProperties = {
   readonly children: ReactNode;
 };
 
-const UsersDataLayout = async ({ children }: UsersDataLayoutProperties) => {
+const UsersDataLayoutContent = async ({
+  children,
+}: UsersDataLayoutProperties) => {
   const organizationId = await currentOrganizationId();
 
   if (!organizationId) {
@@ -60,5 +62,11 @@ const UsersDataLayout = async ({ children }: UsersDataLayoutProperties) => {
     </ResizablePanelGroup>
   );
 };
+
+const UsersDataLayout = ({ children }: UsersDataLayoutProperties) => (
+  <Suspense fallback={null}>
+    <UsersDataLayoutContent>{children}</UsersDataLayoutContent>
+  </Suspense>
+);
 
 export default UsersDataLayout;

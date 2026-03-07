@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { ComponentProps, PropsWithChildren } from "react";
+import { type ComponentProps, type PropsWithChildren, useState } from "react";
 import { prefetchNavigationTarget } from "@/lib/navigation-prefetch";
 
 type SidebarRouteLinkProperties = PropsWithChildren<{
@@ -19,8 +19,10 @@ export const SidebarRouteLink = ({
   ...properties
 }: SidebarRouteLinkProperties) => {
   const router = useRouter();
+  const [prefetchEnabled, setPrefetchEnabled] = useState(false);
 
   const handlePrefetch = () => {
+    setPrefetchEnabled(true);
     prefetchNavigationTarget(router, href);
   };
 
@@ -39,7 +41,7 @@ export const SidebarRouteLink = ({
         handlePrefetch();
         onTouchStart?.(event);
       }}
-      prefetch
+      prefetch={prefetchEnabled ? null : false}
       {...properties}
     >
       {children}

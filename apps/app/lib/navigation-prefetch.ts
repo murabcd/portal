@@ -123,6 +123,10 @@ export const warmSidebarNavigation = (
   router: AppRouterInstance,
   hrefs: readonly string[]
 ) => {
+  if (process.env.NODE_ENV !== "development") {
+    return;
+  }
+
   const run = () => {
     for (const href of hrefs) {
       prefetchNavigationTarget(router, href);

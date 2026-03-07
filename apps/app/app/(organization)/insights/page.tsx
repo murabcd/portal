@@ -1,5 +1,6 @@
 import { createMetadata } from "@repo/lib/metadata";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { FeaturesSection } from "./components/features";
 import { FeedbackSection } from "./components/feedback";
 import { InitiativesSection } from "./components/initiatives";
@@ -18,12 +19,22 @@ const Insights = () => (
         <h1 className="m-0 font-semibold text-4xl tracking-tight">{title}</h1>
         <p className="text-muted-foreground">{description}</p>
       </div>
-      <OverviewMetrics />
+      <Suspense fallback={null}>
+        <OverviewMetrics />
+      </Suspense>
     </section>
-    <FeedbackSection />
-    <FeaturesSection />
-    <InitiativesSection />
-    <RoadmapSection />
+    <Suspense fallback={null}>
+      <FeedbackSection />
+    </Suspense>
+    <Suspense fallback={null}>
+      <FeaturesSection />
+    </Suspense>
+    <Suspense fallback={null}>
+      <InitiativesSection />
+    </Suspense>
+    <Suspense fallback={null}>
+      <RoadmapSection />
+    </Suspense>
   </div>
 );
 

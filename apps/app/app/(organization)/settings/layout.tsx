@@ -8,7 +8,9 @@ type SettingsLayoutProperties = {
   readonly children: ReactNode;
 };
 
-const SettingsLayout = async ({ children }: SettingsLayoutProperties) => {
+const SettingsLayoutContent = async ({
+  children,
+}: SettingsLayoutProperties) => {
   const [user, organizationId] = await Promise.all([
     currentUser(),
     currentOrganizationId(),
@@ -31,5 +33,11 @@ const SettingsLayout = async ({ children }: SettingsLayoutProperties) => {
     </div>
   );
 };
+
+const SettingsLayout = ({ children }: SettingsLayoutProperties) => (
+  <Suspense fallback={null}>
+    <SettingsLayoutContent>{children}</SettingsLayoutContent>
+  </Suspense>
+);
 
 export default SettingsLayout;

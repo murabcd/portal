@@ -6,6 +6,7 @@ import { desc, eq } from "drizzle-orm";
 import { FlagIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { CreateReleaseButton } from "./components/create-release-button";
 import { ReleaseItem } from "./components/release-item";
@@ -13,12 +14,9 @@ import { ReleaseItem } from "./components/release-item";
 const title = "Releases";
 const description = "Create and manage software versions";
 
-export const metadata: Metadata = createMetadata({
-  title,
-  description,
-});
+export const metadata: Metadata = createMetadata({ title, description });
 
-const Releases = async () => {
+const ReleasesContent = async () => {
   const [user, organizationId] = await Promise.all([
     currentUser(),
     currentOrganizationId(),
@@ -68,27 +66,33 @@ const Releases = async () => {
   }
 
   return (
-    <div className="px-6 py-16">
-      <div className="mx-auto w-full max-w-3xl">
-        <div className="flex items-start justify-between gap-3">
-          <div className="grid gap-2">
-            <h1 className="m-0 font-semibold text-4xl tracking-tight">
-              {title}
-            </h1>
-            <p className="text-muted-foreground">{description}</p>
-          </div>
-          {user.organizationRole !== PortalRole.Member && (
-            <CreateReleaseButton />
-          )}
+    <>
+      {user.organizationRole !== PortalRole.Member ? (
+        <div className="mt-4 flex justify-end">
+          <CreateReleaseButton />
         </div>
-        <div className="mt-8 divide-y">
-          {releases.map((release) => (
-            <ReleaseItem key={release.id} release={release} />
-          ))}
-        </div>
+      ) : null}
+      <div className="mt-8 divide-y">
+        {releases.map((release) => (
+          <ReleaseItem key={release.id} release={release} />
+        ))}
       </div>
-    </div>
+    </>
   );
 };
+
+const Releases = () => (
+  <div className="px-6 py-16">
+    <div className="mx-auto w-full max-w-3xl">
+      <div className="grid gap-2">
+        <h1 className="m-0 font-semibold text-4xl tracking-tight">{title}</h1>
+        <p className="text-muted-foreground">{description}</p>
+      </div>
+      <Suspense fallback={null}>
+        <ReleasesContent />
+      </Suspense>
+    </div>
+  </div>
+);
 
 export default Releases;

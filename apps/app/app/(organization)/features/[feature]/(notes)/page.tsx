@@ -8,6 +8,7 @@ import {
 import type { JSONContent } from "@repo/editor";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { FeatureEditor } from "./components/feature-editor";
 import { FeatureTemplateSelector } from "./components/feature-template-selector";
 import { FeatureTitle } from "./components/feature-title";
@@ -19,9 +20,7 @@ type FeaturePageProperties = {
   }>;
 };
 
-export const dynamic = "force-dynamic";
-
-const FeaturePage = async (props: FeaturePageProperties) => {
+const FeaturePageContent = async (props: FeaturePageProperties) => {
   const params = await props.params;
   const [user, organizationId] = await Promise.all([
     currentUser(),
@@ -107,5 +106,11 @@ const FeaturePage = async (props: FeaturePageProperties) => {
     </div>
   );
 };
+
+const FeaturePage = (props: FeaturePageProperties) => (
+  <Suspense fallback={null}>
+    <FeaturePageContent {...props} />
+  </Suspense>
+);
 
 export default FeaturePage;

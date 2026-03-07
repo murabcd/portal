@@ -9,6 +9,7 @@ import { createMetadata } from "@repo/lib/metadata";
 import { and, asc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { toMemberInfoList } from "@/lib/serialization";
 import {
   RoadmapEditor,
@@ -20,7 +21,7 @@ export const metadata: Metadata = createMetadata({
   description: "See a gantt chart of your organization’s features.",
 });
 
-const Roadmap = async () => {
+const RoadmapContent = async () => {
   const [user, organizationId] = await Promise.all([
     currentUser(),
     currentOrganizationId(),
@@ -187,5 +188,11 @@ const Roadmap = async () => {
     />
   );
 };
+
+const Roadmap = () => (
+  <Suspense fallback={null}>
+    <RoadmapContent />
+  </Suspense>
+);
 
 export default Roadmap;

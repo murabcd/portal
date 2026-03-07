@@ -4,6 +4,7 @@ import { database, tables } from "@repo/backend/database";
 import type { CanvasState } from "@repo/canvas";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { FeatureCanvasLoader } from "./components/feature-canvas-loader";
 
 type FeatureCanvasProperties = {
@@ -12,9 +13,7 @@ type FeatureCanvasProperties = {
   }>;
 };
 
-export const dynamic = "force-dynamic";
-
-const FeatureCanvas = async (props: FeatureCanvasProperties) => {
+const FeatureCanvasContent = async (props: FeatureCanvasProperties) => {
   const params = await props.params;
   const user = await currentUser();
 
@@ -46,5 +45,11 @@ const FeatureCanvas = async (props: FeatureCanvasProperties) => {
     </div>
   );
 };
+
+const FeatureCanvas = (props: FeatureCanvasProperties) => (
+  <Suspense fallback={null}>
+    <FeatureCanvasContent {...props} />
+  </Suspense>
+);
 
 export default FeatureCanvas;

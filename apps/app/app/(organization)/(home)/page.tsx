@@ -15,7 +15,7 @@ export const metadata: Metadata = createMetadata({
   description: "The homepage for your organization.",
 });
 
-const Home = async () => {
+const HomeIntro = async () => {
   const user = await currentUser();
 
   if (!user) {
@@ -25,18 +25,24 @@ const Home = async () => {
   const firstName = user.name?.split(" ")[0] ?? "there";
 
   return (
-    <div className="mx-auto grid w-full max-w-3xl gap-6 p-6 py-16">
-      <div className="grid gap-2">
-        <Greeting firstName={firstName} />
-        <p className="text-muted-foreground">Here's your daily digest.</p>
-      </div>
-      <div>
-        <Suspense fallback={null}>
-          <Digest />
-        </Suspense>
-      </div>
+    <div className="grid gap-2">
+      <Greeting firstName={firstName} />
+      <p className="text-muted-foreground">Here's your daily digest.</p>
     </div>
   );
 };
+
+const Home = () => (
+  <div className="mx-auto grid w-full max-w-3xl gap-6 p-6 py-16">
+    <Suspense fallback={null}>
+      <HomeIntro />
+    </Suspense>
+    <div>
+      <Suspense fallback={null}>
+        <Digest />
+      </Suspense>
+    </div>
+  </div>
+);
 
 export default Home;
