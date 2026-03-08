@@ -92,69 +92,48 @@ const loadFeedbackPanelData = async (feedbackId: Feedback["id"]) => {
     return null;
   }
 
-  const [feedbackRow, feedbackUsers, feedbackOrganizations] = await Promise.all(
-    [
-      database
-        .select({
-          id: tables.feedback.id,
-          createdAt: tables.feedback.createdAt,
-          processed: tables.feedback.processed,
-          aiSentiment: tables.feedback.aiSentiment,
-          aiSentimentReason: tables.feedback.aiSentimentReason,
-          analysisSummary: tables.feedbackAnalysis.summary,
-          analysisOutcomes: tables.feedbackAnalysis.outcomes,
-          analysisPainPoints: tables.feedbackAnalysis.painPoints,
-          analysisRecommendations: tables.feedbackAnalysis.recommendations,
-          feedbackUserId: tables.feedbackUser.id,
-          feedbackUserName: tables.feedbackUser.name,
-          feedbackUserImageUrl: tables.feedbackUser.imageUrl,
-          feedbackOrganizationId: tables.feedbackOrganization.id,
-          feedbackOrganizationName: tables.feedbackOrganization.name,
-          feedbackOrganizationDomain: tables.feedbackOrganization.domain,
-        })
-        .from(tables.feedback)
-        .leftJoin(
-          tables.feedbackUser,
-          eq(tables.feedbackUser.id, tables.feedback.feedbackUserId)
-        )
-        .leftJoin(
-          tables.feedbackAnalysis,
-          eq(tables.feedbackAnalysis.feedbackId, tables.feedback.id)
-        )
-        .leftJoin(
-          tables.feedbackOrganization,
-          eq(
-            tables.feedbackOrganization.id,
-            tables.feedbackUser.feedbackOrganizationId
-          )
-        )
-        .where(
-          and(
-            eq(tables.feedback.id, feedbackId),
-            eq(tables.feedback.organizationId, organizationId)
-          )
-        )
-        .limit(1)
-        .then((rows) => rows[0] ?? null),
-      database
-        .select({
-          id: tables.feedbackUser.id,
-          name: tables.feedbackUser.name,
-          imageUrl: tables.feedbackUser.imageUrl,
-          email: tables.feedbackUser.email,
-        })
-        .from(tables.feedbackUser)
-        .where(eq(tables.feedbackUser.organizationId, organizationId)),
-      database
-        .select({
-          id: tables.feedbackOrganization.id,
-          name: tables.feedbackOrganization.name,
-          domain: tables.feedbackOrganization.domain,
-        })
-        .from(tables.feedbackOrganization)
-        .where(eq(tables.feedbackOrganization.organizationId, organizationId)),
-    ]
-  );
+  const feedbackRow = await database
+    .select({
+      id: tables.feedback.id,
+      createdAt: tables.feedback.createdAt,
+      processed: tables.feedback.processed,
+      aiSentiment: tables.feedback.aiSentiment,
+      aiSentimentReason: tables.feedback.aiSentimentReason,
+      analysisSummary: tables.feedbackAnalysis.summary,
+      analysisOutcomes: tables.feedbackAnalysis.outcomes,
+      analysisPainPoints: tables.feedbackAnalysis.painPoints,
+      analysisRecommendations: tables.feedbackAnalysis.recommendations,
+      feedbackUserId: tables.feedbackUser.id,
+      feedbackUserName: tables.feedbackUser.name,
+      feedbackUserImageUrl: tables.feedbackUser.imageUrl,
+      feedbackOrganizationId: tables.feedbackOrganization.id,
+      feedbackOrganizationName: tables.feedbackOrganization.name,
+      feedbackOrganizationDomain: tables.feedbackOrganization.domain,
+    })
+    .from(tables.feedback)
+    .leftJoin(
+      tables.feedbackUser,
+      eq(tables.feedbackUser.id, tables.feedback.feedbackUserId)
+    )
+    .leftJoin(
+      tables.feedbackAnalysis,
+      eq(tables.feedbackAnalysis.feedbackId, tables.feedback.id)
+    )
+    .leftJoin(
+      tables.feedbackOrganization,
+      eq(
+        tables.feedbackOrganization.id,
+        tables.feedbackUser.feedbackOrganizationId
+      )
+    )
+    .where(
+      and(
+        eq(tables.feedback.id, feedbackId),
+        eq(tables.feedback.organizationId, organizationId)
+      )
+    )
+    .limit(1)
+    .then((rows) => rows[0] ?? null);
 
   if (!feedbackRow) {
     return null;
@@ -163,8 +142,6 @@ const loadFeedbackPanelData = async (feedbackId: Feedback["id"]) => {
   return {
     user,
     feedback: buildFeedback(feedbackRow),
-    feedbackUsers,
-    feedbackOrganizations,
   };
 };
 
@@ -175,7 +152,7 @@ export const FeedbackPanel = async ({ feedbackId }: FeedbackPanelProps) => {
     return null;
   }
 
-  const { user, feedback, feedbackUsers, feedbackOrganizations } = data;
+  const { user, feedback } = data;
 
   const tabs = [
     {
@@ -302,8 +279,6 @@ export const FeedbackPanel = async ({ feedbackId }: FeedbackPanelProps) => {
             }
             defaultFeedbackUserId={feedback.feedbackUser?.id}
             feedbackId={feedbackId}
-            organizations={feedbackOrganizations}
-            users={feedbackUsers}
           />
         </div>
       )}

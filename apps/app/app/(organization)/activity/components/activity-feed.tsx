@@ -10,10 +10,14 @@ import type { MemberInfo } from "@/lib/serialization";
 import { ActivityDay } from "./activity-day";
 
 type ActivityFeedProperties = {
+  readonly initialPage?: GetActivityResponse;
   readonly members: MemberInfo[];
 };
 
-export const ActivityFeed = ({ members }: ActivityFeedProperties) => {
+export const ActivityFeed = ({
+  initialPage,
+  members,
+}: ActivityFeedProperties) => {
   const { data, isLoading, isValidating, setSize, size } =
     useSWRInfinite<GetActivityResponse>(
       (pageIndex) =>
@@ -22,7 +26,11 @@ export const ActivityFeed = ({ members }: ActivityFeedProperties) => {
           new URLSearchParams({ page: String(pageIndex) })
         ),
       async (key: string) => deserializeActivityPage(await fetcher(key)),
-      { onError: handleError, revalidateFirstPage: false }
+      {
+        fallbackData: initialPage ? [initialPage] : undefined,
+        onError: handleError,
+        revalidateFirstPage: false,
+      }
     );
   const activityPages = data?.map(normalizeActivityPage);
 

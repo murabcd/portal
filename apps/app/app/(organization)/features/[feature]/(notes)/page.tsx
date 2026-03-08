@@ -6,7 +6,7 @@ import {
   tables,
 } from "@repo/backend/database";
 import type { JSONContent } from "@repo/editor";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { FeatureEditor } from "./components/feature-editor";
@@ -31,11 +31,16 @@ const FeaturePageContent = async (props: FeaturePageProperties) => {
     notFound();
   }
 
-  const [feature, templates, organization] = await Promise.all([
+  const [feature, templates] = await Promise.all([
     database
       .select({ id: tables.feature.id, title: tables.feature.title })
       .from(tables.feature)
-      .where(eq(tables.feature.id, params.feature))
+      .where(
+        and(
+          eq(tables.feature.id, params.feature),
+          eq(tables.feature.organizationId, organizationId)
+        )
+      )
       .limit(1)
       .then((rows) => rows[0] ?? null),
     database
@@ -44,16 +49,11 @@ const FeaturePageContent = async (props: FeaturePageProperties) => {
         title: tables.template.title,
         description: tables.template.description,
       })
-      .from(tables.template),
-    database
-      .select({ id: tables.organization.id })
-      .from(tables.organization)
-      .where(eq(tables.organization.id, organizationId))
-      .limit(1)
-      .then((rows) => rows[0] ?? null),
+      .from(tables.template)
+      .where(eq(tables.template.organizationId, organizationId)),
   ]);
 
-  if (!(feature && organization)) {
+  if (!feature) {
     notFound();
   }
 
@@ -63,24 +63,11 @@ const FeaturePageContent = async (props: FeaturePageProperties) => {
     feature.id
   );
 
-  const templatePromises = templates.map(async (template) => {
-    const templateContent = await getJsonColumnFromTable(
-      "template",
-      "content",
-      template.id
-    );
-
-    const newTemplate: TemplateProperties = {
-      id: template.id,
-      title: template.title,
-      description: template.description,
-      content: templateContent,
-    };
-
-    return newTemplate;
-  });
-
-  const modifiedTemplates = await Promise.all(templatePromises);
+  const modifiedTemplates: TemplateProperties[] = templates.map((template) => ({
+    id: template.id,
+    title: template.title,
+    description: template.description,
+  }));
 
   return (
     <div className="w-full px-6 py-16">

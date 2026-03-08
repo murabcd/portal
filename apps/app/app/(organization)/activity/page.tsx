@@ -2,6 +2,7 @@ import { currentMembers } from "@repo/backend/auth/utils";
 import { createMetadata } from "@repo/lib/metadata";
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { getActivity } from "@/actions/activity/get";
 import { toMemberInfoList } from "@/lib/serialization";
 import { ActivityFeed } from "./components/activity-feed";
 
@@ -14,10 +15,14 @@ export const metadata: Metadata = createMetadata({
 });
 
 const ActivityContent = async () => {
-  const members = await currentMembers();
+  const [members, firstPage] = await Promise.all([
+    currentMembers(),
+    getActivity(0),
+  ]);
   const membersLite = toMemberInfoList(members);
+  const initialPage = "data" in firstPage ? firstPage.data : undefined;
 
-  return <ActivityFeed members={membersLite} />;
+  return <ActivityFeed initialPage={initialPage} members={membersLite} />;
 };
 
 const Activity = () => (

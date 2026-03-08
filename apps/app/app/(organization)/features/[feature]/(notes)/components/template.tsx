@@ -8,8 +8,10 @@ import type { ReactNode } from "react";
 
 export type TemplateProperties = Pick<
   TemplateClass,
-  "description" | "id" | "title" | "content"
->;
+  "description" | "id" | "title"
+> & {
+  readonly content?: TemplateClass["content"];
+};
 
 const Editor = dynamic(
   async () => {
@@ -48,11 +50,20 @@ export const Template = ({
     )}
   >
     <div className="flex-1 overflow-hidden p-3">
-      <div className="origin-top scale-50">
-        <div className="-ml-[50%] h-[200%] w-[200%]">
-          <Editor defaultValue={content as JSONContent} editable={false} />
+      {content ? (
+        <div className="origin-top scale-50">
+          <div className="-ml-[50%] h-[200%] w-[200%]">
+            <Editor defaultValue={content as JSONContent} editable={false} />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="grid h-full gap-3 rounded-md border border-dashed p-3">
+          <div className="h-4 w-2/3 rounded bg-muted" />
+          <div className="h-4 w-full rounded bg-muted" />
+          <div className="h-4 w-5/6 rounded bg-muted" />
+          <div className="h-24 rounded bg-muted/60" />
+        </div>
+      )}
     </div>
     <div className="flex shrink-0 items-start justify-between gap-4 p-3">
       <div>

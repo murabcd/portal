@@ -99,7 +99,11 @@ const OrganizationLayoutContent = async ({
         </div>
       </SidebarInset>
       <Suspense fallback={null}>
-        <Forms />
+        <Forms
+          organizationRole={sidebarUser.organizationRole}
+          userEmail={safeUser.email || undefined}
+          userId={safeUser.id}
+        />
       </Suspense>
     </SidebarProvider>
   );

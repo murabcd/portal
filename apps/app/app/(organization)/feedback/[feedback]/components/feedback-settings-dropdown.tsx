@@ -14,20 +14,17 @@ import { handleError } from "@repo/design-system/lib/handle-error";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useReducer } from "react";
+import useSWR from "swr";
 import { deleteFeedback } from "@/actions/feedback/delete";
 import { updateFeedback } from "@/actions/feedback/update";
 import { FeedbackOrganizationPicker } from "@/components/feedback-form/feedback-organization-picker";
 import { FeedbackUserPicker } from "@/components/feedback-form/feedback-user-picker";
+import { fetcher } from "@/lib/fetcher";
 
 type FeedbackSettingsDropdownProperties = {
   readonly feedbackId: Feedback["id"];
   readonly defaultFeedbackUserId: string | undefined;
   readonly defaultFeedbackOrganizationId: string | undefined;
-  readonly users: Pick<FeedbackUser, "email" | "id" | "imageUrl" | "name">[];
-  readonly organizations: Pick<
-    FeedbackOrganization,
-    "domain" | "id" | "name"
-  >[];
 };
 
 type FeedbackSettingsState = {
@@ -80,8 +77,6 @@ export const FeedbackSettingsDropdown = ({
   feedbackId,
   defaultFeedbackUserId,
   defaultFeedbackOrganizationId,
-  users,
-  organizations,
 }: FeedbackSettingsDropdownProperties) => {
   const [state, dispatch] = useReducer(
     feedbackSettingsReducer,
@@ -100,6 +95,20 @@ export const FeedbackSettingsDropdown = ({
     loading,
   } = state;
   const router = useRouter();
+  const { data, isLoading: isLoadingOptions } = useSWR<{
+    readonly organizations: Pick<
+      FeedbackOrganization,
+      "domain" | "id" | "name"
+    >[];
+    readonly users: Pick<
+      FeedbackUser,
+      "email" | "feedbackOrganizationId" | "id" | "imageUrl" | "name"
+    >[];
+  }>(changeUserOpen ? "/api/forms/feedback" : null, fetcher, {
+    keepPreviousData: true,
+    onError: handleError,
+    revalidateOnFocus: false,
+  });
 
   const handleDelete = async () => {
     if (loading) {
@@ -125,7 +134,7 @@ export const FeedbackSettingsDropdown = ({
   };
 
   const handleChangeUser = async () => {
-    if (loading) {
+    if (loading || isLoadingOptions) {
       return;
     }
 
@@ -184,7 +193,7 @@ export const FeedbackSettingsDropdown = ({
       <Dialog
         cta="Save"
         description="Who submitted this feedback?"
-        disabled={loading}
+        disabled={loading || isLoadingOptions}
         onClick={handleChangeUser}
         onOpenChange={(value) =>
           dispatch({ type: "set-change-user-open", value })
@@ -192,34 +201,38 @@ export const FeedbackSettingsDropdown = ({
         open={changeUserOpen}
         title="Change user"
       >
-        <div className="flex items-center gap-2">
-          <FeedbackUserPicker
-            onChange={(value) =>
-              dispatch({ type: "set-feedback-user-id", value })
-            }
-            usersData={users.map((user) => ({
-              value: user.id,
-              label: user.name,
-              image: user.imageUrl,
-              email: user.email,
-            }))}
-            value={feedbackUserId}
-          />
-          {feedbackUserId ? (
-            <FeedbackOrganizationPicker
-              feedbackUser={feedbackUserId}
+        {data ? (
+          <div className="flex items-center gap-2">
+            <FeedbackUserPicker
               onChange={(value) =>
-                dispatch({ type: "set-feedback-organization-id", value })
+                dispatch({ type: "set-feedback-user-id", value })
               }
-              organizationsData={organizations.map((organization) => ({
-                value: organization.id,
-                label: organization.name,
-                image: organization.domain,
+              usersData={data.users.map((user) => ({
+                value: user.id,
+                label: user.name,
+                image: user.imageUrl ?? "",
+                email: user.email ?? "",
               }))}
-              value={feedbackOrganizationId}
+              value={feedbackUserId}
             />
-          ) : null}
-        </div>
+            {feedbackUserId ? (
+              <FeedbackOrganizationPicker
+                feedbackUser={feedbackUserId}
+                onChange={(value) =>
+                  dispatch({ type: "set-feedback-organization-id", value })
+                }
+                organizationsData={data.organizations.map((organization) => ({
+                  value: organization.id,
+                  label: organization.name,
+                  image: organization.domain ?? "",
+                }))}
+                value={feedbackOrganizationId}
+              />
+            ) : null}
+          </div>
+        ) : (
+          <p className="text-muted-foreground text-sm">Loading options…</p>
+        )}
       </Dialog>
     </>
   );
