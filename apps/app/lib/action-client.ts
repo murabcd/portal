@@ -1,6 +1,12 @@
 "use client";
 
 import { mutate } from "swr";
+import {
+  adminFormsKey,
+  adminMetaKey,
+  feedbackFormsKey,
+  feedbackLinkKeyPrefix,
+} from "@/lib/swr-keys";
 
 type ActionPayload = {
   readonly action: string;
@@ -39,6 +45,20 @@ const getRevalidationPrefixes = (path: string) => {
     prefixes.add(feedbackPrefix);
     prefixes.add(usersPrefix);
     prefixes.add(companiesPrefix);
+    prefixes.add(feedbackFormsKey);
+    prefixes.add(feedbackLinkKeyPrefix);
+  }
+
+  if (
+    path.includes("/product") ||
+    path.includes("/group") ||
+    path.includes("/atlassian-installation")
+  ) {
+    prefixes.add(adminFormsKey);
+  }
+
+  if (path.includes("/product") || path.includes("/group")) {
+    prefixes.add(adminMetaKey);
   }
 
   if (path.includes("/changelog")) {

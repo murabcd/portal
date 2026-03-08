@@ -1,8 +1,9 @@
 import type { Feedback } from "@repo/backend/types";
 import { handleError } from "@repo/design-system/lib/handle-error";
 import { NodeViewWrapper } from "@repo/editor";
-import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { FeedbackItem } from "@/app/(organization)/feedback/components/feedback-item";
+import { getFeedbackLinkKey } from "@/lib/swr-keys";
 import type { FetchLinkResponse } from "./fetch-link";
 import { fetchLink } from "./fetch-link";
 
@@ -13,14 +14,9 @@ type FeedbackLinkComponentProperties = {
 export const FeedbackLinkComponent = ({
   id,
 }: FeedbackLinkComponentProperties) => {
-  const [data, setData] = useState<FetchLinkResponse | null>(null);
-
-  useEffect(() => {
-    if (data) {
-      return;
-    }
-
-    const loadData = async () => {
+  const { data } = useSWR<FetchLinkResponse>(
+    getFeedbackLinkKey(id),
+    async () => {
       const response = await fetchLink(id);
 
       if (response.error) {
@@ -32,10 +28,11 @@ export const FeedbackLinkComponent = ({
       }
 
       return response.data;
-    };
-
-    loadData().then(setData).catch(handleError);
-  }, [data, id]);
+    },
+    {
+      onError: handleError,
+    }
+  );
 
   if (!data) {
     return null;
