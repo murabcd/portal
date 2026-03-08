@@ -8,7 +8,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.74",
+    "@ai-sdk/openai": "^3.0.41",
     "@repo/atlassian": "workspace:*",
     "@repo/backend": "workspace:*",
     "@repo/editor": "workspace:*",
@@ -17,13 +17,16 @@
     "@t3-oss/env-nextjs": "catalog:",
     "ai": "catalog:",
     "date-fns": "catalog:",
+    "drizzle-orm": "^0.45.1",
     "next": "catalog:",
+    "pg": "^8.20.0",
     "react": "catalog:",
     "react-dom": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "@types/pg": "^8.18.0",
     "@types/react": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:"

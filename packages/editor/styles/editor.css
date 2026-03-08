@@ -22,10 +22,10 @@
   @apply relative;
 
   &::before {
-    @apply absolute left-1/2 top-1/2 w-9 h-9 border-[3px] border-t rounded-[50%] box-border;
+    content: "";
 
     animation: spinning 0.6s linear infinite;
-    content: "";
+    @apply absolute left-1/2 top-1/2 w-9 h-9 border-[3px] border-t rounded-[50%] box-border;
   }
 }
 
@@ -61,9 +61,9 @@ ul[data-type="taskList"] li > label input[type="checkbox"] {
   &::before {
     width: 0.65em;
     height: 0.65em;
+    content: "";
     box-shadow: inset 1em 1em;
     clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-    content: "";
     transform: scale(0);
     transform-origin: center;
     transition: 120ms transform ease-in-out;
@@ -75,9 +75,8 @@ ul[data-type="taskList"] li > label input[type="checkbox"] {
 }
 
 ul[data-type="taskList"] li[data-checked="true"] > div > p {
-  @apply line-through text-muted-foreground;
-
   text-decoration-thickness: 2px;
+  @apply line-through text-muted-foreground;
 }
 
 /* Overwrite tippy-box original max-width */
@@ -140,11 +139,11 @@ div[data-panel-type="error"] {
 
 /* For desktop */
 .anchored-threads {
-  display: block;
-  max-width: 300px;
-  width: 100%;
   position: absolute;
   right: 12px;
+  display: block;
+  width: 100%;
+  max-width: 300px;
 }
 
 @media (max-width: 640px) {

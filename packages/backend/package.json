@@ -12,12 +12,12 @@
   },
   "dependencies": {
     "@repo/lib": "workspace:*",
-    "@supabase/supabase-js": "^2.49.7",
+    "@supabase/supabase-js": "^2.98.0",
     "@t3-oss/env-nextjs": "catalog:",
-    "better-auth": "^1.4.0",
+    "better-auth": "^1.5.4",
     "drizzle-orm": "^0.45.1",
     "nanoid": "catalog:",
-    "pg": "^8.13.1",
+    "pg": "^8.20.0",
     "react": "catalog:",
     "server-only": "catalog:",
     "zod": "catalog:"
@@ -25,9 +25,9 @@
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
-    "@types/pg": "^8.10.9",
+    "@types/pg": "^8.18.0",
     "@types/react": "catalog:",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.3.1",
     "drizzle-kit": "^0.31.9",
     "next": "catalog:",
     "typescript": "catalog:"

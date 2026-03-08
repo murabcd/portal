@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import type { ReactPlayerProps } from "react-player";
+import type { ReactPlayerProps } from "react-player/types";
 import { cn } from "../lib/utils";
 
 const Placeholder = ({ className }: { readonly className?: string }) => (
@@ -38,14 +38,7 @@ const Placeholder = ({ className }: { readonly className?: string }) => (
 );
 
 const Player = dynamic<ReactPlayerProps>(
-  async () => {
-    const player = await import(
-      /* webpackChunkName: 'player' */
-      "react-player/lazy"
-    );
-
-    return player.default;
-  },
+  async () => (await import("react-player")).default,
   {
     ssr: false,
     loading: () => <Placeholder />,
@@ -78,9 +71,9 @@ export const Video = ({
       <Placeholder className={loaded ? "opacity-0" : "opacity-100"} />
       <Player
         height={height ?? "100%"}
-        onReady={(player) => {
+        onReady={() => {
           setLoaded(true);
-          onReady?.(player);
+          onReady?.();
         }}
         style={{
           position: "absolute",

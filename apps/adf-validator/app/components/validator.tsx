@@ -3,7 +3,6 @@
 import schema from "@atlaskit/adf-schema/dist/json-schema/v1/full.json";
 import { convertToAdf } from "@repo/editor/lib/jira";
 import Ajv from "ajv-draft-04";
-// @ts-expect-error no types
 import betterAjvErrors from "better-ajv-errors";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";

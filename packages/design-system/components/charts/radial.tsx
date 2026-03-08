@@ -12,7 +12,7 @@ import {
 
 export type RadialChartProperties = {
   readonly config: ChartConfig;
-  readonly data: ComponentProps<typeof RadialBar>["data"];
+  readonly data: ComponentProps<typeof RadialBarChart>["data"];
   readonly dataKey: ComponentProps<typeof RadialBar>["dataKey"];
   readonly nameKey: ComponentProps<typeof ChartTooltipContent>["nameKey"];
   readonly className?: string;

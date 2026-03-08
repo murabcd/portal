@@ -25,7 +25,9 @@ export const POST = async (request: Request): Promise<Response> => {
   }
 
   const transcript = await transcribe({
-    model: openai.transcription("whisper-1"),
+    model: openai.transcription("whisper-1") as unknown as Parameters<
+      typeof transcribe
+    >[0]["model"],
     audio: new URL(body.record.videoUrl ?? (body.record.audioUrl as string)),
   });
 

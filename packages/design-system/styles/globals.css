@@ -201,10 +201,10 @@
   --size: 5rem;
   --thickness: calc(var(--size) / 15);
 
-  @apply relative inline-grid box-content rounded-full bg-transparent font-semibold place-content-center align-middle;
-
   width: var(--size);
   height: var(--size);
+
+  @apply relative inline-grid box-content rounded-full bg-transparent font-semibold place-content-center align-middle;
 
   &::before,
   &::after {
@@ -212,8 +212,6 @@
   }
 
   &::before {
-    @apply inset-0;
-
     background:
       radial-gradient(farthest-side, currentColor 98%, #0000) top /
       var(--thickness) var(--thickness) no-repeat,
@@ -223,22 +221,20 @@
       #0000 calc(99% - var(--thickness)),
       #000 calc(100% - var(--thickness))
     );
+    @apply inset-0;
   }
 
   &::after {
-    @apply bg-current;
-
     inset: calc(50% - var(--thickness) / 2);
     transform: rotate(calc(var(--value) * 3.6deg - 90deg))
       translate(calc(var(--size) / 2 - 50%));
+    @apply bg-current;
   }
 }
 
 .animated-border:hover {
   --border-size: 13px;
   --border-angle: 0turn;
-
-  animation: bg-animated-border 10s linear infinite;
   background-image:
     conic-gradient(from var(--border-angle), #213, #112 50%, #213),
     conic-gradient(
@@ -247,11 +243,13 @@
       rgb(255 255 255 / 10%),
       rgb(255 255 255 / 20%)
     );
-  background-position: center center;
   background-repeat: no-repeat;
+  background-position: center center;
   background-size:
     calc(100% - (var(--border-size) * 2)) calc(100% - (var(--border-size) * 2)),
     cover;
+
+  animation: bg-animated-border 10s linear infinite;
 }
 
 @keyframes bg-animated-border {
@@ -312,8 +310,8 @@ div:has(> table) {
 }
 
 .shiki {
-  background-color: var(--shiki-light-bg);
   color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
 }
 
 .shiki span {
@@ -321,8 +319,8 @@ div:has(> table) {
 }
 
 .dark .shiki {
-  background-color: var(--shiki-dark-bg);
   color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
   @apply border-neutral-700;
 }
 

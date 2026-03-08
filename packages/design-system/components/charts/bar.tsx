@@ -15,7 +15,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "../ui/chart";
 
 export type BarChartProperties = {
   readonly config: ChartConfig;
-  readonly data: ComponentProps<typeof Bar>["data"];
+  readonly data: ComponentProps<typeof BarChartComponent>["data"];
   readonly color: string;
   readonly className?: string;
   readonly yAxisKey: ComponentProps<typeof YAxis>["dataKey"];
@@ -52,7 +52,7 @@ export const BarChart = ({
         content={<ChartTooltipContent indicator="line" />}
         cursor={false}
       />
-      <Bar dataKey="count" fill={color} layout="vertical" radius={4}>
+      <Bar dataKey="count" fill={color} radius={4}>
         <LabelList
           className="fill-background"
           dataKey="name"

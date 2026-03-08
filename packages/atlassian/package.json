@@ -12,6 +12,6 @@
     "typescript": "catalog:"
   },
   "dependencies": {
-    "openapi-fetch": "^0.14.0"
+    "openapi-fetch": "^0.17.0"
   }
 }
